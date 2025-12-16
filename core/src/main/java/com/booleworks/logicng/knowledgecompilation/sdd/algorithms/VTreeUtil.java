@@ -37,11 +37,11 @@ public final class VTreeUtil {
      * variables in {@code variables} must be stored in the currently active
      * VTree, otherwise a call results in undefined behaviour.</li>
      * </ul>
-     * @param variables the variables
      * @param sdd       the SDD container
+     * @param variables the variables
      * @return the lowest common ancestor of {@code variables}
      */
-    public static VTree lcaFromVariables(final Collection<Integer> variables, final Sdd sdd) {
+    public static VTree lcaFromVariables(final Sdd sdd, final Collection<Integer> variables) {
         assert sdd.hasVTree();
         int posMax = Integer.MIN_VALUE;
         int posMin = Integer.MAX_VALUE;

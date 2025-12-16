@@ -34,31 +34,29 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-class SddCompilerTopDown {
-    protected final Sdd sf;
+public class SddCompilerTopDown {
+    protected final Sdd sdd;
     protected final FormulaFactory f;
     protected final Set<Integer> relevantVars;
 
     protected final Caches caches;
     protected final SddSatSolver solver;
 
-    protected SddCompilerTopDown(final Set<Integer> relevantVars, final Caches caches, final SddSatSolver solver,
-                                 final Sdd sf) {
-        this.sf = sf;
-        this.f = sf.getFactory();
+    protected SddCompilerTopDown(final Sdd sdd, final SddSatSolver solver, final Set<Integer> relevantVars,
+                                 final Caches caches) {
+        this.sdd = sdd;
+        this.f = sdd.getFactory();
         this.caches = caches;
         this.solver = solver;
         this.relevantVars = relevantVars;
     }
 
-    protected static LngResult<SddNode> compile(final Set<Variable> variables,
-                                                final DTree dTree, final Sdd sdd,
-                                                final SddSatSolver solver,
-                                                final ComputationHandler handler) {
+    protected static LngResult<SddNode> compile(final Sdd sdd, final SddSatSolver solver, final Set<Variable> variables,
+                                                final DTree dTree, final ComputationHandler handler) {
         final Caches caches = new Caches();
         generateClauseMasks(sdd.getVTree().getRoot(), dTree, caches);
-        final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        final LngResult<SddNode> res = new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
+        final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(sdd, variables, new HashSet<>());
+        final LngResult<SddNode> res = new SddCompilerTopDown(sdd, solver, relevantVars, caches).start(handler);
         clearVTreeCaches(sdd.getVTree().getRoot());
         return res;
     }
@@ -158,12 +156,12 @@ class SddCompilerTopDown {
 
     protected LngResult<SddNode> start(final ComputationHandler handler) {
         if (!solver.start()) {
-            return LngResult.of(sf.falsum());
+            return LngResult.of(sdd.falsum());
         }
         if (!handler.shouldResume(SDD_COMPUTATION_STARTED)) {
             return LngResult.canceled(SDD_COMPUTATION_STARTED);
         }
-        return cnf2sdd(sf.getVTree().getRoot(), handler);
+        return cnf2sdd(sdd.getVTree().getRoot(), handler);
     }
 
     protected LngResult<SddNode> cnf2sdd(final VTree tree, final ComputationHandler handler) {
@@ -181,13 +179,13 @@ class SddCompilerTopDown {
     protected LngResult<SddNode> cnf2sddLeaf(final VTreeLeaf leaf, final ComputationHandler handler) {
         final int solverVarIdx = leaf.getVariable();
         if (!relevantVars.contains(solverVarIdx)) {
-            return LngResult.of(sf.verum());
+            return LngResult.of(sdd.verum());
         }
         final int implied = solver.impliedLiteral(solverVarIdx);
         if (implied != -1) {
-            return LngResult.of(sf.terminal(leaf, !sign(implied)));
+            return LngResult.of(sdd.terminal(leaf, !sign(implied)));
         } else {
-            return LngResult.of(sf.verum());
+            return LngResult.of(sdd.verum());
         }
     }
 
@@ -210,7 +208,7 @@ class SddCompilerTopDown {
             invalidateCache(treeInternal);
             return subResult;
         }
-        return LngResult.of(unique(prime, sub, sf.negate(prime), sf.falsum()));
+        return LngResult.of(unique(prime, sub, sdd.negate(prime), sdd.falsum()));
     }
 
     protected LngResult<SddNode> cnf2sddShannon(final VTreeInternal treeInternal,
@@ -230,7 +228,7 @@ class SddCompilerTopDown {
             if (!relevantVars.contains(solverVarIdx)) {
                 return cnf2sdd(treeInternal.getRight(), handler);
             }
-            final SddNode prime = sf.terminal(varLeaf, !sign(implied));
+            final SddNode prime = sdd.terminal(varLeaf, !sign(implied));
             final LngResult<SddNode> subResult = cnf2sdd(treeInternal.getRight(), handler);
             if (!subResult.isSuccess()) {
                 return subResult;
@@ -239,7 +237,7 @@ class SddCompilerTopDown {
             if (sub.isFalse()) {
                 return subResult;
             }
-            return LngResult.of(unique(prime, sub, sf.negate(prime), sf.falsum()));
+            return LngResult.of(unique(prime, sub, sdd.negate(prime), sdd.falsum()));
         }
         final SddNode positive;
         if (solver.decide(solverVarIdx, true)) {
@@ -250,7 +248,7 @@ class SddCompilerTopDown {
             }
             positive = positiveResult.getResult();
         } else {
-            positive = sf.falsum();
+            positive = sdd.falsum();
         }
         solver.undoDecide(solverVarIdx);
         if (positive.isFalse()) {
@@ -270,7 +268,7 @@ class SddCompilerTopDown {
             }
             negative = negativeResult.getResult();
         } else {
-            negative = sf.falsum();
+            negative = sdd.falsum();
         }
         solver.undoDecide(solverVarIdx);
         if (negative.isFalse()) {
@@ -282,11 +280,11 @@ class SddCompilerTopDown {
         }
         final SddNode alpha;
         if (relevantVars.contains(varLeaf.getVariable())) {
-            final SddNode lit = sf.terminal(varLeaf, true);
-            final SddNode litNeg = sf.terminal(varLeaf, false);
+            final SddNode lit = sdd.terminal(varLeaf, true);
+            final SddNode litNeg = sdd.terminal(varLeaf, false);
             alpha = unique(lit, positive, litNeg, negative);
         } else {
-            final LngResult<SddNode> disjunction = sf.disjunction(positive, negative, handler);
+            final LngResult<SddNode> disjunction = sdd.disjunction(positive, negative, handler);
             if (!disjunction.isSuccess()) {
                 return disjunction;
             }
@@ -364,7 +362,7 @@ class SddCompilerTopDown {
         if (!p2.isFalse()) {
             elements.add(new SddElement(p2, s2));
         }
-        return sf.decompOfCompressedPartition(elements);
+        return sdd.decompOfCompressedPartition(elements);
     }
 
     protected static class Caches {

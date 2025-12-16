@@ -19,8 +19,8 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class BalancedVTreeGenerator implements VTreeGenerator {
-    private final Set<Variable> variables;
+public class BalancedVTreeGenerator implements VTreeGenerator {
+    protected final Set<Variable> variables;
 
     /**
      * Construct new vtree generator function for the given variables.
@@ -42,8 +42,8 @@ public final class BalancedVTreeGenerator implements VTreeGenerator {
         return LngResult.of(generateRec(builder, varSet, 0, varSet.size() - 1));
     }
 
-    private VTree generateRec(final VTreeRoot.Builder builder, final ArrayList<Variable> variables, final int first,
-                              final int last) {
+    protected VTree generateRec(final VTreeRoot.Builder builder, final ArrayList<Variable> variables, final int first,
+                                final int last) {
         if (first == last) {
             return builder.vTreeLeaf(variables.get(first));
         } else {

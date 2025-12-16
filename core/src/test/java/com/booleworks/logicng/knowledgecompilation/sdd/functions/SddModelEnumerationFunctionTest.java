@@ -37,12 +37,12 @@ public class SddModelEnumerationFunctionTest {
     @Test
     public void testTrivial() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddCompilationResult compRes = SddCompiler.compile(f.verum(), f);
+        final SddCompilationResult compRes = SddCompiler.compile(f, f.verum());
         final Sdd sdd = compRes.getSdd();
         final SddModelEnumerationFunction meFunc1 =
-                SddModelEnumerationFunction.builder(f.variables(), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, f.variables()).build();
         final SddModelEnumerationFunction meFunc2 =
-                SddModelEnumerationFunction.builder(f.variables("A", "B"), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, f.variables("A", "B")).build();
         check(sdd.verum(), f.verum(), meFunc1, sdd);
         check(sdd.verum(), f.verum(), meFunc2, sdd);
         check(sdd.falsum(), f.falsum(), meFunc1, sdd);
@@ -53,10 +53,10 @@ public class SddModelEnumerationFunctionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
-                SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, f.variables("A", "B", "C", "D", "E")).build();
         check(res.getNode(), formula, meFunc, sdd);
     }
 
@@ -64,12 +64,12 @@ public class SddModelEnumerationFunctionTest {
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = descendant.execute(new SddExportFormula(sdd));
         final SddModelEnumerationFunction meFunc =
-                SddModelEnumerationFunction.builder(subformula.variables(f), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, subformula.variables(f)).build();
         check(descendant, subformula, meFunc, sdd);
     }
 
@@ -77,10 +77,10 @@ public class SddModelEnumerationFunctionTest {
     public void testEvents() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
-                SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, f.variables("A", "B", "C", "D", "E")).build();
 
         final AtomicInteger startedCalls = new AtomicInteger(0);
         final AtomicInteger foundModels = new AtomicInteger(0);
@@ -107,10 +107,10 @@ public class SddModelEnumerationFunctionTest {
     public void testLimitModels() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
-                SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
+                SddModelEnumerationFunction.builder(sdd, f.variables("A", "B", "C", "D", "E")).build();
 
         final LngResult<List<Model>> models = res.getNode().execute(meFunc, new NumberOfModelsHandler(4));
         assertThat(models.isPartial()).isTrue();
@@ -163,10 +163,10 @@ public class SddModelEnumerationFunctionTest {
     private static void compileAndCheck(final Formula formula, final Set<Variable> vars,
                                         final Set<Variable> additionals,
                                         final FormulaFactory f) {
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc = SddModelEnumerationFunction
-                .builder(vars, sdd)
+                .builder(sdd, vars)
                 .additionalVariables(additionals)
                 .build();
         check(res.getNode(), formula, meFunc, sdd);

@@ -25,8 +25,8 @@ import java.util.ArrayList;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SddExportFormula implements SddFunction<Formula> {
-    public final Sdd sdd;
+public class SddExportFormula implements SddFunction<Formula> {
+    protected final Sdd sdd;
 
     /**
      * Constructs a function that exports an SDD as a propositional
@@ -46,7 +46,7 @@ public final class SddExportFormula implements SddFunction<Formula> {
         return LngResult.of(applyRec(node));
     }
 
-    private Formula applyRec(final SddNode node) {
+    protected Formula applyRec(final SddNode node) {
         final FormulaFactory f = sdd.getFactory();
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();

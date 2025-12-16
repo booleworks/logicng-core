@@ -43,17 +43,17 @@ public class SddEvaluationTest {
                 .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
                 .sdd(sdd)
                 .build();
-        final SddNode res = SddCompiler.compile(cnf, config, f).getNode();
-        final SddNode neg = SddCompiler.compile(cnfNeg, config, f).getNode();
+        final SddNode res = SddCompiler.compile(f, cnf, config).getNode();
+        final SddNode neg = SddCompiler.compile(f, cnfNeg, config).getNode();
         final List<Model> models =
-                res.execute(SddModelEnumerationFunction.builder(cnf.variables(f), sdd).build());
+                res.execute(SddModelEnumerationFunction.builder(sdd, cnf.variables(f)).build());
         final List<Model> negModels =
-                neg.execute(SddModelEnumerationFunction.builder(cnf.variables(f), sdd).build());
+                neg.execute(SddModelEnumerationFunction.builder(sdd, cnf.variables(f)).build());
         for (final Model model : models) {
-            assertThat(SddEvaluation.evaluate(model.toAssignment(), res, sdd)).isTrue();
+            assertThat(SddEvaluation.evaluate(sdd, model.toAssignment(), res)).isTrue();
         }
         for (final Model notModel : negModels) {
-            assertThat(SddEvaluation.evaluate(notModel.toAssignment(), res, sdd)).isFalse();
+            assertThat(SddEvaluation.evaluate(sdd, notModel.toAssignment(), res)).isFalse();
         }
     }
 }

@@ -347,7 +347,7 @@ public final class Sdd {
      * compressed and trimmed.
      * <p>
      * The caller is responsible to ensure that the elements adhere to the
-     * structure of the active vtree of this container.
+     * structure of the vtree of this container.
      * @param newElements the elements for the decomposition node
      * @return the decomposition node
      */
@@ -361,7 +361,7 @@ public final class Sdd {
      * compressed and trimmed.
      * <p>
      * The caller is responsible to ensure that the elements adhere to the
-     * structure of the active vtree of this container.
+     * structure of the vtree of this container.
      * @param newElements the elements for the decomposition node
      * @param handler     the computation handler
      * @return the decomposition node or the canceling cause if the computation
@@ -371,7 +371,7 @@ public final class Sdd {
                                                 final ComputationHandler handler) {
         newElements.sort(SddElement::compareTo);
         final LngResult<Pair<SddNode, ArrayList<SddElement>>> res =
-                SddCompression.compressAndTrim(newElements, this, handler);
+                SddCompression.compressAndTrim(this, newElements, handler);
         if (!res.isSuccess()) {
             return LngResult.canceled(res.getCancelCause());
         }
@@ -388,7 +388,7 @@ public final class Sdd {
      * trimmed.
      * <p>
      * The caller is responsible to ensure that the elements adhere to the
-     * structure of the active vtree of this container.
+     * structure of the vtree of this container.
      * @param newElements the elements for the decomposition node
      * @return the decomposition node
      */
@@ -404,7 +404,7 @@ public final class Sdd {
         if (cached != null) {
             return cached;
         }
-        final VTree vTree = SddUtil.lcaOfCompressedElements(elements, this);
+        final VTree vTree = SddUtil.lcaOfCompressedElements(this, elements);
         final SddNodeDecomposition newNode =
                 new SddNodeDecomposition(currentSddId++, vTree, elements);
         sddDecompositions.put(elements, newNode);
@@ -414,10 +414,7 @@ public final class Sdd {
     /**
      * Returns (and computes if not cached) the conjunction of two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left    the first node
      * @param right   the second node
      * @param handler the computation handler
@@ -431,10 +428,7 @@ public final class Sdd {
     /**
      * Returns (and computes if not cached) the conjunction of two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left  the first node
      * @param right the second node
      * @return the conjunction
@@ -444,44 +438,9 @@ public final class Sdd {
     }
 
     /**
-     * <strong>Do not use this function!</strong> An optimized conjunction
-     * operator for joining two SDD nodes with disjunct variables.
-     * @param left  the first node
-     * @param right the second node
-     * @return the conjunction
-     */
-    public SddNode conjunctionUnsafe(final SddNode left, final SddNode right) {
-        assert left != null && right != null;
-        if (left.isFalse() || right.isFalse()) {
-            return falsum();
-        }
-        if (left.isTrue()) {
-            return right;
-        }
-        if (right.isTrue()) {
-            return left;
-        }
-
-        final SddNode cached = lookupApplyComputation(left, right, SddApply.Operation.CONJUNCTION);
-        if (cached != null) {
-            return cached;
-        }
-
-        final ArrayList<SddElement> newElements = new ArrayList<>();
-        newElements.add(new SddElement(left, right));
-        newElements.add(new SddElement(negate(left), falsum()));
-        final SddNode newNode = decompOfCompressedPartition(newElements);
-        cacheApplyComputation(left, right, newNode, SddApply.Operation.CONJUNCTION);
-        return newNode;
-    }
-
-    /**
      * Returns (and computes if not cached) the disjunction of two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left    the first node
      * @param right   the second node
      * @param handler the computation handler
@@ -495,10 +454,7 @@ public final class Sdd {
     /**
      * Returns (and computes if not cached) the disjunction of two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left  the first node
      * @param right the second node
      * @return the disjunction
@@ -511,10 +467,7 @@ public final class Sdd {
      * Returns (and computes if not cached) the SDD node resulting from the
      * application of a binary operation on two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left    the first SDD node
      * @param right   the second SDD node
      * @param op      the binary operation
@@ -528,7 +481,7 @@ public final class Sdd {
         if (cached != null) {
             return LngResult.of(cached);
         }
-        final LngResult<SddNode> result = SddApply.apply(left, right, op, this, handler);
+        final LngResult<SddNode> result = SddApply.apply(this, left, right, op, handler);
         if (!result.isSuccess()) {
             return result;
         }
@@ -541,10 +494,7 @@ public final class Sdd {
      * Returns (and computes if not cached) the SDD node resulting from the
      * application of a binary operation on two SDD nodes.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the result of the binary operation has changed
-     * potentially.
+     * This value is computed lazily and is cached.
      * @param left  the first SDD node
      * @param right the secon SDD node
      * @param op    the binary operation
@@ -593,10 +543,8 @@ public final class Sdd {
     }
 
     /**
-     * Returns the active vtree of this SDD container.
-     * <p>
-     * Must not be called if there is no active vtree.
-     * @return the active vtree of this SDD container
+     * Returns the vtree root of this SDD container.
+     * @return the vtree root of this SDD container
      */
     public VTreeRoot getVTree() {
         return vTreeRoot;
@@ -605,9 +553,7 @@ public final class Sdd {
     /**
      * Returns the negation of the SDD node.
      * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * in the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the negation has changed potentially.
+     * This value is computed lazily and is cached.
      * @param node the SDD node
      * @return the negation of the SDD node
      */
@@ -641,7 +587,7 @@ public final class Sdd {
 
     /**
      * Returns the negation of this SDD node if it was already computed and is
-     * cached otherwise it returns {@code null}.
+     * cached, otherwise it returns {@code null}.
      * @param node the SDD node
      * @return the negation of this SDD node if it is cached or {@code null}
      * otherwise
@@ -655,12 +601,10 @@ public final class Sdd {
     }
 
     /**
-     * Pins an SDD node to the active vtree, so that the node and all its
-     * successors are protected from the garbage collector. A node is still
-     * protected even if the vtree becomes inactive.
+     * Pins an SDD node to the vtree root, so that the node and all its
+     * successors are protected from the garbage collector.
      * <p>
-     * The node can be unpinned by calling {@link Sdd#unpin(SddNode)} or by
-     * removing the vtree from the vtree stack.
+     * The node can be unpinned by calling {@link Sdd#unpin(SddNode)}.
      * @param node the SDD node
      */
     public void pin(final SddNode node) {
@@ -670,7 +614,7 @@ public final class Sdd {
     }
 
     /**
-     * Unpins an SDD node from the active vtree, so that it can be removed by
+     * Unpins an SDD node from the vtree root, so that it can be removed by
      * the garbage collector.
      * <p>
      * {@code node} must be a pinned node in the active vtree.
@@ -686,7 +630,7 @@ public final class Sdd {
      * Invokes garbage collection for all nodes.
      * <p>
      * Garbage collection removes all nodes that are not a successor of a pinned
-     * node.  Nodes that are pinned by an inactive vtree will not be collected.
+     * node.
      */
     public void garbageCollectAll() {
         final List<SddNode> unusedNodes = sddDecompositions.values().stream()
@@ -699,9 +643,7 @@ public final class Sdd {
      * Invokes garbage collection for a selection of nodes.
      * <p>
      * Garbage collection removes all nodes that are not a successor of a pinned
-     * node.  Nodes that are pinned by a non-active vtree will not be collected.
-     * It considers the given nodes as root and traverses only to the children
-     * of these nodes.
+     * node.
      * @param nodes the root nodes for the garbage collection.
      */
     public void garbageCollectSelection(final Collection<SddNode> nodes) {
@@ -738,7 +680,7 @@ public final class Sdd {
 
     /**
      * Returns the active size of this SDD container.  The active size is the
-     * collective size of all pinned SDD nodes of the active vtree.
+     * collective size of all pinned SDD nodes.
      * <p>
      * This value is computed lazily and is cached.  After each version bump
      * (e.g. pinning/unpinning a node or generation bump) the cache is invalided
@@ -805,7 +747,7 @@ public final class Sdd {
      * @return the number of terminal and decomposition nodes
      */
     public int getSddNodeCount() {
-        return sddTerminals.size() + sddDecompositions.size();
+        return sddTerminals.size() + sddDecompositions.size() + 2;
     }
 
     /**
@@ -832,15 +774,9 @@ public final class Sdd {
         return f;
     }
 
-    private <E> VSCacheEntry<E> invariantVSCacheEntry(final E element) {
-        final VSCacheEntry<E> entry = new VSCacheEntry<>(element);
-        entry.version = -1;
-        return entry;
-    }
-
-    class VSCacheEntry<T> {
-        int version;
-        T element;
+    final class VSCacheEntry<T> {
+        private int version;
+        private T element;
 
         VSCacheEntry(final T element) {
             this.version = getVTree().getVersion();

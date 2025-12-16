@@ -44,7 +44,7 @@ public class SddModelCountFunctionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         check(res.getNode(), formula, f.variables("A", "B", "C", "D", "E"), sdd);
     }
@@ -53,7 +53,7 @@ public class SddModelCountFunctionTest {
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = descendant.execute(new SddExportFormula(sdd));
@@ -75,7 +75,7 @@ public class SddModelCountFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final SddCompilationResult result = SddCompiler.compile(f, formula);
             final Sdd sdd = result.getSdd();
             check(result.getNode(), formula, formula.variables(f), sdd);
         }
@@ -89,9 +89,9 @@ public class SddModelCountFunctionTest {
             final Set<Variable> remainingVars = formula.variables(f).stream()
                     .limit(formula.variables(f).size() / 2)
                     .collect(Collectors.toSet());
-            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final SddCompilationResult result = SddCompiler.compile(f, formula);
             final SddNode projected =
-                    result.getNode().execute(new SddProjectionFunction(remainingVars, result.getSdd()));
+                    result.getNode().execute(new SddProjectionFunction(result.getSdd(), remainingVars));
             final Formula projectedFormula = projected.execute(new SddExportFormula(result.getSdd()));
             final Sdd sdd = result.getSdd();
             check(result.getNode(), projectedFormula, new TreeSet<>(remainingVars), sdd);

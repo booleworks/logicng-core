@@ -23,8 +23,8 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class VerticalVTreeGenerator implements VTreeGenerator {
-    private final Set<Variable> variables;
+public class VerticalVTreeGenerator implements VTreeGenerator {
+    protected final Set<Variable> variables;
 
     /**
      * Constructs a generator for a vertical vtree for a set of variables.
@@ -46,8 +46,8 @@ public final class VerticalVTreeGenerator implements VTreeGenerator {
         return LngResult.of(generateRec(builder, varSet, 0, varSet.size() - 1, true));
     }
 
-    private VTree generateRec(final VTreeRoot.Builder builder, final ArrayList<Variable> variables, final int first,
-                              final int last, final boolean isLeft) {
+    protected VTree generateRec(final VTreeRoot.Builder builder, final ArrayList<Variable> variables, final int first,
+                                final int last, final boolean isLeft) {
         if (first == last) {
             return builder.vTreeLeaf(variables.get(first));
         }

@@ -42,10 +42,10 @@ public final class SddApply {
      * {@link Sdd#binaryOperation(SddNode, SddNode, Operation, ComputationHandler) Sdd.binaryOperation()}
      * or one of its variants, as they do additional caching of already computed
      * operations.
+     * @param sdd     the SDD container
      * @param left    the left operand
      * @param right   the right operand
      * @param op      a binary operation (conjunction or disjunction)
-     * @param sdd     the SDD container
      * @param handler the computation handler
      * @return a new SDD which is the result of the binary operation or a
      * canceling cause if the computation was aborted.
@@ -53,8 +53,8 @@ public final class SddApply {
      * @see Sdd#conjunction(SddNode, SddNode, ComputationHandler) Sdd.conjunction()
      * @see Sdd#disjunction(SddNode, SddNode, ComputationHandler) Sdd.disjunction()
      */
-    public static LngResult<SddNode> apply(final SddNode left, final SddNode right, final Operation op,
-                                           final Sdd sdd, final ComputationHandler handler) {
+    public static LngResult<SddNode> apply(final Sdd sdd, final SddNode left, final SddNode right, final Operation op,
+                                           final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.SDD_APPLY)) {
             return LngResult.canceled(SimpleEvent.SDD_APPLY);
         }
@@ -87,16 +87,16 @@ public final class SddApply {
         final LngResult<SddNode> result;
         switch (lca.getSecond()) {
             case EQUALS:
-                result = sddApplyEqual(l.asDecomposition(), r.asDecomposition(), op, sdd, handler);
+                result = sddApplyEqual(sdd, l.asDecomposition(), r.asDecomposition(), op, handler);
                 break;
             case LEFT_SUBTREE:
-                result = sddApplyLeft(l, r.asDecomposition(), op, sdd, handler);
+                result = sddApplyLeft(sdd, l, r.asDecomposition(), op, handler);
                 break;
             case RIGHT_SUBTREE:
-                result = sddApplyRight(l.asDecomposition(), r, op, sdd, handler);
+                result = sddApplyRight(sdd, l.asDecomposition(), r, op, handler);
                 break;
             case INCOMPARABLE:
-                result = sddApplyIncomparable(l, r, op, sdd, handler);
+                result = sddApplyIncomparable(sdd, l, r, op, handler);
                 break;
             default:
                 throw new RuntimeException("Unknown ApplyType");
@@ -105,25 +105,24 @@ public final class SddApply {
     }
 
 
-    private static LngResult<SddNode> sddApplyEqual(final SddNodeDecomposition left, final SddNodeDecomposition right,
-                                                    final Operation op, final Sdd sf,
+    private static LngResult<SddNode> sddApplyEqual(final Sdd sdd, final SddNodeDecomposition left,
+                                                    final SddNodeDecomposition right, final Operation op,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
         final LngResult<ArrayList<SddElement>> newElements =
-                SddMultiply.multiplyDecompositions(left.getElementsUnsafe(), right.getElementsUnsafe(), op, sf,
+                SddMultiply.multiplyDecompositions(sdd, left.getElementsUnsafe(), right.getElementsUnsafe(), op,
                         handler);
         if (!newElements.isSuccess()) {
             return LngResult.canceled(newElements.getCancelCause());
         }
-        return sf.decompOfPartition(newElements.getResult(), handler);
+        return sdd.decompOfPartition(newElements.getResult(), handler);
     }
 
-    private static LngResult<SddNode> sddApplyLeft(final SddNode left, final SddNodeDecomposition right,
-                                                   final Operation op, final Sdd sf,
-                                                   final ComputationHandler handler) {
+    private static LngResult<SddNode> sddApplyLeft(final Sdd sdd, final SddNode left, final SddNodeDecomposition right,
+                                                   final Operation op, final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
@@ -131,11 +130,11 @@ public final class SddApply {
         assert left.getVTree().getPosition() < right.getVTree().getPosition();
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
-        final SddNode n = op == Operation.CONJUNCTION ? left : sf.negate(left);
-        newElements.add(new SddElement(sf.negate(n), op.zero(sf)));
+        final SddNode n = op == Operation.CONJUNCTION ? left : sdd.negate(left);
+        newElements.add(new SddElement(sdd.negate(n), op.zero(sdd)));
         for (final SddElement element : right) {
             final LngResult<SddNode> newPrime =
-                    apply(element.getPrime(), n, Operation.CONJUNCTION, sf, handler);
+                    apply(sdd, element.getPrime(), n, Operation.CONJUNCTION, handler);
             if (!newPrime.isSuccess()) {
                 return newPrime;
             }
@@ -143,12 +142,11 @@ public final class SddApply {
                 newElements.add(new SddElement(newPrime.getResult(), element.getSub()));
             }
         }
-        return sf.decompOfPartition(newElements, handler);
+        return sdd.decompOfPartition(newElements, handler);
     }
 
-    private static LngResult<SddNode> sddApplyRight(final SddNodeDecomposition left, final SddNode right,
-                                                    final Operation op, final Sdd sf,
-                                                    final ComputationHandler handler) {
+    private static LngResult<SddNode> sddApplyRight(final Sdd sdd, final SddNodeDecomposition left, final SddNode right,
+                                                    final Operation op, final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
@@ -157,39 +155,38 @@ public final class SddApply {
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
         for (final SddElement element : left) {
-            final LngResult<SddNode> newSub = apply(element.getSub(), right, op, sf, handler);
+            final LngResult<SddNode> newSub = apply(sdd, element.getSub(), right, op, handler);
             if (!newSub.isSuccess()) {
                 return newSub;
             }
             newElements.add(new SddElement(element.getPrime(), newSub.getResult()));
         }
-        return sf.decompOfPartition(newElements, handler);
+        return sdd.decompOfPartition(newElements, handler);
     }
 
-    private static LngResult<SddNode> sddApplyIncomparable(final SddNode left, final SddNode right,
-                                                           final Operation op, final Sdd sf,
-                                                           final ComputationHandler handler) {
+    private static LngResult<SddNode> sddApplyIncomparable(final Sdd sdd, final SddNode left, final SddNode right,
+                                                           final Operation op, final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
         assert left.getVTree().getPosition() < right.getVTree().getPosition();
-        assert !sf.getVTree().isSubtree(left.getVTree(), right.getVTree());
-        assert !sf.getVTree().isSubtree(right.getVTree(), left.getVTree());
+        assert !sdd.getVTree().isSubtree(left.getVTree(), right.getVTree());
+        assert !sdd.getVTree().isSubtree(right.getVTree(), left.getVTree());
 
-        final SddNode leftNeg = sf.negate(left);
-        final LngResult<SddNode> leftSub = apply(right, sf.verum(), op, sf, handler);
+        final SddNode leftNeg = sdd.negate(left);
+        final LngResult<SddNode> leftSub = apply(sdd, right, sdd.verum(), op, handler);
         if (!leftSub.isSuccess()) {
             return leftSub;
         }
-        final LngResult<SddNode> leftNegSub = apply(right, sf.falsum(), op, sf, handler);
+        final LngResult<SddNode> leftNegSub = apply(sdd, right, sdd.falsum(), op, handler);
         if (!leftNegSub.isSuccess()) {
             return leftNegSub;
         }
         final ArrayList<SddElement> newElements = new ArrayList<>();
         newElements.add(new SddElement(left, leftSub.getResult()));
         newElements.add(new SddElement(leftNeg, leftNegSub.getResult()));
-        return LngResult.of(sf.decompOfCompressedPartition(newElements));
+        return LngResult.of(sdd.decompOfCompressedPartition(newElements));
     }
 
     public enum Operation {

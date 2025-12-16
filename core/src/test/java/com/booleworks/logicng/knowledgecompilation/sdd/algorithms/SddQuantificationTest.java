@@ -56,11 +56,11 @@ public class SddQuantificationTest {
                 .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
                 .sdd(sdd)
                 .build();
-        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        final SddNode node = SddCompiler.compile(f, formula, config).getNode();
         final int bIdx = sdd.variableToIndex(f.variable("B"));
         final int cIdx = sdd.variableToIndex(f.variable("C"));
         final SddNode quantified =
-                SddQuantification.exists(Set.of(bIdx, cIdx), node, sdd, NopHandler.get()).getResult();
+                SddQuantification.exists(sdd, Set.of(bIdx, cIdx), node, NopHandler.get()).getResult();
         checkProjectedModels(f.variables("B", "C"), quantified, formula, sdd);
     }
 
@@ -70,7 +70,7 @@ public class SddQuantificationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final SddCompilationResult result = SddCompiler.compile(f, formula);
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             final List<Variable> vars = new ArrayList<>(formula.variables(f));
@@ -80,7 +80,7 @@ public class SddQuantificationTest {
                     quantifyVars.stream().map(sdd::variableToIndex).collect(Collectors.toSet());
             final List<Variable> remainingVars =
                     vars.stream().filter(v -> !quantifyVars.contains(v)).collect(Collectors.toList());
-            node = SddQuantification.exists(quantifyVarIdxs, node, sdd, NopHandler.get()).getResult();
+            node = SddQuantification.exists(sdd, quantifyVarIdxs, node, NopHandler.get()).getResult();
             checkPMC(remainingVars, node, formula, sdd);
             fileIndex++;
         }
@@ -102,7 +102,7 @@ public class SddQuantificationTest {
         final SatSolver solver = SatSolver.newSolver(sdd.getFactory());
         solver.add(originalFormula);
         final List<Model> expectedModels = solver.enumerateAllModels(variables);
-        final List<Model> actualModels = node.execute(SddModelEnumerationFunction.builder(variables, sdd).build());
+        final List<Model> actualModels = node.execute(SddModelEnumerationFunction.builder(sdd, variables).build());
         final Set<Assignment> expected = expectedModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         final Set<Assignment> actual = actualModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);

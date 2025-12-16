@@ -54,7 +54,7 @@ public class SddCompilerTopDownTest {
     }
 
     private static void compileAndCheck(final Formula formula, final FormulaFactory f, final SddCompilerConfig config) {
-        final SddCompilationResult result = SddCompiler.compile(formula, config, f);
+        final SddCompilationResult result = SddCompiler.compile(f, formula, config);
         final Sdd sdd = result.getSdd();
         SddTestUtil.validateMC(result.getNode(), formula, sdd);
         SddTestUtil.validateExport(result.getNode(), formula, sdd);

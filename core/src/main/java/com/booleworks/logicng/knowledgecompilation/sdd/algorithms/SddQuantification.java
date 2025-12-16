@@ -33,22 +33,22 @@ public final class SddQuantification {
 
     /**
      * Computes existential quantifier elimination for a set of variables.
+     * @param sdd     the SDD container of {@code node}
      * @param vars    the variables to eliminate
      * @param node    the SDD node
-     * @param sdd     the SDD container of {@code node}
      * @param handler the computation handler
      * @return the SDD with the eliminated variables
      * @see com.booleworks.logicng.knowledgecompilation.sdd.functions.SddProjectionFunction SddProjectionFunction
      */
-    public static LngResult<SddNode> exists(final Set<Integer> vars, final SddNode node,
-                                            final Sdd sdd, final ComputationHandler handler) {
+    public static LngResult<SddNode> exists(final Sdd sdd, final Set<Integer> vars, final SddNode node,
+                                            final ComputationHandler handler) {
         if (node.isTrivial()) {
             return LngResult.of(node);
         }
-        return existsRec(vars, node, sdd, handler, new HashMap<>());
+        return existsRec(sdd, vars, node, handler, new HashMap<>());
     }
 
-    private static LngResult<SddNode> existsRec(final Set<Integer> vars, final SddNode node, final Sdd sdd,
+    private static LngResult<SddNode> existsRec(final Sdd sdd, final Set<Integer> vars, final SddNode node,
                                                 final ComputationHandler handler, final Map<SddNode, SddNode> cache) {
         final SddNode cached = cache.get(node);
         if (cached != null) {
@@ -71,11 +71,11 @@ public final class SddQuantification {
             boolean isPartition = true;
             boolean isChanged = false;
             for (final SddElement element : node.asDecomposition()) {
-                final LngResult<SddNode> prime = existsRec(vars, element.getPrime(), sdd, handler, cache);
+                final LngResult<SddNode> prime = existsRec(sdd, vars, element.getPrime(), handler, cache);
                 if (!prime.isSuccess()) {
                     return prime;
                 }
-                final LngResult<SddNode> sub = existsRec(vars, element.getSub(), sdd, handler, cache);
+                final LngResult<SddNode> sub = existsRec(sdd, vars, element.getSub(), handler, cache);
                 if (!sub.isSuccess()) {
                     return sub;
                 }

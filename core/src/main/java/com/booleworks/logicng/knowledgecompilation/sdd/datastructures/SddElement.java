@@ -18,8 +18,7 @@ public final class SddElement implements Comparable<SddElement> {
      * @param prime the prime node
      * @param sub   the sub node
      */
-    public SddElement(final SddNode prime,
-                      final SddNode sub) {
+    public SddElement(final SddNode prime, final SddNode sub) {
         assert !prime.isFalse();
         this.prime = prime;
         this.sub = sub;

@@ -15,10 +15,10 @@ public final class SddCompilationResult {
 
     /**
      * Constructs a new compilation result.
-     * @param node the node constructed by the compiler
      * @param sdd  the SDD container used for the compilation
+     * @param node the node constructed by the compiler
      */
-    public SddCompilationResult(final SddNode node, final Sdd sdd) {
+    public SddCompilationResult(final Sdd sdd, final SddNode node) {
         this.node = node;
         this.sdd = sdd;
     }

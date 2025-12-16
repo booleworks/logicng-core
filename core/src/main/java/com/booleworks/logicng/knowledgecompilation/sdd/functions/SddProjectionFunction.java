@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SddProjectionFunction implements SddFunction<SddNode> {
-    private final Set<Variable> variables;
-    private final Sdd sdd;
+public class SddProjectionFunction implements SddFunction<SddNode> {
+    protected final Set<Variable> variables;
+    protected final Sdd sdd;
 
     /**
      * Constructs a new projection function.
@@ -35,10 +35,10 @@ public final class SddProjectionFunction implements SddFunction<SddNode> {
      * The function projects SDD nodes to a set of variables by performing
      * boolean existential quantifier elimination for all variables of the SDD
      * not contained in the set of projection variables.
-     * @param variables the projection variables (will be preserved)
      * @param sdd       the SDD container
+     * @param variables the projection variables (will be preserved)
      */
-    public SddProjectionFunction(final Set<Variable> variables, final Sdd sdd) {
+    public SddProjectionFunction(final Sdd sdd, final Set<Variable> variables) {
         this.variables = variables;
         this.sdd = sdd;
     }
@@ -46,14 +46,14 @@ public final class SddProjectionFunction implements SddFunction<SddNode> {
     @Override
     public LngResult<SddNode> execute(final SddNode node, final ComputationHandler handler) {
         final Set<Integer> variablesOnSdd = node.variables();
-        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(sdd, variables, new HashSet<>());
         final Set<Integer> variablesToEliminate = variablesOnSdd.stream()
                 .filter(v -> !variableIdxs.contains(v))
                 .collect(Collectors.toSet());
         if (variablesToEliminate.isEmpty()) {
             return LngResult.of(node);
         } else {
-            return SddQuantification.exists(variablesToEliminate, node, sdd, handler);
+            return SddQuantification.exists(sdd, variablesToEliminate, node, handler);
         }
     }
 }

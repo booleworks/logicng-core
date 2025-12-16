@@ -19,8 +19,8 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SddVariablesFunction implements SddFunction<SortedSet<Variable>> {
-    private final Sdd sdd;
+public class SddVariablesFunction implements SddFunction<SortedSet<Variable>> {
+    protected final Sdd sdd;
 
     /**
      * Constructs a new function.
@@ -36,6 +36,6 @@ public final class SddVariablesFunction implements SddFunction<SortedSet<Variabl
     @Override
     public LngResult<SortedSet<Variable>> execute(final SddNode node, final ComputationHandler handler) {
         final SortedSet<Integer> variableIdxs = node.variables();
-        return LngResult.of(SddUtil.indicesToVars(variableIdxs, sdd, new TreeSet<>()));
+        return LngResult.of(SddUtil.indicesToVars(sdd, variableIdxs, new TreeSet<>()));
     }
 }

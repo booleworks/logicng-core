@@ -78,16 +78,17 @@ public final class SddUtil {
      * <p>
      * The function takes a collection as destination for the result. The same
      * collection is also returned.
-     * @param variables the input variables
-     * @param sdd       the SDD container
-     * @param dst       the collection to which the result is written
      * @param <C>       the type of the collection for the result
+     * @param sdd       the SDD container
+     * @param variables the input variables
+     * @param dst       the collection to which the result is written
      * @return the destination collection
-     * @see SddUtil#varsToIndicesExpectKnown(Collection, Sdd, Collection)
-     * @see SddUtil#indicesToVars(Collection, Sdd, Collection)
+     * @see SddUtil#varsToIndicesExpectKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToVars(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Collection<Variable> variables,
-                                                                           final Sdd sdd, final C dst) {
+    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Sdd sdd,
+                                                                           final Collection<Variable> variables,
+                                                                           final C dst) {
         for (final Variable var : variables) {
             final int idx = sdd.variableToIndex(var);
             if (idx != -1) {
@@ -104,17 +105,18 @@ public final class SddUtil {
      * <p>
      * The function takes a collection as destination for the result. The same
      * collection is also returned.
-     * @param variables the input variables
-     * @param sdd       the SDD container
-     * @param dst       the collection to which the result is written
      * @param <C>       the type of the collection for the result
+     * @param sdd       the SDD container
+     * @param variables the input variables
+     * @param dst       the collection to which the result is written
      * @return the destination collection
      * @throws IllegalArgumentException if the function encounters an unknown variable
-     * @see SddUtil#varsToIndicesOnlyKnown(Collection, Sdd, Collection)
-     * @see SddUtil#indicesToVars(Collection, Sdd, Collection)
+     * @see SddUtil#varsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToVars(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Collection<Variable> variables,
-                                                                             final Sdd sdd, final C dst) {
+    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Sdd sdd,
+                                                                             final Collection<Variable> variables,
+                                                                             final C dst) {
         for (final Variable var : variables) {
             final int idx = sdd.variableToIndex(var);
             if (idx == -1) {
@@ -132,16 +134,17 @@ public final class SddUtil {
      * <p>
      * The function takes a collection as destination for the result. The same
      * collection is also returned.
-     * @param literals the input literals
-     * @param sdd      the SDD container
-     * @param dst      the collection to which the result is written
      * @param <C>      the type of the collection for the result
+     * @param sdd      the SDD container
+     * @param literals the input literals
+     * @param dst      the collection to which the result is written
      * @return the destination collection
-     * @see SddUtil#litsToIndicesExpectKnown(Collection, Sdd, Collection)
-     * @see SddUtil#indicesToLits(Collection, Sdd, Collection)
+     * @see SddUtil#litsToIndicesExpectKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToLits(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Integer>> C litsToIndicesOnlyKnown(final Collection<Literal> literals,
-                                                                           final Sdd sdd, final C dst) {
+    public static <C extends Collection<Integer>> C litsToIndicesOnlyKnown(final Sdd sdd,
+                                                                           final Collection<Literal> literals,
+                                                                           final C dst) {
         for (final Literal lit : literals) {
             final int idx = sdd.literalToIndex(lit);
             if (idx != -1) {
@@ -158,17 +161,18 @@ public final class SddUtil {
      * <p>
      * The function takes a collection as destination for the result. The same
      * collection is also returned.
-     * @param literals the input variables
-     * @param sdd      the SDD container
-     * @param dst      the collection to which the result is written
      * @param <C>      the type of the collection for the result
+     * @param sdd      the SDD container
+     * @param literals the input variables
+     * @param dst      the collection to which the result is written
      * @return the destination collection
      * @throws IllegalArgumentException if the function encounters an unknown variable
-     * @see SddUtil#litsToIndicesOnlyKnown(Collection, Sdd, Collection)
-     * @see SddUtil#indicesToLits(Collection, Sdd, Collection)
+     * @see SddUtil#litsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToLits(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Integer>> C litsToIndicesExpectKnown(final Collection<Literal> literals,
-                                                                             final Sdd sdd, final C dst) {
+    public static <C extends Collection<Integer>> C litsToIndicesExpectKnown(final Sdd sdd,
+                                                                             final Collection<Literal> literals,
+                                                                             final C dst) {
         for (final Literal lit : literals) {
             final int idx = sdd.literalToIndex(lit);
             if (idx != 0) {
@@ -187,15 +191,15 @@ public final class SddUtil {
      * collection is also returned.
      * <p>
      * Warning: Passing integers that do not represent variables is undefined behaviour.
-     * @param indices the internal indices
-     * @param sdd     the SDD container
-     * @param dst     the collection to which the result is written
      * @param <C>     the type of the collection for the result
+     * @param sdd     the SDD container
+     * @param indices the internal indices
+     * @param dst     the collection to which the result is written
      * @return the destination collection
-     * @see SddUtil#varsToIndicesOnlyKnown(Collection, Sdd, Collection)
-     * @see SddUtil#varsToIndicesExpectKnown(Collection, Sdd, Collection)
+     * @see SddUtil#varsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#varsToIndicesExpectKnown(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Variable>> C indicesToVars(final Collection<Integer> indices, final Sdd sdd,
+    public static <C extends Collection<Variable>> C indicesToVars(final Sdd sdd, final Collection<Integer> indices,
                                                                    final C dst) {
         for (final int idx : indices) {
             dst.add(sdd.indexToVariable(idx));
@@ -210,15 +214,15 @@ public final class SddUtil {
      * collection is also returned.
      * <p>
      * Warning: Passing integers that do not represent variables is undefined behaviour.
-     * @param indices the internal indices
-     * @param sdd     the SDD container
-     * @param dst     the collection to which the result is written
      * @param <C>     the type of the collection for the result
+     * @param sdd     the SDD container
+     * @param indices the internal indices
+     * @param dst     the collection to which the result is written
      * @return the destination collection
-     * @see SddUtil#litsToIndicesOnlyKnown(Collection, Sdd, Collection)
-     * @see SddUtil#litsToIndicesExpectKnown(Collection, Sdd, Collection)
+     * @see SddUtil#litsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#litsToIndicesExpectKnown(Sdd, Collection, Collection)
      */
-    public static <C extends Collection<Literal>> C indicesToLits(final Collection<Integer> indices, final Sdd sdd,
+    public static <C extends Collection<Literal>> C indicesToLits(final Sdd sdd, final Collection<Integer> indices,
                                                                   final C dst) {
         for (final int idx : indices) {
             dst.add(sdd.indexToLiteral(idx));
@@ -231,13 +235,13 @@ public final class SddUtil {
      * elements.
      * <p>
      * Passing not compressed elements results in undefined behaviour.
-     * @param elements compressed elements
      * @param sdd      the SDD container
+     * @param elements compressed elements
      * @return the lowest common ancestor of the elements
      * @see VTreeRoot#lcaOf(VTree, VTree)
-     * @see VTreeUtil#lcaFromVariables(Collection, Sdd)
+     * @see VTreeUtil#lcaFromVariables(Sdd, Collection)
      */
-    public static VTree lcaOfCompressedElements(final Collection<SddElement> elements, final Sdd sdd) {
+    public static VTree lcaOfCompressedElements(final Sdd sdd, final Collection<SddElement> elements) {
         assert !elements.isEmpty();
 
         final VTreeRoot root = sdd.getVTree();

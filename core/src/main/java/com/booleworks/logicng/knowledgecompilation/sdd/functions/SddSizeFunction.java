@@ -22,15 +22,15 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 public class SddSizeFunction implements SddFunction<Long> {
     private final static SddSizeFunction INSTANCE = new SddSizeFunction();
 
-    private SddSizeFunction() {
-    }
-
     /**
      * Returns the singleton instance of this class.
      * @return the singleton instance of this class
      */
     public SddSizeFunction get() {
         return INSTANCE;
+    }
+
+    private SddSizeFunction() {
     }
 
     @Override

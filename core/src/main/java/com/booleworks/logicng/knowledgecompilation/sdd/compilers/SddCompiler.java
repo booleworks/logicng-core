@@ -41,36 +41,37 @@ import java.util.TreeSet;
 public class SddCompiler {
     /**
      * Compile an SDD from a formula in CNF using the default configuration.
-     * @param cnf the formula in CNF
      * @param f   the factory
+     * @param cnf the formula in CNF
      * @return the compiled SDD and the used SDD container
      */
-    public static SddCompilationResult compile(final Formula cnf, final FormulaFactory f) {
-        return compile(cnf, SddCompilerConfig.builder().build(), f);
+    public static SddCompilationResult compile(final FormulaFactory f, final Formula cnf) {
+        return compile(f, cnf, SddCompilerConfig.builder().build());
     }
 
     /**
      * Compile an SDD from a formula in CNF using the passed configuration.
-     * @param cnf the formula in CNF
      * @param f   the factory
+     * @param cnf the formula in CNF
      * @return the compiled SDD and the used SDD container
      */
-    public static SddCompilationResult compile(final Formula cnf, final SddCompilerConfig config,
-                                               final FormulaFactory f) {
-        return compile(cnf, config, f, NopHandler.get()).getResult();
+    public static SddCompilationResult compile(final FormulaFactory f, final Formula cnf,
+                                               final SddCompilerConfig config) {
+        return compile(f, cnf, config, NopHandler.get()).getResult();
     }
 
     /**
      * Compile an SDD from a formula in CNF using the passed configuration.
+     * @param f       the factory
      * @param cnf     the formula in CNF
      * @param config  the configuration
-     * @param f       the factory
      * @param handler the computation handler
      * @return the compiled SDD and the used SDD container, or the canceling
      * cause if the computation was aborted by the handler.
      */
-    public static LngResult<SddCompilationResult> compile(final Formula cnf, final SddCompilerConfig config,
-                                                          final FormulaFactory f, final ComputationHandler handler) {
+    public static LngResult<SddCompilationResult> compile(final FormulaFactory f, final Formula cnf,
+                                                          final SddCompilerConfig config,
+                                                          final ComputationHandler handler) {
         if (!cnf.isCnf(f)) {
             throw new IllegalArgumentException("Expected formula in CNF");
         }
@@ -103,11 +104,11 @@ public class SddCompiler {
 
             if (simplified.getType() == FType.TRUE) {
                 sdd = new Sdd(f, vtreeBuilder.build(null));
-                return LngResult.of(new SddCompilationResult(sdd.verum(), sdd));
+                return LngResult.of(new SddCompilationResult(sdd, sdd.verum()));
             }
             if (!simplified.holds(new SatPredicate(f))) {
                 sdd = new Sdd(f, vtreeBuilder.build(null));
-                return LngResult.of(new SddCompilationResult(sdd.falsum(), sdd));
+                return LngResult.of(new SddCompilationResult(sdd, sdd.falsum()));
             }
 
             final LngResult<Pair<DTree, VTree>> vTreeResult =
@@ -122,14 +123,14 @@ public class SddCompiler {
         } else {
             sdd = config.getSdd();
             if (simplified.getType() == FType.TRUE) {
-                return LngResult.of(new SddCompilationResult(sdd.verum(), sdd));
+                return LngResult.of(new SddCompilationResult(sdd, sdd.verum()));
             }
             if (!simplified.holds(new SatPredicate(f))) {
-                return LngResult.of(new SddCompilationResult(sdd.falsum(), sdd));
+                return LngResult.of(new SddCompilationResult(sdd, sdd.falsum()));
             }
 
             final List<Integer> varsInFormula =
-                    SddUtil.varsToIndicesExpectKnown(simplified.variables(f), config.getSdd(), new ArrayList<>());
+                    SddUtil.varsToIndicesExpectKnown(config.getSdd(), simplified.variables(f), new ArrayList<>());
             final Set<Integer> varsInVTree =
                     VTreeUtil.vars(config.getSdd().getVTree().getRoot(), new TreeSet<>());
             if (!varsInVTree.containsAll(varsInFormula)) {
@@ -146,12 +147,12 @@ public class SddCompiler {
         }
 
         if (config.getCompiler() == SddCompilerConfig.Compiler.BOTTOM_UP) {
-            final LngResult<SddNode> node = SddCompilerBottomUp.compile(simplified, sdd, handler);
-            return node.map(n -> new SddCompilationResult(n, sdd));
+            final LngResult<SddNode> node = SddCompilerBottomUp.compile(sdd, simplified, handler);
+            return node.map(n -> new SddCompilationResult(sdd, n));
         } else {
             assert vtree != null;
-            final LngResult<SddNode> node = SddCompilerTopDown.compile(variables, dtree, sdd, solver, handler);
-            return node.map(n -> new SddCompilationResult(n, sdd));
+            final LngResult<SddNode> node = SddCompilerTopDown.compile(sdd, solver, variables, dtree, handler);
+            return node.map(n -> new SddCompilationResult(sdd, n));
         }
     }
 

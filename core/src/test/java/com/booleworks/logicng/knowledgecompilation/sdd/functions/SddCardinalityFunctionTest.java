@@ -27,10 +27,10 @@ public class SddCardinalityFunctionTest {
     public void testMax() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final int cardinality =
-                res.getNode().execute(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), sdd));
+                res.getNode().execute(new SddCardinalityFunction(sdd, true, f.variables("A", "B", "C", "D", "E")));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Literal> opt =
@@ -43,10 +43,10 @@ public class SddCardinalityFunctionTest {
     public void testMin() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompiler.compile(formula, f);
+        final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final int cardinality =
-                res.getNode().execute(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), sdd));
+                res.getNode().execute(new SddCardinalityFunction(sdd, false, f.variables("A", "B", "C", "D", "E")));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Literal> opt =
@@ -70,10 +70,10 @@ public class SddCardinalityFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult res = SddCompiler.compile(formula, f);
+            final SddCompilationResult res = SddCompiler.compile(f, formula);
             final Sdd sdd = res.getSdd();
             final int cardinality =
-                    res.getNode().execute(new SddCardinalityFunction(true, formula.variables(f), sdd));
+                    res.getNode().execute(new SddCardinalityFunction(sdd, true, formula.variables(f)));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =
@@ -88,10 +88,10 @@ public class SddCardinalityFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult res = SddCompiler.compile(formula, f);
+            final SddCompilationResult res = SddCompiler.compile(f, formula);
             final Sdd sdd = res.getSdd();
             final int cardinality =
-                    res.getNode().execute(new SddCardinalityFunction(false, formula.variables(f), sdd));
+                    res.getNode().execute(new SddCardinalityFunction(sdd, false, formula.variables(f)));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =

@@ -26,7 +26,7 @@ public class SddWriterTest {
     @Test
     public void testReimportSimple() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddCompilationResult result = SddCompiler.compile(f.parse("(A | B) & (V | W | X) & (A | ~X)"), f);
+        final SddCompilationResult result = SddCompiler.compile(f, f.parse("(A | B) & (V | W | X) & (A | ~X)"));
         final Pair<SddNode, Sdd> reimport = reimportSdd(result.getNode(), result.getSdd());
         checkFormulaOfReimport(reimport, result.getNode(), result.getSdd());
     }
@@ -35,7 +35,7 @@ public class SddWriterTest {
     public void testVTreeReimportSimple() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("(A | B) & (V | W | X) & (A | ~X)");
-        final SddCompilationResult result = SddCompiler.compile(formula, f);
+        final SddCompilationResult result = SddCompiler.compile(f, formula);
         final Pair<VTree, VTreeRoot.Builder> reimport = reimportVTree(result.getSdd());
         final VTreeRoot root = reimport.getSecond().build(reimport.getFirst());
         final Sdd sdd = new Sdd(f, root);
@@ -56,7 +56,7 @@ public class SddWriterTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final SddCompilationResult result = SddCompiler.compile(f, formula);
             final Pair<SddNode, Sdd> reimport = reimportSdd(result.getNode(), result.getSdd());
             checkFormulaOfReimport(reimport, result.getNode(), result.getSdd());
         }
@@ -67,7 +67,7 @@ public class SddWriterTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final SddCompilationResult result = SddCompiler.compile(f, formula);
             final Pair<VTree, VTreeRoot.Builder> reimport = reimportVTree(result.getSdd());
             final VTreeRoot root = reimport.getSecond().build(reimport.getFirst());
             final Sdd sdd = new Sdd(f, root);
@@ -85,7 +85,7 @@ public class SddWriterTest {
                                                  final Formula formula) {
         final SddCompilerConfig config =
                 SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
-        final SddCompilationResult recompiled = SddCompiler.compile(formula, config, reimport.getFactory());
+        final SddCompilationResult recompiled = SddCompiler.compile(reimport.getFactory(), formula, config);
         final Formula formulaOfNode = node.execute(new SddExportFormula(sdd));
         final Formula reimportedFormula = recompiled.getNode().execute(new SddExportFormula(recompiled.getSdd()));
         assertThat(formulaOfNode).isSameAs(reimportedFormula);

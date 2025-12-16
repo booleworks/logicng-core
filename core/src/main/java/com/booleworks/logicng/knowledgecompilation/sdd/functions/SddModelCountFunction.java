@@ -34,10 +34,10 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SddModelCountFunction implements SddFunction<BigInteger> {
-    private final Sdd sdd;
-    private final Set<Variable> variables;
-    private SortedSet<Integer> sddVariables;
+public class SddModelCountFunction implements SddFunction<BigInteger> {
+    protected final Sdd sdd;
+    protected final Set<Variable> variables;
+    protected SortedSet<Integer> sddVariables;
 
     /**
      * Constructs a new function for projected model counting of an SDD.
@@ -80,11 +80,11 @@ public final class SddModelCountFunction implements SddFunction<BigInteger> {
         return LngResult.of(BigInteger.TWO.pow((int) dontCareVariables).multiply(count));
     }
 
-    private LngResult<SddNode> projectNodeToVariables(final SddNode node, final ComputationHandler handler) {
-        return node.execute(new SddProjectionFunction(variables, sdd), handler);
+    protected LngResult<SddNode> projectNodeToVariables(final SddNode node, final ComputationHandler handler) {
+        return node.execute(new SddProjectionFunction(sdd, variables), handler);
     }
 
-    private BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {
+    protected BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {
         if (node.isFalse()) {
             return BigInteger.ZERO;
         }

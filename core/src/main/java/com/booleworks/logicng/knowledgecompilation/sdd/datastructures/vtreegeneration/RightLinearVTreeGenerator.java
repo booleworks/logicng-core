@@ -24,8 +24,8 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class RightLinearVTreeGenerator implements VTreeGenerator {
-    private final Set<Variable> variables;
+public class RightLinearVTreeGenerator implements VTreeGenerator {
+    protected final Set<Variable> variables;
 
     /**
      * Constructs a generator for a right linear vtree for a set of variables.
@@ -46,8 +46,8 @@ public final class RightLinearVTreeGenerator implements VTreeGenerator {
         return LngResult.of(generateRightLinear(builder, new ArrayList<>(variables), null));
     }
 
-    static VTree generateRightLinear(final VTreeRoot.Builder builder, final List<Variable> variables,
-                                     final VTree stub) {
+    protected static VTree generateRightLinear(final VTreeRoot.Builder builder, final List<Variable> variables,
+                                               final VTree stub) {
         int index = variables.size() - 1;
         VTree right = stub;
         while (index >= 0) {

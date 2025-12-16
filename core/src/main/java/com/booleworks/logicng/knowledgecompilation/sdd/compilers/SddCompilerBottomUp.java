@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-class SddCompilerBottomUp {
+public class SddCompilerBottomUp {
     protected final Formula cnf;
     protected final Sdd sdd;
 
-    protected SddCompilerBottomUp(final Formula cnf, final Sdd sdd) {
+    protected SddCompilerBottomUp(final Sdd sdd, final Formula cnf) {
         this.cnf = cnf;
         this.sdd = sdd;
     }
 
-    protected static LngResult<SddNode> compile(final Formula cnf, final Sdd sdd, final ComputationHandler handler) {
-        final SddCompilerBottomUp compiler = new SddCompilerBottomUp(cnf, sdd);
+    protected static LngResult<SddNode> compile(final Sdd sdd, final Formula cnf, final ComputationHandler handler) {
+        final SddCompilerBottomUp compiler = new SddCompilerBottomUp(sdd, cnf);
         return compiler.cnfToSdd(handler);
     }
 
@@ -66,7 +66,7 @@ class SddCompilerBottomUp {
         }
         SddNode node = sdd.verum();
         int nodeThreshold = 1000;
-        final List<Formula> sorted = sortLitsetsByLca(operands, sdd);
+        final List<Formula> sorted = sortLitsetsByLca(sdd, operands);
         for (final Formula op : sorted) {
             if (sdd.getDecompositionCount() >= nodeThreshold) {
                 sdd.pin(node);
@@ -116,12 +116,12 @@ class SddCompilerBottomUp {
         return LngResult.of(node);
     }
 
-    private static ArrayList<Formula> sortLitsetsByLca(final Collection<Formula> litsets, final Sdd sdd) {
+    private static ArrayList<Formula> sortLitsetsByLca(final Sdd sdd, final Collection<Formula> litsets) {
         final ArrayList<Pair<VTree, Formula>> vTrees = new ArrayList<>(litsets.size());
         for (final Formula litset : litsets) {
             final List<Integer> varIdxs =
-                    SddUtil.varsToIndicesExpectKnown(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
-            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, sdd), litset));
+                    SddUtil.varsToIndicesExpectKnown(sdd, litset.variables(sdd.getFactory()), new ArrayList<>());
+            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(sdd, varIdxs), litset));
         }
         vTrees.sort((o1, o2) -> {
             final VTree vTree1 = o1.getFirst();

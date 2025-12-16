@@ -50,7 +50,7 @@ public class SddTestUtil {
         final Collection<Variable> sddVariables = node.execute(new SddVariablesFunction(sdd));
         final Collection<Variable> formulaVariables = originalFormula.variables(sdd.getFactory());
         final SddModelEnumerationFunction meFunc =
-                SddModelEnumerationFunction.builder(sddVariables, sdd).additionalVariables(formulaVariables).build();
+                SddModelEnumerationFunction.builder(sdd, sddVariables).additionalVariables(formulaVariables).build();
         final ModelEnumerationFunction meSolverFunc =
                 ModelEnumerationFunction.builder(formulaVariables).build();
         final LngResult<List<Model>> models1 = node.execute(meFunc, new NumberOfModelsHandler(samples));
@@ -61,7 +61,7 @@ public class SddTestUtil {
             assertThat(originalFormula.evaluate(model.toAssignment())).isTrue();
         }
         for (final Model model : models2.getPartialResult()) {
-            assertThat(SddEvaluation.evaluate(model.toAssignment(), node, sdd)).isTrue();
+            assertThat(SddEvaluation.evaluate(sdd, model.toAssignment(), node)).isTrue();
         }
     }
 

@@ -52,16 +52,16 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SddModelEnumerationFunction implements SddFunction<List<Model>> {
-    private final Sdd sdd;
-    private final Set<Variable> variables;
-    private final Set<Integer> variableIdxs;
-    private final Set<Variable> additionalVariables;
+public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
+    protected final Sdd sdd;
+    protected final Set<Variable> variables;
+    protected final Set<Integer> variableIdxs;
+    protected final Set<Variable> additionalVariables;
 
-    private SddModelEnumerationFunction(final Set<Variable> variables, final Set<Variable> additionalVariables,
-                                        final Sdd sdd) {
+    protected SddModelEnumerationFunction(final Set<Variable> variables, final Set<Variable> additionalVariables,
+                                          final Sdd sdd) {
         this.sdd = sdd;
-        this.variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        this.variableIdxs = SddUtil.varsToIndicesOnlyKnown(sdd, variables, new HashSet<>());
         this.variables = variables;
         this.additionalVariables =
                 additionalVariables.stream().filter(v -> !variables.contains(v)).collect(Collectors.toSet());
@@ -138,11 +138,11 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         return LngResult.of(models);
     }
 
-    private LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
-        return node.execute(new SddProjectionFunction(variables, sdd), handler);
+    protected LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
+        return node.execute(new SddProjectionFunction(sdd, variables), handler);
     }
 
-    private List<Variable> computeDontCareVariables(final SddNode node) {
+    protected List<Variable> computeDontCareVariables(final SddNode node) {
         final Set<Integer> variablesInProjVTree = new HashSet<>();
         VTreeUtil.vars(node.getVTree(), variableIdxs, variablesInProjVTree);
         return variables.stream()
@@ -150,9 +150,9 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
                 .collect(Collectors.toList());
     }
 
-    private Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
+    protected Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
         final Set<Integer> additionalVarIdxs =
-                SddUtil.varsToIndicesOnlyKnown(additionalVariables, sdd, new HashSet<>());
+                SddUtil.varsToIndicesOnlyKnown(sdd, additionalVariables, new HashSet<>());
         final Set<Integer> variablesInNodeVTree = new HashSet<>();
         VTreeUtil.vars(node.getVTree(), additionalVarIdxs, variablesInNodeVTree);
         final List<Variable> additionalVarsOutside = additionalVariables
@@ -167,7 +167,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
                 .filter(v -> !additionalVarsOutside.contains(v))
                 .collect(Collectors.toSet());
         final Set<Integer> additionalVarIndicesInside =
-                SddUtil.varsToIndicesExpectKnown(additionalVarsInside, sdd, new HashSet<>());
+                SddUtil.varsToIndicesExpectKnown(sdd, additionalVarsInside, new HashSet<>());
         return new Pair<>(additionalLitsOutside, additionalVarIndicesInside);
     }
 
@@ -184,12 +184,12 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
      * Note that, the use of additional variables can significantly increase the
      * computation time if you enumerate a large number of models, as each model
      * needs to compute the additional variables separately.
-     * @param variables the enumeration variables
      * @param sdd       the SDD container
+     * @param variables the enumeration variables
      * @return a builder for SDD model enumeration function
      */
-    public static Builder builder(final Collection<Variable> variables, final Sdd sdd) {
-        return new Builder(variables, sdd);
+    public static Builder builder(final Sdd sdd, final Collection<Variable> variables) {
+        return new Builder(sdd, variables);
     }
 
     /**
@@ -200,7 +200,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         private Set<Variable> additionalVariables;
         private final Sdd sdd;
 
-        private Builder(final Collection<Variable> variables, final Sdd sdd) {
+        private Builder(final Sdd sdd, final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
             this.additionalVariables = new TreeSet<>();
             this.sdd = sdd;
@@ -249,10 +249,10 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         }
     }
 
-    private LngEvent expandModel(final CompactModel model, final BitSet modelMask,
-                                 final BitSet additionalVars, final SddNode node,
-                                 final SddEvaluation.PartialEvalState state,
-                                 final ComputationHandler handler, final List<Model> extendedModels) {
+    protected LngEvent expandModel(final CompactModel model, final BitSet modelMask,
+                                   final BitSet additionalVars, final SddNode node,
+                                   final SddEvaluation.PartialEvalState state,
+                                   final ComputationHandler handler, final List<Model> extendedModels) {
         final LngIntVector dontCareLitIdxs = new LngIntVector(model.getDontCareVariables().size());
         final int offset = model.getLiterals().size();
         for (final Variable dontCare : model.getDontCareVariables()) {
@@ -263,13 +263,13 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
                 node, state, handler, model.getLiterals(), extendedModels);
     }
 
-    private LngEvent extendModelsInplace(final int offset, final int index,
-                                         final List<Variable> dontCareVariables,
-                                         final LngIntVector dontCareIdxs, final BitSet modelMask,
-                                         final BitSet additionalVars, final SddNode node,
-                                         final SddEvaluation.PartialEvalState state,
-                                         final ComputationHandler handler, final List<Literal> dst,
-                                         final List<Model> extendedModels) {
+    protected LngEvent extendModelsInplace(final int offset, final int index,
+                                           final List<Variable> dontCareVariables,
+                                           final LngIntVector dontCareIdxs, final BitSet modelMask,
+                                           final BitSet additionalVars, final SddNode node,
+                                           final SddEvaluation.PartialEvalState state,
+                                           final ComputationHandler handler, final List<Literal> dst,
+                                           final List<Model> extendedModels) {
         if (index == dontCareVariables.size()) {
             final List<Literal> extendedModel = new ArrayList<>(dst);
             if (!additionalVars.isEmpty()) {
@@ -302,7 +302,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         }
     }
 
-    private boolean goNext(final SddNode node, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+    protected boolean goNext(final SddNode node, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
             final SddNodeIterationState state = states.get(decomp);
@@ -319,7 +319,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         }
     }
 
-    private boolean goNext(final SddElement element, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+    protected boolean goNext(final SddElement element, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (!goNext(element.getPrime(), states)) {
             if (element.getPrime().isDecomposition()) {
                 states.get(element.getPrime().asDecomposition()).reset();
@@ -334,8 +334,8 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         return true;
     }
 
-    private void write(final SddNode node, final CompactModel model, final BitSet modelMask,
-                       final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+    protected void write(final SddNode node, final CompactModel model, final BitSet modelMask,
+                         final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (node.isFalse()) {
             throw new RuntimeException("Cannot write model of unsatisfiable node");
         } else if (node.isTrue()) {
@@ -362,13 +362,13 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
             final VTreeInternal vtree = node.getVTree().asInternal();
             final VTree primeVtree = activeElement.getPrime().getVTree();
             final VTree subVtree = activeElement.getSub().getVTree();
-            addGapVars(model.getDontCareVariables(), primeVtree, vtree.getLeft(), sdd);
-            addGapVars(model.getDontCareVariables(), subVtree, vtree.getRight(), sdd);
+            addGapVars(sdd, model.getDontCareVariables(), primeVtree, vtree.getLeft());
+            addGapVars(sdd, model.getDontCareVariables(), subVtree, vtree.getRight());
         }
     }
 
-    private void addGapVars(final Collection<Variable> model, final VTree usedVTree,
-                            final VTree targetVTree, final Sdd sdd) {
+    protected void addGapVars(final Sdd sdd, final Collection<Variable> model, final VTree usedVTree,
+                              final VTree targetVTree) {
         final ArrayList<Integer> gapVarIdxs = new ArrayList<>();
         VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVarIdxs);
         for (final int idx : gapVarIdxs) {

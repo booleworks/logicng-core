@@ -13,13 +13,13 @@ import java.util.Iterator;
  * @since 3.0.0
  */
 public class SddNodeIterationState {
-    private final SddNodeDecomposition node;
-    private Iterator<SddElement> iterator;
-    private SddElement current;
-    private int generation = 0;
+    protected final SddNodeDecomposition node;
+    protected Iterator<SddElement> iterator;
+    protected SddElement current;
+    protected int generation = 0;
 
     /**
-     * Constructs a new iteration state for a SDD decomposition node.
+     * Constructs a new iteration state for an SDD decomposition node.
      * @param node the SDD decomposition node
      */
     public SddNodeIterationState(final SddNodeDecomposition node) {

@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A configuration for {@link SddCompiler}.
@@ -15,18 +16,16 @@ import java.util.Set;
  * @since 3.0.0
  */
 public class SddCompilerConfig {
-    private final boolean preprocessing;
-    private final Sdd sdd;
-    private final Compiler compiler;
-    private final Set<Variable> variables;
+    final boolean preprocessing;
+    final Sdd sdd;
+    final Compiler compiler;
+    final Set<Variable> variables;
 
-    private SddCompilerConfig(final boolean preprocessing,
-                              final Sdd sdd, final Compiler compiler,
-                              final Set<Variable> variables) {
-        this.preprocessing = preprocessing;
-        this.sdd = sdd;
-        this.compiler = compiler;
-        this.variables = variables;
+    private SddCompilerConfig(final Builder builder) {
+        this.preprocessing = builder.preprocessing;
+        this.sdd = builder.sdd;
+        this.compiler = builder.compiler;
+        this.variables = new TreeSet<>(builder.variables);
     }
 
     /**
@@ -144,9 +143,9 @@ public class SddCompilerConfig {
          */
         public SddCompilerConfig build() {
             if (sdd != null && compiler == Compiler.TOP_DOWN) {
-                throw new IllegalArgumentException("Top-Down SDD compiler does not allow user-defined vtrees or sdd");
+                throw new IllegalArgumentException("Top-Down SDD compiler does not allow user-defined vtrees");
             }
-            return new SddCompilerConfig(preprocessing, sdd, compiler, variables);
+            return new SddCompilerConfig(this);
         }
     }
 }

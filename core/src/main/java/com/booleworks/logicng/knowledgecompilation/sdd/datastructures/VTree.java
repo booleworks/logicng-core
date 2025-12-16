@@ -79,7 +79,7 @@ public abstract class VTree {
         return id;
     }
 
-    void setPosition(final int position) {
+    protected void setPosition(final int position) {
         this.position = position;
     }
 
@@ -101,7 +101,7 @@ public abstract class VTree {
         return parent;
     }
 
-    void setParent(final VTree parent) {
+    protected void setParent(final VTree parent) {
         this.parent = parent;
     }
 

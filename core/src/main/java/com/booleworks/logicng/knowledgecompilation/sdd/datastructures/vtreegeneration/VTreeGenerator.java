@@ -17,7 +17,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
  */
 public interface VTreeGenerator {
     /**
-     * Generates a vtree using the given SDD container.
+     * Generates a vtree using the given vtree builder.
      * @param builder the vtree builder
      * @return the generated vtree
      */
@@ -26,7 +26,7 @@ public interface VTreeGenerator {
     }
 
     /**
-     * Generates a vtree using the given SDD container.
+     * Generates a vtree using the given vtree builder.
      * @param builder the vtree builder
      * @param handler computation handler
      * @return the generated vtree or the canceling cause if the computation was

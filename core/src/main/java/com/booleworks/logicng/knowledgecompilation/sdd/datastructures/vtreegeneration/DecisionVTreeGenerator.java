@@ -39,13 +39,13 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class DecisionVTreeGenerator implements VTreeGenerator {
-    private final FormulaFactory f;
-    private final Formula cnf;
-    private final DnnfSatSolver solver;
+public class DecisionVTreeGenerator implements VTreeGenerator {
+    protected final FormulaFactory f;
+    protected final Formula cnf;
+    protected final DnnfSatSolver solver;
 
-    private final Formula unitClauses;
-    private final Formula nonUnitClauses;
+    protected final Formula unitClauses;
+    protected final Formula nonUnitClauses;
 
     /**
      * Constructs a new decision vtree generator for the variables of a formula
@@ -72,7 +72,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         this(cnf, initSolver(cnf));
     }
 
-    private static DnnfSatSolver initSolver(final Formula cnf) {
+    protected static DnnfSatSolver initSolver(final Formula cnf) {
         final DnnfSatSolver solver = new DnnfCoreSolver(cnf.getFactory(), cnf.variables(cnf.getFactory()).size());
         solver.add(cnf);
         return solver;
@@ -116,8 +116,8 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         return generateIntern(builder, handler).map(Pair::getSecond);
     }
 
-    private LngResult<Pair<DTree, VTree>> generateIntern(final VTreeRoot.Builder builder,
-                                                         final ComputationHandler handler) {
+    protected LngResult<Pair<DTree, VTree>> generateIntern(final VTreeRoot.Builder builder,
+                                                           final ComputationHandler handler) {
         if (!handler.shouldResume(ComputationStartedEvent.VTREE_GENERATION_STARTED)) {
             return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
@@ -160,8 +160,8 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         return LngResult.of(new Pair<>(dTree, vTree));
     }
 
-    private LngResult<VTree> vTreeFromDTree(final DTree dTree, final VTreeRoot.Builder builder,
-                                            final ComputationHandler handler) {
+    protected LngResult<VTree> vTreeFromDTree(final DTree dTree, final VTreeRoot.Builder builder,
+                                              final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.VTREE_CUTSET_GENERATION)) {
             return LngResult.canceled(SimpleEvent.VTREE_CUTSET_GENERATION);
         }
@@ -171,8 +171,8 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         return LngResult.of(vTreeFromCutSet(dTree, cutSets, builder));
     }
 
-    private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets,
-                                  final VTreeRoot.Builder builder) {
+    protected VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets,
+                                    final VTreeRoot.Builder builder) {
         final VTree subtree;
         if (dTree instanceof DTreeNode) {
             final VTree l = vTreeFromCutSet(((DTreeNode) dTree).left(), cutSets, builder);
@@ -195,7 +195,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         return RightLinearVTreeGenerator.generateRightLinear(builder, vars, subtree);
     }
 
-    private void calculateCutSets(final DTree dtree, final HashMap<DTree, BitSet> res, final BitSet mask) {
+    protected void calculateCutSets(final DTree dtree, final HashMap<DTree, BitSet> res, final BitSet mask) {
         if (dtree instanceof DTreeNode) {
             final DTree left = ((DTreeNode) dtree).left();
             final DTree right = ((DTreeNode) dtree).right();
@@ -217,7 +217,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         }
     }
 
-    private static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
+    protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
         final List<Formula> units = new ArrayList<>();
         final List<Formula> nonUnits = new ArrayList<>();
         switch (originalCnf.getType()) {

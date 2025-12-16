@@ -15,13 +15,13 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
  * {@link RESULT} is the result typed returned by an implementation of an SDD
  * function.  The interface provides overloaded functions
  * {@link SddFunction#execute(SddNode, ComputationHandler) execute(SddNode, ...)}
- * that execute the function on a given SDD node.  One variant additional takes
- * a {@link ComputationHandler} that can control and abort the computation.
- * This variant returns a {@link LngResult<RESULT>} that carries the cancel
+ * that execute the function on a given SDD node.  One variant takes a
+ * {@link ComputationHandler} that can control and abort the computation.
+ * This variant returns a {@link LngResult} that carries the cancel
  * cause if the computation was aborted.  The other variant does not take
- * additional arguments and returns {@link RESULT}.
+ * additional arguments and directly returns {@link RESULT}.
  * <p>
- * The most common way to run SDD functions is by using the methods
+ * Another way to run SDD functions is by using the methods
  * {@link SddNode#execute(SddFunction, ComputationHandler) SddNode.execute()}:
  * <pre>{@code
  * SddFunction<R> myFunc = new MySddFunction();
@@ -29,7 +29,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
  * LngResult<R> result2 = sddNode2.execute(myFunc, myHandler);
  * }</pre>
  * <p>
- * Implementation Note: Each implementation of this interface must be
+ * Implementation note: Each implementation of this interface must be
  * implemented in such a way that a canceled (or partial) {@code LngResult} is
  * returned if and only if the computation was aborted by {@code handler}
  * provided by the user.

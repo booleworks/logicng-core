@@ -34,20 +34,23 @@ import java.util.Map;
  * @since 3.0.0
  */
 public final class SddEvaluation {
+    private SddEvaluation() {
+    }
+
     /**
      * Evaluates an SDD with a given assignment.  A literal not covered by
      * the assignment evaluates to {@code false} if it is positive, otherwise it
      * evaluates to {@code true}.
+     * @param sdd        the SDD container of {@code node}
      * @param assignment the given assignment
      * @param node       the SDD node
-     * @param sdd        the SDD container of {@code node}
      * @return the result of the evaluation, {@code true} or {@code false}
      */
-    public static boolean evaluate(final Assignment assignment, final SddNode node, final Sdd sdd) {
-        return evaluateRecursive(assignment, node, sdd, new HashMap<>());
+    public static boolean evaluate(final Sdd sdd, final Assignment assignment, final SddNode node) {
+        return evaluateRecursive(sdd, assignment, node, new HashMap<>());
     }
 
-    private static boolean evaluateRecursive(final Assignment assignment, final SddNode node, final Sdd sdd,
+    private static boolean evaluateRecursive(final Sdd sdd, final Assignment assignment, final SddNode node,
                                              final Map<SddNode, Boolean> cache) {
         final Boolean cached = cache.get(node);
         if (cached != null) {
@@ -64,8 +67,8 @@ public final class SddEvaluation {
         } else {
             result = false;
             for (final SddElement element : node.asDecomposition()) {
-                if (evaluateRecursive(assignment, element.getPrime(), sdd, cache)
-                        && evaluateRecursive(assignment, element.getSub(), sdd, cache)) {
+                if (evaluateRecursive(sdd, assignment, element.getPrime(), cache)
+                        && evaluateRecursive(sdd, assignment, element.getSub(), cache)) {
                     result = true;
                     break;
                 }
@@ -91,8 +94,7 @@ public final class SddEvaluation {
      * @param states              the partial evaluation state
      * @param dst                 the collection where the result is written to
      */
-    public static void partialEvaluateInplace(final BitSet assignmentMap,
-                                              final BitSet additionalVariables,
+    public static void partialEvaluateInplace(final BitSet assignmentMap, final BitSet additionalVariables,
                                               final SddNode node, final PartialEvalState states,
                                               final Collection<Literal> dst) {
         states.updateAssignment(assignmentMap);
@@ -189,11 +191,11 @@ public final class SddEvaluation {
      * tracking the changes of the assignments between two calls.
      */
     public static class PartialEvalState {
-        private final Sdd sdd;
-        private final Map<SddNode, SddNodeIterationState> iterators = new HashMap<>();
-        private BitSet lastModel = null;
-        private BitSet changes = null;
-        private int generation = 0;
+        protected final Sdd sdd;
+        protected final Map<SddNode, SddNodeIterationState> iterators = new HashMap<>();
+        protected BitSet lastModel = null;
+        protected BitSet changes = null;
+        protected int generation = 0;
 
         public PartialEvalState(final Sdd sdd) {
             this.sdd = sdd;

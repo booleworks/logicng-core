@@ -26,7 +26,6 @@ import java.util.Collection;
  */
 public final class SddCompression {
     private SddCompression() {
-
     }
 
     /**
@@ -69,13 +68,13 @@ public final class SddCompression {
      * <li><i>Postconditions:</i> Exactly one field of the pair is null.  If a
      * list of elements is returned, it is an SDD decomposition.</li>
      * </ul>
-     * @param elements the SDD elements
      * @param sdd      the SDD container
+     * @param elements the SDD elements
      * @param handler  the computation handler
      * @return either an existing SDD node or list of elements that are an SDD decomposition
      */
-    public static LngResult<Pair<SddNode, ArrayList<SddElement>>> compressAndTrim(final ArrayList<SddElement> elements,
-                                                                                  final Sdd sdd,
+    public static LngResult<Pair<SddNode, ArrayList<SddElement>>> compressAndTrim(final Sdd sdd,
+                                                                                  final ArrayList<SddElement> elements,
                                                                                   final ComputationHandler handler) {
         assert !elements.isEmpty();
 
@@ -103,7 +102,7 @@ public final class SddCompression {
             return LngResult.of(new Pair<>(prime, null));
         }
 
-        final LngResult<ArrayList<SddElement>> compressedElements = compress(elements, sdd, handler);
+        final LngResult<ArrayList<SddElement>> compressedElements = compress(sdd, elements, handler);
         if (!compressedElements.isSuccess()) {
             return LngResult.canceled(compressedElements.getCancelCause());
         }
@@ -127,12 +126,12 @@ public final class SddCompression {
      * <li><i>Postconditions:</i> The list of elements returned is an SDD
      * decomposition.</li>
      * </ul>
-     * @param elements the SDD elements
      * @param sdd      the SDD container
+     * @param elements the SDD elements
      * @param handler  the computation handler
      * @return list of compressed elements that are an SDD decomposition
      */
-    public static LngResult<ArrayList<SddElement>> compress(final ArrayList<SddElement> elements, final Sdd sdd,
+    public static LngResult<ArrayList<SddElement>> compress(final Sdd sdd, final ArrayList<SddElement> elements,
                                                             final ComputationHandler handler) {
         final ArrayList<SddElement> compressed = new ArrayList<>();
         SddNode prevPrime = null;

@@ -20,12 +20,12 @@ import java.util.Objects;
  * and list storing the mappings.
  */
 public class SddVariableProxy {
-    private final SddCoreSolver solver;
-    private final HashMap<Variable, Integer> var2idx;
-    private final ArrayList<Variable> idx2var;
+    protected final SddCoreSolver solver;
+    protected final HashMap<Variable, Integer> var2idx;
+    protected final ArrayList<Variable> idx2var;
 
-    private SddVariableProxy(final SddCoreSolver solver, final HashMap<Variable, Integer> var2idx,
-                             final ArrayList<Variable> idx2var) {
+    protected SddVariableProxy(final SddCoreSolver solver, final HashMap<Variable, Integer> var2idx,
+                               final ArrayList<Variable> idx2var) {
         this.solver = solver;
         this.var2idx = var2idx;
         this.idx2var = idx2var;

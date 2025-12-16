@@ -23,8 +23,8 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class LeftLinearVTreeGenerator implements VTreeGenerator {
-    private final Set<Variable> variables;
+public class LeftLinearVTreeGenerator implements VTreeGenerator {
+    protected final Set<Variable> variables;
 
     /**
      * Constructs a generator for a left linear vtree for a set of variables.
