@@ -79,7 +79,8 @@ import java.util.stream.Collectors;
  * First a vtree must be constructed using {@link VTreeRoot} and
  * {@link VTreeRoot.Builder}. This can either be done manually by using the
  * methods provided by {@link VTreeRoot.Builder}, or automatically by using
- * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.VTreeGenerator VTreeGenerator}
+ * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.VTreeGenerator
+ * VTreeGenerator}
  * (we suggest
  * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator
  * DecisionVTreeGenerator}).
@@ -179,18 +180,21 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class Sdd {
-    private final FormulaFactory f;
-    private final VTreeRoot vTreeRoot;
-    private int currentSddId;
-    private final HashMap<ArrayList<SddElement>, SddNodeDecomposition> sddDecompositions;
-    private final HashMap<Integer, SddNodeTerminal> sddTerminals;
-    private final SddNodeTerminal verumNode;
-    private final SddNodeTerminal falsumNode;
-    private final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
-    private final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
+public class Sdd {
+    protected final FormulaFactory f;
+    protected final VTreeRoot vTreeRoot;
+    protected int currentSddId;
+    protected final HashMap<ArrayList<SddElement>, SddNodeDecomposition> sddDecompositions;
+    protected final HashMap<Integer, SddNodeTerminal> sddTerminals;
+    protected final SddNodeTerminal verumNode;
+    protected final SddNodeTerminal falsumNode;
+    protected final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
+    protected final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
+    protected final ArrayList<SddNode> pinnedNodes;
+    protected final HashMap<SddNode, Integer> pinCount;
+    protected int version;
 
-    private final VSCacheEntry<Integer> activeSize;
+    protected final VSCacheEntry<Integer> activeSize;
 
     public Sdd(final FormulaFactory f, final VTreeRoot root) {
         this.f = f;
@@ -205,6 +209,9 @@ public final class Sdd {
         verumNode.setNegation(falsumNode);
         falsumNode.setNegation(verumNode);
         activeSize = new VSCacheEntry<>(0);
+        pinnedNodes = new ArrayList<>();
+        pinCount = new HashMap<>();
+        version = 0;
     }
 
     /**
@@ -504,8 +511,7 @@ public final class Sdd {
         return binaryOperation(left, right, op, NopHandler.get()).getResult();
     }
 
-    private SddNode lookupApplyComputation(final SddNode left, final SddNode right,
-                                           final SddApply.Operation op) {
+    private SddNode lookupApplyComputation(final SddNode left, final SddNode right, final SddApply.Operation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode> key =
@@ -609,22 +615,53 @@ public final class Sdd {
      */
     public void pin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeRoot.pin(node.asDecomposition());
+            final Integer count = pinCount.get(node);
+            if (count == null) {
+                version += 1;
+                pinnedNodes.add(node);
+                pinCount.put(node, 1);
+                node.asDecomposition().ref();
+            } else {
+                pinCount.put(node, pinCount.get(node) + 1);
+            }
         }
     }
 
     /**
-     * Unpins an SDD node from the vtree root, so that it can be removed by
-     * the garbage collector.
+     * Unpins an SDD node, so that it can be removed by the garbage collector.
      * <p>
      * {@code node} must be a pinned node in the active vtree.
      * @param node the pinned SDD node
      */
     public void unpin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeRoot.unpin(node.asDecomposition());
+            final Integer count = pinCount.get(node);
+            assert count != null;
+            if (count == 1) {
+                version += 1;
+                pinnedNodes.remove(node);
+                pinCount.remove(node);
+                node.asDecomposition().deref();
+            } else {
+                pinCount.put(node, pinCount.get(node) - 1);
+            }
         }
     }
+
+    /**
+     * Unpins all nodes.
+     */
+    public void unpinAll() {
+        for (final SddNode pinnedNode : pinnedNodes) {
+            pinnedNode.asDecomposition().deref();
+        }
+        if (!pinnedNodes.isEmpty()) {
+            version += 1;
+        }
+        pinnedNodes.clear();
+        pinCount.clear();
+    }
+
 
     /**
      * Invokes garbage collection for all nodes.
@@ -679,6 +716,25 @@ public final class Sdd {
     }
 
     /**
+     * Returns the version of the caches in this SDD container.
+     * <p>
+     * The version is increased if a node is pinned or unpinned to invalidate
+     * some cached values that become invalid.
+     * @return the version
+     */
+    public int getVersion() {
+        return version;
+    }
+
+    /**
+     * Returns the pinned nodes of this root.
+     * @return the pinned nodes of this root
+     */
+    public List<SddNode> getPinnedNodes() {
+        return pinnedNodes;
+    }
+
+    /**
      * Returns the active size of this SDD container.  The active size is the
      * collective size of all pinned SDD nodes.
      * <p>
@@ -692,7 +748,7 @@ public final class Sdd {
             return activeSize.getElement();
         } else {
             int size = 0;
-            for (final SddNode node : getVTree().getPinnedNodes()) {
+            for (final SddNode node : pinnedNodes) {
                 if (node.getSizeEntry() == null || !node.getSizeEntry().isValid()) {
                     size += getActiveSize(node);
                 }
@@ -774,17 +830,13 @@ public final class Sdd {
         return f;
     }
 
-    final class VSCacheEntry<T> {
-        private int version;
-        private T element;
+    final protected class VSCacheEntry<T> {
+        protected int version;
+        protected T element;
 
         VSCacheEntry(final T element) {
-            this.version = getVTree().getVersion();
+            this.version = getVersion();
             this.element = element;
-        }
-
-        int getVersion() {
-            return version;
         }
 
         T getElement() {
@@ -794,11 +846,11 @@ public final class Sdd {
         void update(final T element) {
             assert version != -1;
             this.element = element;
-            this.version = getVTree().getVersion();
+            this.version = getVersion();
         }
 
         boolean isValid() {
-            return version == -1 || version == getVTree().getVersion();
+            return version == -1 || version == getVersion();
         }
     }
 }

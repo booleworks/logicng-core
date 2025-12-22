@@ -25,7 +25,7 @@ public class SddCompilerConfig {
         this.preprocessing = builder.preprocessing;
         this.sdd = builder.sdd;
         this.compiler = builder.compiler;
-        this.variables = new TreeSet<>(builder.variables);
+        this.variables = builder.variables == null ? null : new TreeSet<>(builder.variables);
     }
 
     /**

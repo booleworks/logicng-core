@@ -117,7 +117,7 @@ public class SddVariableProxy {
      */
     public Literal indexToLiteral(final FormulaFactory f, final int litIdx) {
         final int varIdx = litIdxToVarIdx(litIdx);
-        return litIdx > 0 ? indexToVariable(f, varIdx) : indexToVariable(f, varIdx).negate(f);
+        return LngCoreSolver.sign(litIdx) ? indexToVariable(f, varIdx).negate(f) : indexToVariable(f, varIdx);
     }
 
     /**

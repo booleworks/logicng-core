@@ -8,9 +8,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A vtree root.
@@ -23,18 +21,12 @@ import java.util.List;
  */
 public final class VTreeRoot {
     private final VTree root;
-    private final ArrayList<SddNode> pinnedNodes;
-    private final HashMap<SddNode, Integer> pinCount;
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
     private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
     private final SddVariableProxy variables;
-    private int version;
 
     private VTreeRoot(final Builder builder, final VTree root) {
         this.root = root;
-        this.pinnedNodes = new ArrayList<>();
-        this.pinCount = new HashMap<>();
-        this.version = 0;
         this.internalVTreeNodes = builder.internalVTreeNodes;
         this.leafVTreeNodes = builder.leafVTreeNodes;
         this.variables = builder.variables;
@@ -79,70 +71,6 @@ public final class VTreeRoot {
         return internalVTreeNodes.get(pair);
     }
 
-    /**
-     * Pins a node to this vtree root.
-     * <p>
-     * Pinned nodes and their children are not garbage collect as long as this
-     * root is within the stack of the SDD container.
-     * <p>
-     * <strong>Do not use this function!</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#pin Sdd.pin()}
-     * instead of this function.
-     * @param node the node
-     */
-    public void pin(final SddNodeDecomposition node) {
-        final Integer count = pinCount.get(node);
-        if (count == null) {
-            version += 1;
-            pinnedNodes.add(node);
-            pinCount.put(node, 1);
-            node.ref();
-        } else {
-            pinCount.put(node, pinCount.get(node) + 1);
-        }
-    }
-
-    /**
-     * Unpins a node from this vtree root.
-     * <p>
-     * The node and its children can now be removed by garbage collection if no
-     * other pinned node references them.
-     * <p>
-     * <strong>Do not use this function!</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#unpin Sdd.unpin()}
-     * instead of this function.
-     * @param node the node
-     */
-    public void unpin(final SddNodeDecomposition node) {
-        final Integer count = pinCount.get(node);
-        assert count != null;
-        if (count == 1) {
-            version += 1;
-            pinnedNodes.remove(node);
-            pinCount.remove(node);
-            node.asDecomposition().deref();
-        } else {
-            pinCount.put(node, pinCount.get(node) - 1);
-        }
-    }
-
-    /**
-     * Unpins all nodes from this vtree root.
-     * <p>
-     * The node and its children can now be removed by garbage collection if no
-     * other pinned node (from another root) references them.
-     * <p>
-     * <strong>Do not use this function!</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#unpin Sdd.unpinAll()}
-     * instead of this function.
-     */
-    public void unpinAll() {
-        for (final SddNode pinnedNode : pinnedNodes) {
-            pinnedNode.asDecomposition().deref();
-        }
-        pinnedNodes.clear();
-        pinCount.clear();
-    }
 
     /**
      * Returns whether {@code subtree} is a subtree of {@code of}.
@@ -218,6 +146,10 @@ public final class VTreeRoot {
      * Computes how two vtrees relate to each other and computes the lowest
      * common ancestor of both vtrees.
      * <p>
+     * <em>This function assumes that
+     * {@code vtree1} has a smaller position than {@code vtree2}, i.e.,
+     * {@code vtree1} is to the left of {@code vtree2}.</em>
+     * <p>
      * Possible relations are:
      * <ul>
      *     <li>Equals: Both vtrees are the same vtree</li>
@@ -278,18 +210,6 @@ public final class VTreeRoot {
         return variables;
     }
 
-    public int getVersion() {
-        return version;
-    }
-
-    /**
-     * Returns the pinned nodes of this root.
-     * @return the pinned nodes of this root
-     */
-    public List<SddNode> getPinnedNodes() {
-        return pinnedNodes;
-    }
-
     @Override
     public String toString() {
         return "VTreeRoot{" +
@@ -304,7 +224,11 @@ public final class VTreeRoot {
         }
 
         final VTreeRoot vTreeRoot = (VTreeRoot) o;
-        return root.equals(vTreeRoot.root);
+        if (root == null) {
+            return vTreeRoot.root == null;
+        } else {
+            return root.equals(vTreeRoot.root);
+        }
     }
 
     @Override
