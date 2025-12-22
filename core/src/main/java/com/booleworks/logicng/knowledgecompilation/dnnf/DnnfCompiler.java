@@ -67,8 +67,7 @@ public class DnnfCompiler {
      * @param nonUnitClauses the non-unit clauses of the cnf
      * @param maxClauseSize  the maximum clause size of the non-unit clauses
      */
-    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final Formula unitClauses,
-                           final Formula nonUnitClauses,
+    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final Formula unitClauses, final Formula nonUnitClauses,
                            final int maxClauseSize) {
         this.f = f;
         this.originalCnf = originalCnf;
@@ -98,13 +97,11 @@ public class DnnfCompiler {
      * @param handler the computation handler
      * @return the compiled DNNF
      */
-    public static LngResult<Dnnf> compile(final FormulaFactory f, final Formula formula,
-                                          final ComputationHandler handler) {
+    public static LngResult<Dnnf> compile(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         return prepareAndStartComputation(f, formula, handler);
     }
 
-    private static LngResult<Dnnf> prepareAndStartComputation(final FormulaFactory f, final Formula formula,
-                                                              final ComputationHandler handler) {
+    private static LngResult<Dnnf> prepareAndStartComputation(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
         final Formula cnf = formula.cnf(f);
         originalVariables.addAll(cnf.variables(f));
@@ -131,13 +128,11 @@ public class DnnfCompiler {
                 .start(dTreeResult.getResult(), originalVariables, handler);
     }
 
-    protected static LngResult<DTree> generateDTree(final Formula nonUnitClauses, final FormulaFactory f,
-                                                    final ComputationHandler handler) {
+    protected static LngResult<DTree> generateDTree(final Formula nonUnitClauses, final FormulaFactory f, final ComputationHandler handler) {
         return new MinFillDTreeGenerator().generate(f, nonUnitClauses, handler);
     }
 
-    protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula,
-                                                        final ComputationHandler handler) {
+    protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         final LngResult<Formula> backboneSimplified = formula.transform(new BackboneSimplifier(f), handler);
         if (!backboneSimplified.isSuccess()) {
             return LngResult.canceled(backboneSimplified.getCancelCause());
@@ -217,8 +212,7 @@ public class DnnfCompiler {
         return cnf2Ddnnf(tree, 0, handler);
     }
 
-    protected LngResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons,
-                                           final ComputationHandler handler) {
+    protected LngResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         final BitSet separator = tree.dynamicSeparator();
         final Formula implied = newlyImpliedLiterals(tree.getStaticVarSet());
 
@@ -301,8 +295,7 @@ public class DnnfCompiler {
         return max;
     }
 
-    protected LngResult<Formula> conjoin(final Formula implied, final DTreeNode tree, final int currentShannons,
-                                         final ComputationHandler handler) {
+    protected LngResult<Formula> conjoin(final Formula implied, final DTreeNode tree, final int currentShannons, final ComputationHandler handler) {
         if (implied == f.falsum()) {
             return LngResult.of(f.falsum());
         }
