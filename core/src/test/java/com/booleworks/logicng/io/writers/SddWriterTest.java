@@ -14,7 +14,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompila
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormulaFunction;
 import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
 
@@ -76,8 +76,9 @@ public class SddWriterTest {
     }
 
     private static void checkFormulaOfReimport(final Pair<SddNode, Sdd> reimport, final SddNode node, final Sdd sdd) {
-        final Formula formula = node.execute(new SddExportFormula(sdd));
-        final Formula reimportedFormula = reimport.getFirst().execute(new SddExportFormula(reimport.getSecond()));
+        final Formula formula = node.execute(new SddExportFormulaFunction(sdd));
+        final Formula reimportedFormula =
+                reimport.getFirst().execute(new SddExportFormulaFunction(reimport.getSecond()));
         assertThat(formula).isSameAs(reimportedFormula);
     }
 
@@ -86,8 +87,9 @@ public class SddWriterTest {
         final SddCompilerConfig config =
                 SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
         final SddCompilationResult recompiled = SddCompiler.compile(reimport.getFactory(), formula, config);
-        final Formula formulaOfNode = node.execute(new SddExportFormula(sdd));
-        final Formula reimportedFormula = recompiled.getNode().execute(new SddExportFormula(recompiled.getSdd()));
+        final Formula formulaOfNode = node.execute(new SddExportFormulaFunction(sdd));
+        final Formula reimportedFormula =
+                recompiled.getNode().execute(new SddExportFormulaFunction(recompiled.getSdd()));
         assertThat(formulaOfNode).isSameAs(reimportedFormula);
     }
 

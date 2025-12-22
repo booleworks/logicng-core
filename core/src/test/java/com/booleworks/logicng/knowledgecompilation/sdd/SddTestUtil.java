@@ -18,7 +18,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddVariableProxy;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormulaFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction;
@@ -46,7 +46,7 @@ public class SddTestUtil {
     }
 
     public static void validateExport(final SddNode node, final Formula originalFormula, final Sdd sdd) {
-        final Formula exported = node.execute(new SddExportFormula(sdd));
+        final Formula exported = node.execute(new SddExportFormulaFunction(sdd));
         assertThat(sdd.getFactory().equivalence(originalFormula, exported).isTautology(sdd.getFactory())).isTrue();
     }
 

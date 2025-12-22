@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddExportFormula implements SddFunction<Formula> {
+public class SddExportFormulaFunction implements SddFunction<Formula> {
     protected final Sdd sdd;
 
     /**
@@ -37,7 +37,7 @@ public class SddExportFormula implements SddFunction<Formula> {
      * used for tests and small demonstrations, but will not scale for real
      * problems.
      */
-    public SddExportFormula(final Sdd sdd) {
+    public SddExportFormulaFunction(final Sdd sdd) {
         this.sdd = sdd;
     }
 

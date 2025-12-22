@@ -67,7 +67,7 @@ public class SddModelEnumerationFunctionTest {
         final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
-        final Formula subformula = descendant.execute(new SddExportFormula(sdd));
+        final Formula subformula = descendant.execute(new SddExportFormulaFunction(sdd));
         final SddModelEnumerationFunction meFunc =
                 SddModelEnumerationFunction.builder(sdd, subformula.variables(f)).build();
         check(descendant, subformula, meFunc, sdd);

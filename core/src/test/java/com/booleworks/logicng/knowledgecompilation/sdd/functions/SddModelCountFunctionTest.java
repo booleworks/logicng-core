@@ -56,7 +56,7 @@ public class SddModelCountFunctionTest {
         final SddCompilationResult res = SddCompiler.compile(f, formula);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
-        final Formula subformula = descendant.execute(new SddExportFormula(sdd));
+        final Formula subformula = descendant.execute(new SddExportFormulaFunction(sdd));
         check(descendant, subformula, subformula.variables(f), sdd);
     }
 
@@ -92,7 +92,7 @@ public class SddModelCountFunctionTest {
             final SddCompilationResult result = SddCompiler.compile(f, formula);
             final SddNode projected =
                     result.getNode().execute(new SddProjectionFunction(result.getSdd(), remainingVars));
-            final Formula projectedFormula = projected.execute(new SddExportFormula(result.getSdd()));
+            final Formula projectedFormula = projected.execute(new SddExportFormulaFunction(result.getSdd()));
             final Sdd sdd = result.getSdd();
             check(result.getNode(), projectedFormula, new TreeSet<>(remainingVars), sdd);
         }
