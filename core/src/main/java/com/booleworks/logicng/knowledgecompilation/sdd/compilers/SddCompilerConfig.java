@@ -54,8 +54,8 @@ public class SddCompilerConfig {
     }
 
     /**
-     * Returns the used SDD container. Is {@code null} if a new SDD container should be
-     * generated.
+     * Returns the used SDD container. Is {@code null} if a new SDD container
+     * should be generated.
      * @return the used SDD container.
      */
     public Sdd getSdd() {

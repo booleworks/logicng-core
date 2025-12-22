@@ -100,31 +100,6 @@ import java.util.stream.Collectors;
  * these nodes adhere to all invariants of reduced (compressed and trimmed, see
  * [1]) SDDs. These invariants are not checked and violating them results in
  * undefined behaviour!</strong>
- * <p>
- * Example for manual construction:
- * <pre>{@code
- * final FormulaFactory f = FormulaFactory.caching();
- * // Construct VTree
- * final VTreeRoot.Builder vBuilder = VTreeRoot.builder();
- * final VTreeLeaf va = vBuilder.vTreeLeaf(f.variable("A"));
- * final VTreeLeaf vb = vBuilder.vTreeLeaf(f.variable("A"));
- * final VTree vab = vBuilder.vTreeInternal(va, vb);
- * final VTreeRoot vRoot = vBuilder.build(vab);
- *
- * // Create SDD container
- * final Sdd sdd = new Sdd(f, vRoot);
- *
- * // Construct SDD
- * final SddNode ta = sdd.terminal(va, true);
- * final SddNode tb = sdd.terminal(vb, true);
- * final SddNode taNeg = sdd.terminal(va, false);
- * final ArrayList<SddElement> elements = new ArrayList<>(List.of(
- * new SddElement(ta, tb),
- * new SddElement(taNeg, sdd.falsum())
- * ));
- * final SddNode d_aAndb = sdd.decomposition(elements);
- * // d_aAndb represents the formula (A & B) | (~A & $false)
- * }</pre>
  *
  * <h2>Operations and Transformations</h2>
  * <p>
@@ -158,7 +133,7 @@ import java.util.stream.Collectors;
  *     representation.</li>
  * </ul>
  * <p>
- * Often it is necessary to convert collection of variables or literals. For
+ * Sometimes it is necessary to convert collection of variables or literals. For
  * that, {@link SddUtil} provides various conversion functions.
  *
  * <h2>Pinning and Garbage Collection</h2>
