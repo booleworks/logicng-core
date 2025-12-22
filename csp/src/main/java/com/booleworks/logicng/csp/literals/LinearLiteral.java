@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.literals;
 
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
@@ -11,6 +14,8 @@ import java.util.Set;
  * Represents a relation with a linear sum:
  * <p>
  * {@code c_1 * a_1 + ... c_n * a_n (op) 0} with {@code op in {<=, =, !=}}
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class LinearLiteral implements ArithmeticLiteral {
     private final LinearExpression sum;
@@ -72,7 +77,7 @@ public class LinearLiteral implements ArithmeticLiteral {
     public LinearLiteral negate() {
         switch (op) {
             case LE:
-                return new LinearLiteral(new LinearExpression.Builder(sum).setB(sum.getB() - 1).multiply(-1).build(),
+                return new LinearLiteral(LinearExpression.builder(sum).setB(sum.getB() - 1).multiply(-1).build(),
                         Operator.LE);
             case EQ:
                 return new LinearLiteral(sum, Operator.NE);
@@ -120,7 +125,7 @@ public class LinearLiteral implements ArithmeticLiteral {
 
     @Override
     public LinearLiteral substitute(final IntegerVariableSubstitution assignment) {
-        final LinearExpression.Builder le = new LinearExpression.Builder(sum.getB());
+        final LinearExpression.Builder le = LinearExpression.builder(sum.getB());
         int replaced = 0;
         for (final IntegerVariable key : sum.getCoef().keySet()) {
             if (assignment.containsKey(key)) {

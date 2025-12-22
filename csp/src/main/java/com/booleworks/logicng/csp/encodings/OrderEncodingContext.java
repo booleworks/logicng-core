@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.encodings;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -22,8 +25,10 @@ import java.util.stream.Collectors;
 
 /**
  * Encoding context for order encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class OrderEncodingContext implements CspEncodingContext {
+public final class OrderEncodingContext implements CspEncodingContext {
     private final Map<IntegerVariable, Variable[]> variableMap;
     private final List<Variable> simplifyBoolVariables;
     private final List<IntegerVariable> simplifyIntVariables;
@@ -64,7 +69,8 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Creates and stores a new auxiliary variable used for simplifying linear expressions.
+     * Creates and stores a new auxiliary variable used for simplifying linear
+     * expressions.
      * @param domain the domain
      * @param cf     the factory
      * @return new auxiliary variable
@@ -76,7 +82,8 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Creates and stores a new boolean auxiliary variable for simplifying arithmetic clauses.
+     * Creates and stores a new boolean auxiliary variable for simplifying
+     * arithmetic clauses.
      * @param f       the factory
      * @param handler for processing encoding events
      * @return new auxiliary variable
@@ -102,8 +109,9 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Create a boolean variable representing of a certain index of an integer variable. If an instance already exists,
-     * no new instance is created and the existing one is returned.
+     * Create a boolean variable representing of a certain index of an integer
+     * variable. If an instance already exists, no new instance is created and
+     * the existing one is returned.
      * @param group   the integer variable
      * @param index   the queried index
      * @param f       the formula factory
@@ -125,7 +133,8 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Get a boolean variable representing of a certain index of an integer variable.
+     * Get a boolean variable representing of a certain index of an integer
+     * variable.
      * @param group the integer variable
      * @param index the queried index
      * @return the boolean variable
@@ -137,8 +146,10 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Returns the mapping between integer variables and their indices and associated boolean variables.
-     * @return the mapping between integer variables and their indices and associated boolean variables
+     * Returns the mapping between integer variables and their indices and
+     * associated boolean variables.
+     * @return the mapping between integer variables and their indices and
+     * associated boolean variables
      */
     public Map<IntegerVariable, Variable[]> getVariableMap() {
         return Collections.unmodifiableMap(this.variableMap);
@@ -164,7 +175,8 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Returns all boolean auxiliary variables that are used for simplifications.
+     * Returns all boolean auxiliary variables that are used for
+     * simplifications.
      * @return all boolean auxiliary variables that are used for simplifications
      */
     public List<Variable> getSimplifyBoolVariables() {
@@ -172,7 +184,8 @@ public class OrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Returns all integer auxiliary variables that are used for simplifications.
+     * Returns all integer auxiliary variables that are used for
+     * simplifications.
      * @return all integer auxiliary variables that are used for simplifications
      */
     public List<IntegerVariable> getSimplifyIntVariables() {

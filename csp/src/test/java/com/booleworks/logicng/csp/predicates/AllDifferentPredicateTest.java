@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,12 +105,12 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         final CspPredicate.Decomposition pred2 = cf.allDifferent(List.of(a, b, c)).decompose(cf);
         final CspPredicate.Decomposition pred3 = cf.allDifferent(List.of(a, b, c, d)).decompose(cf);
 
-        final LinearExpression leAB = new LinearExpression.Builder(0).setA(1, a).setA(-1, b).build();
-        final LinearExpression leAC = new LinearExpression.Builder(0).setA(1, a).setA(-1, c).build();
-        final LinearExpression leAD = new LinearExpression.Builder(0).setA(1, a).setA(-1, d).build();
-        final LinearExpression leBC = new LinearExpression.Builder(0).setA(1, b).setA(-1, c).build();
-        final LinearExpression leBD = new LinearExpression.Builder(0).setA(1, b).setA(-1, d).build();
-        final LinearExpression leCD = new LinearExpression.Builder(0).setA(1, c).setA(-1, d).build();
+        final LinearExpression leAB = LinearExpression.builder(0).setA(1, a).setA(-1, b).build();
+        final LinearExpression leAC = LinearExpression.builder(0).setA(1, a).setA(-1, c).build();
+        final LinearExpression leAD = LinearExpression.builder(0).setA(1, a).setA(-1, d).build();
+        final LinearExpression leBC = LinearExpression.builder(0).setA(1, b).setA(-1, c).build();
+        final LinearExpression leBD = LinearExpression.builder(0).setA(1, b).setA(-1, d).build();
+        final LinearExpression leCD = LinearExpression.builder(0).setA(1, c).setA(-1, d).build();
 
         assertThat(pred0.getClauses()).isEmpty();
         assertThat(pred1.getClauses()).hasSize(3);

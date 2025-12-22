@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.io.readers;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -15,23 +18,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A reader for CSP files
+ * A reader for CSP files.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class CspReader {
     private CspReader() {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as
      * the declaration.
      * <p>
-     * The resulting formula is the conjunction of all lines that are interpreted as formulas.
+     * The resulting formula is the conjunction of all lines that are
+     * interpreted as formulas.
      * @param cf       the factory
      * @param fileName the file name
      * @return the parsed formula
@@ -43,16 +53,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as
      * the declaration.
      * <p>
-     * The resulting formula is the conjunction of all lines that are interpreted as formulas.
+     * The resulting formula is the conjunction of all lines that are
+     * interpreted as formulas.
      * @param cf   the factory
      * @param file the file
      * @return the parsed formula
@@ -64,16 +79,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
-     * the declaration.
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as the
+     * declaration.
      * <p>
-     * The resulting formula is the conjunction of all lines that are interpreted as formulas.
+     * The resulting formula is the conjunction of all lines that are
+     * interpreted as formulas.
      * @param parser   the parser
      * @param fileName the file name
      * @return the parsed formula
@@ -85,16 +105,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as
      * the declaration.
      * <p>
-     * The resulting formula is the conjunction of all lines that are interpreted as formulas.
+     * The resulting formula is the conjunction of all lines that are
+     * interpreted as formulas.
      * @param parser the parser
      * @param file   the file
      * @return the parsed formula
@@ -106,16 +131,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
-     * the declaration.
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as the
+     * declaration.
      * <p>
-     * The resulting formula is a list of all lines that are interpreted as formulas.
+     * The resulting formula is a list of all lines that are interpreted as
+     * formulas.
      * @param cf       the factory
      * @param fileName the file name
      * @return list of all formulas (in order, without declarations)
@@ -128,16 +158,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as
      * the declaration.
      * <p>
-     * The resulting formula is a list of all lines that are interpreted as formulas.
+     * The resulting formula is a list of all lines that are interpreted as
+     * formulas.
      * @param cf   the factory
      * @param file the file
      * @return list of all formulas (in order, without declarations)
@@ -150,16 +185,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as
      * the declaration.
      * <p>
-     * The resulting formula is a list of all lines that are interpreted as formulas.
+     * The resulting formula is a list of all lines that are interpreted as
+     * formulas.
      * @param parser   the parser
      * @param fileName the file name
      * @return list of all formulas (in order, without declarations)
@@ -172,16 +212,21 @@ public class CspReader {
     }
 
     /**
-     * Reads a given file and returns the contained CSP problem and constructs formula.
+     * Reads a given file and returns the contained CSP problem and constructs
+     * formula.
      * <p>
-     * Each line is handled separately and can be either an integer variable declaration or a formula.
+     * Each line is handled separately and can be either an integer variable
+     * declaration or a formula.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A
-     * declaration will create the variable on the formula factory, so that it can be used in formulas in the following
-     * lines. Make sure that before the declaration the variable is not defined on the factory or has the same domain as
-     * the declaration.
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}. A declaration will
+     * create the variable on the formula factory, so that it can be used in
+     * formulas in the following lines. Make sure that before the declaration
+     * the variable is not defined on the factory or has the same domain as the
+     * declaration.
      * <p>
-     * The resulting formula is a list of all lines that are interpreted as formulas.
+     * The resulting formula is a list of all lines that are interpreted as
+     * formulas.
      * @param parser the parser
      * @param file   the file
      * @return list of all formulas (in order, without declarations)

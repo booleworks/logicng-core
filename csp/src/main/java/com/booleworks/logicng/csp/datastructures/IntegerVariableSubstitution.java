@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.datastructures;
 
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -11,6 +14,8 @@ import java.util.stream.Collectors;
 
 /**
  * A class storing substitutions from integer variables to integer variables.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class IntegerVariableSubstitution {
     private final Map<IntegerVariable, IntegerVariable> substitutions;
@@ -40,7 +45,8 @@ public final class IntegerVariableSubstitution {
 
     /**
      * Returns whether there are substitutions stored.
-     * @return {@code true} if there are no substitutions stored, {@code false} otherwise.
+     * @return {@code true} if there are no substitutions stored, {@code false}
+     * otherwise.
      */
     public boolean isEmpty() {
         return substitutions.isEmpty();
@@ -49,7 +55,8 @@ public final class IntegerVariableSubstitution {
     /**
      * Returns whether a variable has a substitution.
      * @param v the variable
-     * @return {@code true} if the variable has a substitution, {@code false} otherwise.
+     * @return {@code true} if the variable has a substitution, {@code false}
+     * otherwise.
      */
     public boolean containsKey(final IntegerVariable v) {
         return substitutions.containsKey(v);
@@ -75,7 +82,8 @@ public final class IntegerVariableSubstitution {
     }
 
     /**
-     * Returns the substitute if a variable of the variable itself if there is no substitute.
+     * Returns the substitute if a variable of the variable itself if there is
+     * no substitute.
      * @param original the variable
      * @return the substitute or the variable itself
      */
@@ -84,7 +92,8 @@ public final class IntegerVariableSubstitution {
     }
 
     /**
-     * Returns the substitutes of a list of variables. If a substitute does not exist for a variable the variable
+     * Returns the substitutes of a list of variables. If a substitute does not
+     * exist for a variable the variable
      * itself is used.
      * @param originals the variables
      * @return the substitutes
@@ -111,14 +120,12 @@ public final class IntegerVariableSubstitution {
         }
 
         final IntegerVariableSubstitution that = (IntegerVariableSubstitution) o;
-        return substitutions.equals(that.substitutions); //&& reverseDirection.equals(that.reverseDirection);
+        return substitutions.equals(that.substitutions);
     }
 
     @Override
     public int hashCode() {
-        final int result = substitutions.hashCode();
-        // result = 31 * result + reverseDirection.hashCode();
-        return result;
+        return substitutions.hashCode();
     }
 
     @Override

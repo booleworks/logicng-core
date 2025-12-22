@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -23,9 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A class grouping functions for substituting integer variables in formulas, predicates, and terms.
+ * Functions for substituting integer variables in formulas,predicates, and
+ * terms.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class TermSubstitutionFunction {
+public final class TermSubstitutionFunction {
     private TermSubstitutionFunction() {
     }
 

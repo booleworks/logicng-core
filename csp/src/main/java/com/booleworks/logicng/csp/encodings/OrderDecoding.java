@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.encodings;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -14,33 +17,44 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Class grouping functions for decoding problems encoded with the order encoding.
+ * Class grouping functions for decoding problems encoded with the order
+ * encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class OrderDecoding {
-    private OrderDecoding() {
+public final class OrderDecoding {
+    private final OrderEncodingContext context;
+    private final CspFactory cf;
+
+    /**
+     * Constructs a new order decoding instance.
+     * @param context the encoding context
+     * @param cf      the factory
+     */
+    public OrderDecoding(final OrderEncodingContext context, final CspFactory cf) {
+        this.context = context;
+        this.cf = cf;
     }
 
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * <p>
-     * {@code propagateSubstitution} is used to resolve addition substitutions that were not done by the encoding.
+     * {@code propagateSubstitution} is used to resolve addition substitutions
+     * that were not done by the encoding.
      * @param model                 propositional model
      * @param integerVariables      included integer variables
      * @param booleanVariables      included boolean variables
      * @param propagateSubstitution extern substitutions
-     * @param context               the context
-     * @param cf                    the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final IntegerVariableSubstitution propagateSubstitution,
-                                       final OrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables,
+                                final IntegerVariableSubstitution propagateSubstitution) {
         final CspAssignment result = new CspAssignment();
         for (final IntegerVariable v : integerVariables) {
             final int value = decodeIntVar(propagateSubstitution.getOrSelf(v), model, context);
@@ -61,56 +75,49 @@ public class OrderDecoding {
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
      * @param booleanVariables included boolean variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final OrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables) {
+        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution());
     }
 
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer variables, which are the variables that
-     * should be decoded from {@code model}. Variables not contained in the model will be assigned to any valid value
-     * for this variable.
+     * It takes a propositional model {@code model} and a list of integer
+     * variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
+     * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final OrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables) {
+        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution());
     }
 
     /**
      * Decodes a problem that was encoded with the order encoding.
-     * @param model   propositional model
-     * @param csp     csp data structure
-     * @param context the context
-     * @param cf      the factory
+     * @param model propositional model
+     * @param csp   csp data structure
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Csp csp, final OrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Csp csp) {
         return decode(model, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
-                csp.getPropagateSubstitutions(), context, cf);
+                csp.getPropagateSubstitutions());
     }
 
     /**
-     * Decodes a single integer variable. If the variable is not encoded in the model, it will return any valid value
-     * of the variable.
+     * Decodes a single integer variable. If the variable is not encoded in the
+     * model, it will return any valid value of the variable.
      * @param var     the integer variable to decode
      * @param model   the propositional model
      * @param context the context

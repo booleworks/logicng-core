@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -13,17 +16,20 @@ import java.util.Set;
 
 /**
  * A function term representing the multiplication operation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class MultiplicationFunction extends BinaryFunction {
     /**
-     * Prefix for auxiliary variables introduced by the decomposition
+     * Prefix for auxiliary variables introduced by the decomposition.
      */
     public final static String MUL_AUX_VARIABLE = "MUL";
 
     /**
      * Constructs a new multiplication function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param left  the constant factor
      * @param right the variable
      */

@@ -44,9 +44,9 @@ public final class LngBddFunction extends BddFunction<BddNode> {
             return node;
         }
         if (index == BddKernel.BDD_FALSE) {
-            node = BddConstant.getFalsumNode(kernel.factory());
+            node = BddConstant.getFalsumNode(kernel.getFactory());
         } else if (index == BddKernel.BDD_TRUE) {
-            node = BddConstant.getVerumNode(kernel.factory());
+            node = BddConstant.getVerumNode(kernel.getFactory());
         } else {
             final int[] kernelNode = kernelNodeMap.get(index);
             final Variable variable = kernel.getVariableForIndex(kernelNode[1]);

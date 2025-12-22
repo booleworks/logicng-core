@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.solvers.sat;
 
 import static com.booleworks.logicng.solvers.sat.LngCoreSolver.generateClauseVector;
@@ -117,7 +121,7 @@ public class SatCall implements AutoCloseable {
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call
-     * was unsatisfiable
+     *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Model model(final Collection<Variable> variables) {
@@ -174,6 +178,7 @@ public class SatCall implements AutoCloseable {
         solver.setSelectionOrder(List.of());
         if (initialState != null) {
             solver.loadState(initialState);
+            solverWrapper.clearPgCaches();
         }
         solver.finishSatCall();
     }

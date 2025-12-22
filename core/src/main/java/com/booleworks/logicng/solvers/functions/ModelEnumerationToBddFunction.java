@@ -151,9 +151,9 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         private Bdd model2Bdd(final Model model) {
-            Bdd bdd = BddFactory.build(kernel.factory(), kernel.factory().verum(), kernel);
+            Bdd bdd = BddFactory.build(kernel.getFactory(), kernel.getFactory().verum(), kernel);
             for (final Literal literal : model.getLiterals()) {
-                bdd = bdd.and(BddFactory.build(kernel.factory(), literal, kernel));
+                bdd = bdd.and(BddFactory.build(kernel.getFactory(), literal, kernel));
             }
             return bdd;
         }

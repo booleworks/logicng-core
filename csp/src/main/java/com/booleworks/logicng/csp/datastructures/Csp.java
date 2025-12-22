@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.datastructures;
 
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -11,8 +14,10 @@ import java.util.stream.Collectors;
 
 /**
  * A data structure storing all information relevant for a CSP problem.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class Csp {
+public final class Csp {
     private Set<IntegerVariable> visibleIntegerVariables;
     private Set<IntegerVariable> internalIntegerVariables;
     private Set<Variable> visibleBooleanVariables;
@@ -41,53 +46,61 @@ public class Csp {
     /**
      * Returns all visible integer variables of this problem.
      * <p>
-     * Visible (or original) variables are the variables that were originally in the input passed by the user. After
-     * performing optimizations or reduction/encoding steps some original variables might be substituted by auxiliary
-     * variables or are completely removed. So we need to keep track of them, so that we still know which variables
-     * were important in the beginning.
+     * Visible (or original) variables are the variables that were originally in
+     * the input passed by the user. After performing optimizations or
+     * reduction/encoding steps some original variables might be substituted by
+     * auxiliary variables or are completely removed. So we need to keep track
+     * of them, so that we still know which variables were important in the
+     * beginning.
      * @return all visible integer variables of this problem.
      */
     public Set<IntegerVariable> getVisibleIntegerVariables() {
-        return visibleIntegerVariables;
+        return Collections.unmodifiableSet(visibleIntegerVariables);
     }
 
     /**
      * Returns all visible boolean variables of this problem.
      * <p>
-     * Visible (or original) variables are the variables that were originally in the input passed by the user. After
-     * performing optimizations or reduction/encoding steps some original variables might be substituted by auxiliary
-     * variables or are completely removed. So we need to keep track of them, so that we still know which variables
-     * were important in the beginning.
+     * Visible (or original) variables are the variables that were originally in
+     * the input passed by the user. After performing optimizations or
+     * reduction/encoding steps some original variables might be substituted by
+     * auxiliary variables or are completely removed. So we need to keep track
+     * of them, so that we still know which variables were important in the
+     * beginning.
      * @return all visible boolean variables of this problem.
      */
     public Set<Variable> getVisibleBooleanVariables() {
-        return visibleBooleanVariables;
+        return Collections.unmodifiableSet(visibleBooleanVariables);
     }
 
     /**
      * Returns all internal integer variables of this problem.
      * <p>
-     * After performing optimizations or reduction/encoding steps some original variables might be substituted by
-     * auxiliary variables or are completely removed. Further processing steps only care for the variables that are
-     * currently relevant in the problem: All original variables that were not replaced or removed, the auxiliary
-     * variables that some original variables were replace with, and all other auxiliary variables.
+     * After performing optimizations or reduction/encoding steps some original
+     * variables might be substituted by auxiliary variables or are completely
+     * removed. Further processing steps only care for the variables that are
+     * currently relevant in the problem: All original variables that were not
+     * replaced or removed, the auxiliary variables that some original variables
+     * were replace with, and all other auxiliary variables.
      * @return all internal integer variables of this problem.
      */
     public Set<IntegerVariable> getInternalIntegerVariables() {
-        return internalIntegerVariables;
+        return Collections.unmodifiableSet(internalIntegerVariables);
     }
 
     /**
      * Returns all internal boolean variables of this problem.
      * <p>
-     * After performing optimizations or reduction/encoding steps some original variables might be substituted by
-     * auxiliary variables or are completely removed. Further processing steps only care for the variables that are
-     * currently relevant in the problem: All original variables that were not replaced or removed, the auxiliary
-     * variables that some original variables were replace with, and all other auxiliary variables.
+     * After performing optimizations or reduction/encoding steps some original
+     * variables might be substituted by auxiliary variables or are completely
+     * removed. Further processing steps only care for the variables that are
+     * currently relevant in the problem: All original variables that were not
+     * replaced or removed, the auxiliary variables that some original variables
+     * were replace with, and all other auxiliary variables.
      * @return all internal boolean variables of this problem.
      */
     public Set<Variable> getInternalBooleanVariables() {
-        return internalBooleanVariables;
+        return Collections.unmodifiableSet(internalBooleanVariables);
     }
 
     /**
@@ -95,7 +108,7 @@ public class Csp {
      * @return all arithmetic clauses of this problem
      */
     public Set<IntegerClause> getClauses() {
-        return clauses;
+        return Collections.unmodifiableSet(clauses);
     }
 
     /**
@@ -131,7 +144,8 @@ public class Csp {
     }
 
     /**
-     * Build CSP problem from set of clauses and visible integer and boolean variables.
+     * Build CSP problem from set of clauses and visible integer and boolean
+     * variables.
      * <p>
      * Internal variables are extracted from the clauses.
      * @param clauses          the clauses
@@ -145,7 +159,8 @@ public class Csp {
     }
 
     /**
-     * Build CSP problem from set of clauses and visible variables and additional substitutions.
+     * Build CSP problem from set of clauses and visible variables and
+     * additional substitutions.
      * <p>
      * Internal variables are extracted from the clauses.
      * @param clauses                the clauses
@@ -175,6 +190,23 @@ public class Csp {
     }
 
     /**
+     * Constructs a new CSP builder.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Constructs a new CSP builder by coping a CSP problem.
+     * @param csp the CSP problem
+     * @return the builder
+     */
+    public static Builder builder(final Csp csp) {
+        return new Builder(csp);
+    }
+
+    /**
      * A builder for incrementally building CSP problems.
      */
     public static class Builder {
@@ -183,7 +215,7 @@ public class Csp {
         /**
          * Constructs a new CSP builder.
          */
-        public Builder() {
+        private Builder() {
             csp = new Csp();
         }
 
@@ -191,7 +223,7 @@ public class Csp {
          * Constructs a new CSP builder by coping a CSP problem.
          * @param csp the CSP problem
          */
-        public Builder(final Csp csp) {
+        private Builder(final Csp csp) {
             this.csp = new Csp(csp);
         }
 
@@ -329,9 +361,11 @@ public class Csp {
         /**
          * Returns all visible integer variables of this problem.
          * <p>
-         * Visible (or original) variables are the variables that were originally in the input passed by the user.
-         * After performing optimizations or reduction/encoding steps some original variables might be substituted by
-         * auxiliary variables or are completely removed. So we need to keep track of them, so that we still know
+         * Visible (or original) variables are the variables that were
+         * originally in the input passed by the user. After performing
+         * optimizations or reduction/encoding steps some original variables
+         * might be substituted by auxiliary variables or are completely
+         * removed. So we need to keep track of them, so that we still know
          * which variables were important in the beginning.
          * @return all visible integer variables of this problem.
          */
@@ -342,10 +376,13 @@ public class Csp {
         /**
          * Returns all internal boolean variables of this problem.
          * <p>
-         * After performing optimizations or reduction/encoding steps some original variables might be substituted by
-         * auxiliary variables or are completely removed. Further processing steps only care for the variables that are
-         * currently relevant in the problem: All original variables that were not replaced or removed, the auxiliary
-         * variables that some original variables were replace with, and all other auxiliary variables.
+         * After performing optimizations or reduction/encoding steps some
+         * original variables might be substituted by auxiliary variables or are
+         * completely removed. Further processing steps only care for the
+         * variables that are currently relevant in the problem: All original
+         * variables that were not replaced or removed, the auxiliary variables
+         * that some original variables were replace with, and all other
+         * auxiliary variables.
          * @return all internal boolean variables of this problem.
          */
         public Set<Variable> getInternalBooleanVariables() {
@@ -355,9 +392,11 @@ public class Csp {
         /**
          * Returns all visible boolean variables of this problem.
          * <p>
-         * Visible (or original) variables are the variables that were originally in the input passed by the user. After
-         * performing optimizations or reduction/encoding steps some original variables might be substituted by
-         * auxiliary variables or are completely removed. So we need to keep track of them, so that we still know
+         * Visible (or original) variables are the variables that were
+         * originally in the input passed by the user. After performing
+         * optimizations or reduction/encoding steps some original variables
+         * might be substituted by auxiliary variables or are completely
+         * removed. So we need to keep track of them, so that we still know
          * which variables were important in the beginning.
          * @return all visible boolean variables of this problem.
          */

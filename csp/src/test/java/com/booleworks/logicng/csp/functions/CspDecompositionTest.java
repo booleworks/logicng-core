@@ -1,4 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.csp.Common;
 import com.booleworks.logicng.csp.CspFactory;
@@ -17,8 +22,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CspDecompositionTest extends ParameterizedCspTest {
 
@@ -72,13 +75,13 @@ public class CspDecompositionTest extends ParameterizedCspTest {
     }
 
     private static LinearLiteral lt(final int c0, final IntegerVariable a0, final int c1, final IntegerVariable a1) {
-        final LinearExpression le = new LinearExpression.Builder(0).setA(c0, a0).setA(c1, a1).build();
+        final LinearExpression le = LinearExpression.builder(0).setA(c0, a0).setA(c1, a1).build();
         return new LinearLiteral(le, LinearLiteral.Operator.EQ);
     }
 
     private static LinearLiteral lt(final int c0, final IntegerVariable a0, final int c1, final IntegerVariable a1,
                                     final int c2, final IntegerVariable a2) {
-        final LinearExpression le = new LinearExpression.Builder(0).setA(c0, a0).setA(c1, a1).setA(c2, a2).build();
+        final LinearExpression le = LinearExpression.builder(0).setA(c0, a0).setA(c1, a1).setA(c2, a2).build();
         return new LinearLiteral(le, LinearLiteral.Operator.EQ);
     }
 }

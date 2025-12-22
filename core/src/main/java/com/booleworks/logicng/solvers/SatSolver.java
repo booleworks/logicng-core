@@ -129,15 +129,17 @@ public class SatSolver {
                         solver.addClause(LngCoreSolver.generateClauseVector(constraint.getOperands(), solver),
                                 proposition);
                     } else {
-                        CcEncoder.encode((CardinalityConstraint) constraint,
-                                EncodingResult.resultForSatSolver(f, solver, proposition));
+                        CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                                (CardinalityConstraint) constraint
+                        );
                     }
                 } else {
-                    CcEncoder.encode((CardinalityConstraint) constraint,
-                            EncodingResult.resultForSatSolver(f, solver, proposition));
+                    CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                            (CardinalityConstraint) constraint
+                    );
                 }
             } else {
-                PbEncoder.encode(constraint, EncodingResult.resultForSatSolver(f, solver, proposition));
+                PbEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition), constraint);
             }
         } else {
             addFormulaAsCnf(formula, proposition);
@@ -229,7 +231,7 @@ public class SatSolver {
      */
     public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForSatSolver(f, solver, null);
-        return CcEncoder.encodeIncremental(cc, result);
+        return CcEncoder.encodeIncremental(result, cc);
     }
 
     /**
@@ -318,7 +320,7 @@ public class SatSolver {
      * @param handler  the computation handler
      * @param <RESULT> the result type of the function
      * @return the (potentially canceled) result of executing the solver
-     * function on the current solver
+     *         function on the current solver
      * @throws IllegalStateException if this solver is currently used in a
      *                               {@link SatCall}
      */
@@ -372,8 +374,7 @@ public class SatSolver {
     public void loadState(final SolverState state) {
         solver.assertNotInSatCall();
         solver.loadState(state);
-        pgTransformation.clearCache();
-        fullPgTransformation.clearCache();
+        clearPgCaches();
     }
 
     /**
@@ -435,5 +436,10 @@ public class SatSolver {
         } else {
             throw new IllegalStateException("Unknown Solver CNF method: " + config.getCnfMethod());
         }
+    }
+
+    public void clearPgCaches() {
+        pgTransformation.clearCache();
+        fullPgTransformation.clearCache();
     }
 }

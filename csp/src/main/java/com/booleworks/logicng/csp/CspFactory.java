@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp;
 
 import com.booleworks.logicng.csp.datastructures.Csp;
@@ -53,13 +56,17 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
- * The central data structure for creating and managing CSP objects (terms, predicate, integer variables).
+ * The central data structure for creating and managing CSP objects
+ * (terms, predicate, integer variables).
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class CspFactory {
     /**
      * Prefix for all auxiliary variables
      */
     public static final String AUX_PREFIX = "@AUX_";
+
     private final IntegerConstant zero;
     private final IntegerConstant one;
     private final FormulaFactory formulaFactory;
@@ -85,7 +92,8 @@ public class CspFactory {
     private final CspParser parser;
 
     /**
-     * Constructs a new factory for CSP related constructs. It uses a {@link FormulaFactory} as basis.
+     * Constructs a new factory for CSP related constructs. It uses a
+     * {@link FormulaFactory} as basis.
      * @param formulaFactory the underlying formula factory
      */
     public CspFactory(final FormulaFactory formulaFactory) {
@@ -117,7 +125,8 @@ public class CspFactory {
     }
 
     /**
-     * Copies an existing CSP factory and replaces the underlying formula factory.
+     * Copies an existing CSP factory and replaces the underlying formula
+     * factory.
      * @param other          the existing CSP factory
      * @param formulaFactory the underlying formula factory
      */
@@ -183,7 +192,8 @@ public class CspFactory {
     /**
      * Creates a new integer variable with a ranged domain.
      * <p>
-     * The domain must not be empty and there must not be another variable with the same name.
+     * The domain must not be empty and there must not be another variable with
+     * the same name.
      * @param name       the name of the variable
      * @param lowerBound the lower bound of the variable's domain
      * @param upperBound the upper bound of the variable's domain
@@ -196,7 +206,8 @@ public class CspFactory {
     /**
      * Creates a new integer variable from individual values.
      * <p>
-     * The domain must not be empty and there must not be another variable with the same name.
+     * The domain must not be empty and there must not be another variable with
+     * the same name.
      * @param name   the name of the variable
      * @param values the integer domain
      * @return the new variable
@@ -208,7 +219,8 @@ public class CspFactory {
     /**
      * Creates a new integer variable from an integer domain.
      * <p>
-     * The domain must not be empty and there must not be another variable with the same name.
+     * The domain must not be empty and there must not be another variable with
+     * the same name.
      * @param name   the name of the variable
      * @param domain the integer domain
      * @return the new variable
@@ -232,16 +244,19 @@ public class CspFactory {
     }
 
     /**
-     * Returns the cached variable for a given name. If the variable does not exist {@code null} is returned.
+     * Returns the cached variable for a given name. If the variable does not
+     * exist {@code null} is returned.
      * @param name the name of the variable
-     * @return the cached variable for a given name. If the variable does not exist {@code null} is returned.
+     * @return the cached variable for a given name. If the variable does not
+     * exist {@code null} is returned.
      */
     public IntegerVariable getVariable(final String name) {
         return integerVariables.get(name);
     }
 
     /**
-     * Creates a new auxiliary variable of type {@code type} and an integer domain.
+     * Creates a new auxiliary variable of type {@code type} and an integer
+     * domain.
      * @param type   the auxiliary class of the variable
      * @param domain the integer domain
      * @return a new auxiliary variable
@@ -252,10 +267,11 @@ public class CspFactory {
     }
 
     /**
-     * Creates a new auxiliary variable of type {@code type} and an additional postfix and an integer domain.
+     * Creates a new auxiliary variable of type {@code type} and an additional
+     * postfix and an integer domain.
      * <p>
-     * The postfix can be used encode some addition information into the variable that helps to associate the
-     * variable with its original purpose.
+     * The postfix can be used encode some addition information into the
+     * variable that helps to associate the variable with its original purpose.
      * @param type    the auxiliary class of the variable
      * @param postfix the postfix of the variable
      * @param domain  the integer domain
@@ -267,7 +283,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates the negation of {@code term}
+     * Creates the negation of {@code term}.
      * @param term the term
      * @return the negation of {@code term}
      */
@@ -306,12 +322,7 @@ public class CspFactory {
      * @return the addition
      */
     public Term add(final Collection<Term> terms) {
-        final Collection<Term> originalOperands = terms;
-        final Term foundFunction = addTerms.get(originalOperands);
-        if (foundFunction != null) {
-            return foundFunction;
-        }
-        final LinkedHashSet<Term> compactedOperands = compactifyAddOperands(originalOperands);
+        final LinkedHashSet<Term> compactedOperands = compactifyAddOperands(terms);
         final Term foundFunctionCompact = this.addTerms.get(compactedOperands);
         if (foundFunctionCompact != null) {
             return foundFunctionCompact;
@@ -470,7 +481,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates the division of a term with an integer constant
+     * Creates the division of a term with an integer constant.
      * @param left  the dividend
      * @param right the divisor
      * @return the division
@@ -480,7 +491,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates the division of a term with an integer constant
+     * Creates the division of a term with an integer constant.
      * @param left  the dividend
      * @param right the divisor
      * @return the division
@@ -507,7 +518,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates the modulo function of a term with an integer constant
+     * Creates the modulo function of a term with an integer constant.
      * @param left  the dividend
      * @param right the divisor
      * @return the modulo function
@@ -517,7 +528,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates the modulo function of a term with an integer constant
+     * Creates the modulo function of a term with an integer constant.
      * @param left  the dividend
      * @param right the divisor
      * @return the modulo function
@@ -576,7 +587,7 @@ public class CspFactory {
     }
 
     /**
-     * Create a new comparison predicate
+     * Create a new comparison predicate.
      * @param left  the left side of the comparison
      * @param right the right side of the comparison
      * @param type  the operator
@@ -638,7 +649,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates a less-than predicate
+     * Creates a less-than predicate.
      * @param left  the left side
      * @param right the right side
      * @return the less-than predicate
@@ -648,7 +659,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates a less-than-equals predicate
+     * Creates a less-than-equals predicate.
      * @param left  the left side
      * @param right the right side
      * @return the less-than predicate
@@ -658,7 +669,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates a greater-than predicate
+     * Creates a greater-than predicate.
      * @param left  the left side
      * @param right the right side
      * @return the less-than predicate
@@ -668,7 +679,7 @@ public class CspFactory {
     }
 
     /**
-     * Creates a greater-than-equals predicate
+     * Creates a greater-than-equals predicate.
      * @param left  the left side
      * @param right the right side
      * @return the less-than predicate
@@ -730,7 +741,7 @@ public class CspFactory {
      */
     public Csp buildCsp(final Formula formula) {
         final SortedSet<Variable> variables = formula.variables(formulaFactory);
-        final SortedSet<IntegerVariable> integerVariables = IntegerVariablesFunction.integerVariables(formula);
+        final SortedSet<IntegerVariable> integerVariables = formula.apply(IntegerVariablesFunction.get());
         final Set<IntegerClause> clauses = decompose(formula).getClauses();
         return Csp.fromClauses(clauses, integerVariables, variables);
     }
@@ -798,22 +809,24 @@ public class CspFactory {
     /**
      * Encodes a CSP problem as a CNF.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the {@code result} may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param csp     the CSP problem
      * @param context the encoding context
      * @param result  the destination for the encoding
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeCsp(final Csp csp, final CspEncodingContext context,
                                                final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderEncoding.encode(csp, (OrderEncodingContext) context, result, this, handler);
+                return new OrderEncoding((OrderEncodingContext) context, this)
+                        .encode(csp, result, handler);
             case CompactOrder:
-                return CompactOrderEncoding.encode(csp, (CompactOrderEncodingContext) context, result, this, handler);
+                return new CompactOrderEncoding((CompactOrderEncodingContext) context, this)
+                        .encode(csp, result, handler);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -859,23 +872,24 @@ public class CspFactory {
     /**
      * Encodes an integer variable as a CNF.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of {@code result} may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param variable the integer variable
      * @param context  the encoding context
      * @param result   the destination for the encoding
      * @param handler  handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
                                                     final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderEncoding.encodeVariable(variable, (OrderEncodingContext) context, result, this, handler);
+                return new OrderEncoding((OrderEncodingContext) context, this)
+                        .encodeVariable(variable, result, handler);
             case CompactOrder:
-                return CompactOrderEncoding.encodeVariable(variable, (CompactOrderEncodingContext) context, result,
-                        this, handler);
+                return new CompactOrderEncoding((CompactOrderEncodingContext) context, this)
+                        .encodeVariable(variable, result, handler);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -899,7 +913,8 @@ public class CspFactory {
      * @param predicate the predicate
      * @param context   the encoding context
      * @param handler   handler for processing encoding events
-     * @return a result containing the encoded CNF or the handler event that aborted the computation
+     * @return a result containing the encoded CNF or the handler event that
+     * aborted the computation
      */
     public LngResult<List<Formula>> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                                      final ComputationHandler handler) {
@@ -921,37 +936,39 @@ public class CspFactory {
     /**
      * Encodes a CSP predicate as a CNF.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the {@code result} may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param predicate the predicate
      * @param context   the encoding context
      * @param result    the destination for the encoding
      * @param handler   handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the {@code result} if the computation was successful otherwise
+     * returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                                       final EncodingResult result, final ComputationHandler handler) {
         final CspPredicate.Decomposition decomp = predicate.decompose(this);
         LngResult<EncodingResult> r;
         switch (context.getAlgorithm()) {
-            case Order:
+            case Order: {
+                final OrderEncoding encodingObject = new OrderEncoding((OrderEncodingContext) context, this);
                 for (final IntegerVariable auxVar : decomp.getAuxiliaryIntegerVariables()) {
-                    r = OrderEncoding.encodeVariable(auxVar, (OrderEncodingContext) context, result, this, handler);
+                    r = encodingObject.encodeVariable(auxVar, result, handler);
                     if (!r.isSuccess()) {
                         return r;
                     }
                 }
-                return OrderEncoding.encodeClauses(decomp.getClauses(), (OrderEncodingContext) context, result, this,
-                        handler);
-            case CompactOrder:
-                r = CompactOrderEncoding.encodeVariables(decomp.getAuxiliaryIntegerVariables(),
-                        (CompactOrderEncodingContext) context, result, this, handler);
+                return encodingObject.encodeClauses(decomp.getClauses(), result, handler);
+            }
+            case CompactOrder: {
+                final CompactOrderEncoding encodingObject =
+                        new CompactOrderEncoding((CompactOrderEncodingContext) context, this);
+                r = encodingObject.encodeVariables(decomp.getAuxiliaryIntegerVariables(), result, handler);
                 if (!r.isSuccess()) {
                     return r;
                 }
-                return CompactOrderEncoding.encodeClauses(decomp.getClauses(), (CompactOrderEncodingContext) context,
-                        result, this, handler);
+                return encodingObject.encodeClauses(decomp.getClauses(), result, handler);
+            }
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -959,7 +976,8 @@ public class CspFactory {
     }
 
     /**
-     * Decodes a propositional model for a CSP problem to an {@link CspAssignment}.
+     * Decodes a propositional model for a CSP problem to an
+     * {@link CspAssignment}.
      * @param model   the propositional model
      * @param csp     the CSP problem
      * @param context the encoding context
@@ -968,9 +986,9 @@ public class CspFactory {
     public CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderDecoding.decode(model, csp, (OrderEncodingContext) context, this);
+                return new OrderDecoding((OrderEncodingContext) context, this).decode(model, csp);
             case CompactOrder:
-                return CompactOrderDecoding.decode(model, csp, (CompactOrderEncodingContext) context, this);
+                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this).decode(model, csp);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -989,11 +1007,11 @@ public class CspFactory {
                                 final Collection<Variable> booleanVariables, final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderDecoding.decode(model, integerVariables, booleanVariables, (OrderEncodingContext) context,
-                        this);
+                return new OrderDecoding((OrderEncodingContext) context, this)
+                        .decode(model, integerVariables, booleanVariables);
             case CompactOrder:
-                return CompactOrderDecoding.decode(model, integerVariables, booleanVariables,
-                        (CompactOrderEncodingContext) context, this);
+                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this)
+                        .decode(model, integerVariables, booleanVariables);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -1011,10 +1029,10 @@ public class CspFactory {
                                 final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderDecoding.decode(model, integerVariables, (OrderEncodingContext) context, this);
+                return new OrderDecoding((OrderEncodingContext) context, this).decode(model, integerVariables);
             case CompactOrder:
-                return CompactOrderDecoding.decode(model, integerVariables, (CompactOrderEncodingContext) context,
-                        this);
+                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this)
+                        .decode(model, integerVariables);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());

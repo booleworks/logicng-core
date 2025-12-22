@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.datastructures;
 
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
@@ -16,9 +19,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Represents a hybrid arithmetic/boolean clause with arithmetic literals and boolean literals.
+ * Represents a hybrid arithmetic/boolean clause with arithmetic literals and
+ * boolean literals.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class IntegerClause {
+public final class IntegerClause {
     private final Set<Literal> boolLiterals;
     private final Set<ArithmeticLiteral> arithLiterals;
 
@@ -65,7 +71,8 @@ public class IntegerClause {
     }
 
     /**
-     * Constructs new arithmetic clause with one boolean literal and one arithmetic literal.
+     * Constructs new arithmetic clause with one boolean literal and one
+     * arithmetic literal.
      * @param boolLiteral       boolean literal
      * @param arithmeticLiteral arithmetic literal
      */
@@ -86,7 +93,7 @@ public class IntegerClause {
      * @return all boolean literals of this clause
      */
     public Set<Literal> getBoolLiterals() {
-        return boolLiterals;
+        return Collections.unmodifiableSet(boolLiterals);
     }
 
     /**
@@ -94,12 +101,14 @@ public class IntegerClause {
      * @return all arithmetic literals of this clause
      */
     public Set<ArithmeticLiteral> getArithmeticLiterals() {
-        return arithLiterals;
+        return Collections.unmodifiableSet(arithLiterals);
     }
 
     /**
-     * Returns all integer variables that are contained in all literals of this clause.
-     * @return all integer variables that are contained in all literals of this clause
+     * Returns all integer variables that are contained in all literals of this
+     * clause.
+     * @return all integer variables that are contained in all literals of this
+     * clause
      */
     public Set<IntegerVariable> getCommonVariables() {
         if (!boolLiterals.isEmpty()) {
@@ -139,7 +148,8 @@ public class IntegerClause {
     }
 
     /**
-     * Returns whether the clause is trivially unsatisfiable, i.e., all literals are unsatisfiable.
+     * Returns whether the clause is trivially unsatisfiable, i.e., all literals
+     * are unsatisfiable.
      * @return whether the clause is trivially unsatisfiable
      */
     public boolean isUnsat() {
@@ -192,8 +202,6 @@ public class IntegerClause {
      * Combines two predicate decompositions by factorizing their clauses.
      * <p>
      * This expresses a disjunction of two sets of clauses.
-     * <p>
-     * TODO: We could use Tseitin instead
      * @param left  the left decomposition
      * @param right the right decomposition
      * @return the factorized decomposition.
@@ -218,52 +226,67 @@ public class IntegerClause {
     }
 
     /**
+     * Constructs an empty clause builder.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder(new LinkedHashSet<>(), new LinkedHashSet<>());
+    }
+
+    /**
+     * Constructs a new clause builder from a set of boolean and arithmetic
+     * literals
+     * @param boolLiterals  the boolean literals
+     * @param arithLiterals the arithmetic literals
+     * @return the builder
+     */
+    private static Builder builder(final Set<Literal> boolLiterals, final Set<ArithmeticLiteral> arithLiterals) {
+        return new Builder(boolLiterals, arithLiterals);
+    }
+
+    /**
+     * Constructs a new clause builder by copying an existing clause.
+     * @param clause the existing clause
+     * @return the builder
+     */
+    public static Builder clone(final IntegerClause clause) {
+        return new Builder(new LinkedHashSet<>(clause.boolLiterals), new LinkedHashSet<>(clause.arithLiterals));
+    }
+
+    /**
+     * Constructs a new clause builder by copying only the boolean literals
+     * of an existing clause.
+     * @param clause the existing clause
+     * @return the new builder
+     */
+    public static Builder cloneOnlyBool(final IntegerClause clause) {
+        return new Builder(new LinkedHashSet<>(clause.getBoolLiterals()), new LinkedHashSet<>());
+    }
+
+    /**
+     * Constructs a new clause builder by copying only the arithmetic
+     * literals of an existing clause.
+     * @param clause the existing clause
+     * @return the new builder
+     */
+    public static Builder cloneOnlyArith(final IntegerClause clause) {
+        return new Builder(new LinkedHashSet<>(), new LinkedHashSet<>(clause.getArithmeticLiterals()));
+    }
+
+    /**
      * A builder for incrementally building arithmetic clauses.
      */
     public static class Builder {
         private IntegerClause clause;
 
         /**
-         * Constructs a new clause builder.
-         */
-        public Builder() {
-            clause = new IntegerClause(new LinkedHashSet<>(), new LinkedHashSet<>());
-        }
-
-        /**
-         * Constructs a new clause builder by copying an existing clause.
-         * @param clause the existing clause
-         */
-        public Builder(final IntegerClause clause) {
-            this.clause = new IntegerClause(new LinkedHashSet<>(clause.getBoolLiterals()),
-                    new LinkedHashSet<>(clause.getArithmeticLiterals()));
-        }
-
-        /**
-         * Constructs a new clause builder from a set of boolean and arithmetic literals
+         * Constructs a new clause builder from a set of boolean and arithmetic
+         * literals
          * @param boolLiterals  the boolean literals
          * @param arithLiterals the arithmetic literals
          */
         private Builder(final Set<Literal> boolLiterals, final Set<ArithmeticLiteral> arithLiterals) {
             this.clause = new IntegerClause(boolLiterals, arithLiterals);
-        }
-
-        /**
-         * Constructs a new clause builder by copying only the boolean literals of an existing clause.
-         * @param clause the existing clause
-         * @return the new builder
-         */
-        public static Builder cloneOnlyBool(final IntegerClause clause) {
-            return new Builder(new LinkedHashSet<>(clause.getBoolLiterals()), new LinkedHashSet<>());
-        }
-
-        /**
-         * Constructs a new clause builder by copying only the arithmetic literals of an existing clause.
-         * @param clause the existing clause
-         * @return the new builder
-         */
-        public static Builder cloneOnlyArith(final IntegerClause clause) {
-            return new Builder(new LinkedHashSet<>(), new LinkedHashSet<>(clause.getArithmeticLiterals()));
         }
 
         /**

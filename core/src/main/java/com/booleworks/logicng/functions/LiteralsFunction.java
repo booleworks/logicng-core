@@ -63,7 +63,7 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
                 break;
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                result.add(lit);
+                result.add((Literal) f.importFormula(lit));
                 break;
             case NOT:
                 final Not not = (Not) formula;

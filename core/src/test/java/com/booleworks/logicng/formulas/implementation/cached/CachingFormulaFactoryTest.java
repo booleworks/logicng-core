@@ -5,10 +5,7 @@
 package com.booleworks.logicng.formulas.implementation.cached;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.booleworks.logicng.configurations.Configuration;
-import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.formulas.And;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -18,31 +15,9 @@ import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
-import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class CachingFormulaFactoryTest {
-
-    @Test
-    public void testPutConfigurationWithInvalidArgument() {
-        assertThatThrownBy(() -> {
-            final FormulaFactory f = FormulaFactory.caching();
-            f.putConfiguration(FormulaFactoryConfig.builder().build());
-        }).isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Configurations for the formula factory itself can only be passed in the constructor.");
-    }
-
-    @Test
-    public void testConstant() {
-        final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.constant(true)).isEqualTo(f.verum());
-        assertThat(f.constant(false)).isEqualTo(f.falsum());
-    }
 
     @Test
     public void testToString() {
@@ -69,87 +44,6 @@ public class CachingFormulaFactoryTest {
                 "Pseudo Booleans:   0%n" +
                 "CCs:               0%n");
         assertThat(f.toString()).isEqualTo(expected);
-    }
-
-    @Test
-    public void testDefaultName() {
-        final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.getName().length()).isEqualTo(4);
-        assertThat(f.getName().chars()).allMatch(c -> c >= 65 && c <= 90);
-    }
-
-    @Test
-    public void testRandomName() {
-        final FormulaFactory f1 = FormulaFactory.caching();
-        final FormulaFactory f2 = FormulaFactory.caching();
-        assertThat(f1.getName()).isNotEqualTo(f2.getName());
-    }
-
-    @Test
-    public void testConfigurations() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Configuration configMaxSat = MaxSatConfig.builder().build();
-        final Configuration configSat = SatSolverConfig.builder().build();
-        f.putConfiguration(configMaxSat);
-        f.putConfiguration(configSat);
-        assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
-        assertThat(f.configurationFor(ConfigurationType.SAT)).isEqualTo(configSat);
-    }
-
-    @Test
-    public void testGeneratedVariables() {
-        FormulaFactory f = FormulaFactory.caching();
-        Variable ccVar = f.newCcVariable();
-        Variable cnfVar = f.newCnfVariable();
-        Variable pbVar = f.newPbVariable();
-        Variable var = f.variable("x");
-        assertThat(ccVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(cnfVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(pbVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(var.getName().startsWith("@AUX_")).isFalse();
-        assertThat(ccVar.getName()).isEqualTo("@AUX_" + f.getName() + "_CC_0");
-        assertThat(pbVar.getName()).isEqualTo("@AUX_" + f.getName() + "_PB_0");
-        assertThat(cnfVar.getName()).isEqualTo("@AUX_" + f.getName() + "_CNF_0");
-
-        f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("f").build());
-        ccVar = f.newCcVariable();
-        cnfVar = f.newCnfVariable();
-        pbVar = f.newPbVariable();
-        var = f.variable("x");
-        assertThat(ccVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(cnfVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(pbVar.getName().startsWith("@AUX_")).isTrue();
-        assertThat(var.getName().startsWith("@AUX_")).isFalse();
-        assertThat(ccVar.getName()).isEqualTo("@AUX_f_CC_0");
-        assertThat(pbVar.getName()).isEqualTo("@AUX_f_PB_0");
-        assertThat(cnfVar.getName()).isEqualTo("@AUX_f_CNF_0");
-    }
-
-    @Test
-    public void testCNF() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Variable a = f.variable("A");
-        final Variable b = f.variable("B");
-        final Variable c = f.variable("C");
-        final Variable d = f.variable("D");
-        final Formula clause1 = f.or(a, b);
-        final Formula clause2 = f.or(c, d.negate(f));
-        final Formula nClause1 = f.implication(a, c);
-
-        final List<Formula> clauses = new ArrayList<>();
-        clauses.add(clause1);
-        clauses.add(clause2);
-
-        final List<Formula> nClauses = new ArrayList<>();
-        nClauses.add(clause1);
-        nClauses.add(clause2);
-        nClauses.add(nClause1);
-
-        final Formula cnf = f.cnf(clauses);
-        final Formula nCnf = f.cnf(nClauses);
-        assertThat(cnf.cnf(f)).isEqualTo(cnf);
-        assertThat(nCnf.cnf(f)).isNotEqualTo(nCnf);
-        assertThat(f.cnf(Collections.emptyList())).isEqualTo(f.verum());
     }
 
     @Test

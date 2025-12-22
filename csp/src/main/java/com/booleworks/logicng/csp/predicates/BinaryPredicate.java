@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -9,6 +12,8 @@ import java.util.SortedSet;
 
 /**
  * Represents the class of predicates that have exactly two terms as operands.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class BinaryPredicate extends CspPredicate {
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.io.parsers;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -15,6 +18,8 @@ import java.io.StringReader;
 
 /**
  * Parser for {@link CspPredicate} and formulas with predicates.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class CspParser {
     private final CspFormulaParser parser;
@@ -118,16 +123,19 @@ public class CspParser {
     }
 
     /**
-     * Parses an input which either is a declaration for an integer variable or a formula with predicates.
+     * Parses an input which either is a declaration for an integer variable or
+     * a formula with predicates.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}.
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}.
      * <p>
-     * In case of the declaration, the variable is created (on the factory) and returned. Make sure the variable is not
-     * defined on the factory or has the same domain. If the input is parsed as formula, it will not create new integer
-     * variables.
+     * In case of the declaration, the variable is created (on the factory) and
+     * returned. Make sure the variable is not defined on the factory or has the
+     * same domain. If the input is parsed as formula, it will not create new
+     * integer variables.
      * @param input the input
-     * @return a pair where exactly one of the values is not null. First value is the result of a declaration; second
-     * value of a formula
+     * @return a pair where exactly one of the values is not null. First value
+     * is the result of a declaration; second value of a formula
      * @throws ParserException if parsing is not successful
      */
     public Pair<IntegerVariable, Formula> parseDeclarationOrFormula(final InputStream input) throws ParserException {
@@ -145,16 +153,19 @@ public class CspParser {
     }
 
     /**
-     * Parses an input which either is a declaration for an integer variable or a formula with predicates.
+     * Parses an input which either is a declaration for an integer variable or
+     * a formula with predicates.
      * <p>
-     * Declarations are {@code int <var_name> [<lb>,<ub>]} and {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}.
+     * Declarations are {@code int <var_name> [<lb>,<ub>]} and
+     * {@code int <var_name> {<v_1>, <v_2>, <v_3>, ...}}.
      * <p>
-     * In case of the declaration, the variable is created (on the factory) and returned. Make sure the variable is not
-     * defined on the factory or has the same domain. If the input is parsed as formula, it will not create new integer
-     * variables.
+     * In case of the declaration, the variable is created (on the factory) and
+     * returned. Make sure the variable is not defined on the factory or has the
+     * same domain. If the input is parsed as formula, it will not create new
+     * integer variables.
      * @param input the input
-     * @return a pair where exactly one of the values is not null. First value is the result of a declaration; second
-     * value of a formula
+     * @return a pair where exactly one of the values is not null. First value
+     * is the result of a declaration; second value of a formula
      * @throws ParserException if parsing is not successful
      */
     public Pair<IntegerVariable, Formula> parseDeclarationOrFormula(final String input) throws ParserException {

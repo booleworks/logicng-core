@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.literals;
 
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
@@ -11,6 +14,8 @@ import java.util.Set;
  * Represents an equality with a multiplication of two variables:
  * <p>
  * {@code v = v2 * v2}
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class ProductLiteral implements ArithmeticLiteral {
     private final IntegerVariable v;

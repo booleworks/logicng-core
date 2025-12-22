@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.literals;
 
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
@@ -9,11 +12,15 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Auxiliary literal representing an equality with a multiplication of two variables:
+ * Auxiliary literal representing an equality with a multiplication of two
+ * variables:
  * <p>
  * {@code z = x * y}
  * <p>
- * This class is an intermediate representation used by encoding algorithms. It should not be used directly.
+ * This class is an intermediate representation used by encoding algorithms.
+ * It should not be used directly.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class EqMul implements RCSPLiteral {
     private final IntegerHolder z, x;

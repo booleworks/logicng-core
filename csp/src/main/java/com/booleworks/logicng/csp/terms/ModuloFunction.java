@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -11,17 +14,20 @@ import java.util.Set;
 
 /**
  * A function term representing the modulo operation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class ModuloFunction extends BinaryFunction {
     /**
-     * Prefix for auxiliary variables introduced by the decomposition
+     * Prefix for auxiliary variables introduced by the decomposition.
      */
     public final static String MOD_AUX_VARIABLE = "MOD";
 
     /**
      * Constructs a new modulo function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param left  the dividend
      * @param right the divisor
      */

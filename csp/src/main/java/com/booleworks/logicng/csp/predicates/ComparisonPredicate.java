@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -15,13 +18,16 @@ import java.util.Set;
 
 /**
  * A predicate representing different types of comparisons between two terms.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class ComparisonPredicate extends BinaryPredicate {
 
     /**
-     * Constructs a new comparison operator
+     * Constructs a new comparison operator.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new predicates.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new predicates.
      * @param type  type of the comparison
      * @param left  left side of the comparison
      * @param right right side of the comparison

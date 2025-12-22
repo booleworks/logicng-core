@@ -1,4 +1,9 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.encodings;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ExampleFormulas;
@@ -19,8 +24,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CompactOrderEncodingTest extends ParameterizedCspTest {
     @ParameterizedTest
@@ -83,9 +86,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
                 solver.getUnderlyingSolver(), null);
         final Csp expectedCsp = cf.buildCsp(p);
         cf.encodeCsp(expectedCsp, context, result);
-        return CspModelEnumeration.enumerate(solver, vars, expectedCsp.getVisibleBooleanVariables(), context,
-                cf);
-
+        return CspModelEnumeration.enumerate(solver, vars, expectedCsp.getVisibleBooleanVariables(), context, cf);
     }
 
     @ParameterizedTest

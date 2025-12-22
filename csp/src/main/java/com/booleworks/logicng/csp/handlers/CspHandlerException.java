@@ -1,9 +1,15 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.handlers;
 
 import com.booleworks.logicng.handlers.events.LngEvent;
 
 /**
- * Exception that is used inside CSP Encoding algorithms to handle an abortion of the computation.
+ * Exception that is used inside CSP Encoding algorithms to handle an abortion
+ * of the computation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class CspHandlerException extends Exception {
     private final LngEvent reason;

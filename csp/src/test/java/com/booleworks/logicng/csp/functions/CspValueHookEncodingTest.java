@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,6 +9,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspAssignment;
+import com.booleworks.logicng.csp.datastructures.CspValueHookMap;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
@@ -29,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CspValueHookTest extends ParameterizedCspTest {
+public class CspValueHookEncodingTest extends ParameterizedCspTest {
 
     @ParameterizedTest
     @MethodSource("algorithms")
@@ -53,15 +57,17 @@ public class CspValueHookTest extends ParameterizedCspTest {
         final SatSolver solver = SatSolver.newSolver(f);
         final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
-        final Map<IntegerVariable, Map<Variable, Integer>> hooks =
-                CspValueHook.encodeValueHooks(csp, context, result, cf);
-        final List<Variable> hookVars =
-                hooks.values().stream().flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
+        final CspValueHookMap hooks =
+                CspValueHookEncoding.encodeValueHooks(csp, context, result, cf);
+        final List<Variable> hookVars = hooks.getHooks().values()
+                .stream()
+                .flatMap(m -> m.keySet().stream())
+                .collect(Collectors.toList());
 
         final List<CspAssignment> models =
                 CspModelEnumeration.enumerate(solver, csp.getVisibleIntegerVariables(), hookVars, context, cf);
         for (final CspAssignment m : models) {
-            for (final var h : hooks.entrySet()) {
+            for (final var h : hooks.getHooks().entrySet()) {
                 final int real_value = m.getIntegerAssignments().get(h.getKey());
                 for (final var v : h.getValue().entrySet()) {
                     if (v.getValue() == real_value) {
@@ -110,7 +116,8 @@ public class CspValueHookTest extends ParameterizedCspTest {
             while (vals.hasNext()) {
                 final int value = vals.next();
                 final Model model =
-                        solver.satCall().addFormulas(CspValueHook.calculateValueProjection(v, value, context, cf))
+                        solver.satCall()
+                                .addFormulas(CspValueHookEncoding.computeRestrictionAssignments(v, value, context, cf))
                                 .model(relevantSatVars);
                 if (allowedValues.containsKey(v) && allowedValues.get(v).contains(value)) {
                     final CspAssignment intModel = cf.decode(model.toAssignment(), relevantVars, context);
@@ -132,7 +139,8 @@ public class CspValueHookTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
         final Map<IntegerVariable, Integer> restr = Map.of(cf.getVariable("c"), 7, cf.getVariable("b"), 5);
         final CspAssignment model = CspSolving.model(csp, restr, context, cf);
-        System.out.println(model);
+        assertThat(model.getIntegerAssignments().get(cf.getVariable("c"))).isEqualTo(7);
+        assertThat(model.getIntegerAssignments().get(cf.getVariable("b"))).isEqualTo(5);
     }
 
     public Map<IntegerVariable, Set<Integer>> getAllowedValues(final Csp csp, final CspFactory cf) {

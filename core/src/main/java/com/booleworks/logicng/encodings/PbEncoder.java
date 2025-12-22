@@ -39,17 +39,17 @@ public class PbEncoder {
      */
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
-        encode(constraint, result, null);
+        encode(result, constraint, null);
         return Collections.unmodifiableList(result.getResult());
     }
 
     /**
      * Encodes a pseudo-Boolean constraint in the given encoding.
-     * @param constraint the pseudo-Boolean constraint
      * @param result     the result of the encoding
+     * @param constraint the pseudo-Boolean constraint
      */
-    public static void encode(final PbConstraint constraint, final EncodingResult result) {
-        encode(constraint, result, null);
+    public static void encode(final EncodingResult result, final PbConstraint constraint) {
+        encode(result, constraint, null);
     }
 
     /**
@@ -62,23 +62,23 @@ public class PbEncoder {
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint,
                                        final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
-        encode(constraint, result, config);
+        encode(result, constraint, config);
         return Collections.unmodifiableList(result.getResult());
     }
 
     /**
      * Encodes a pseudo-Boolean constraint in the given encoding result.
-     * @param constraint the pseudo-Boolean constraint
      * @param result     the result of the encoding
+     * @param constraint the pseudo-Boolean constraint
      * @param initConfig the encoder configuration
      */
-    public static void encode(final PbConstraint constraint, final EncodingResult result,
+    public static void encode(final EncodingResult result, final PbConstraint constraint,
                               final EncoderConfig initConfig) {
         final FormulaFactory f = result.getFactory();
         final EncoderConfig config =
                 initConfig != null ? initConfig : (EncoderConfig) f.configurationFor(ConfigurationType.ENCODER);
         if (constraint.isCc()) {
-            CcEncoder.encode((CardinalityConstraint) constraint, result, config);
+            CcEncoder.encode(result, (CardinalityConstraint) constraint, config);
             return;
         }
         final Formula normalized = constraint.normalize(f);
@@ -92,7 +92,7 @@ public class PbEncoder {
             case PBC:
                 final PbConstraint pbc = (PbConstraint) normalized;
                 if (pbc.isCc()) {
-                    CcEncoder.encode((CardinalityConstraint) pbc, result, config);
+                    CcEncoder.encode(result, (CardinalityConstraint) pbc, config);
                     return;
                 }
                 encode(result, pbc.getOperands(), pbc.getCoefficients(), pbc.getRhs(), config);
@@ -104,7 +104,7 @@ public class PbEncoder {
                             result.addClause();
                             continue;
                         case PBC:
-                            encode((PbConstraint) op, result, config);
+                            encode(result, (PbConstraint) op, config);
                             continue;
                         default:
                             throw new IllegalArgumentException("Illegal return value of PbConstraint.normalize");

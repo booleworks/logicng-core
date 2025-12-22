@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.datastructures;
 
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -11,10 +14,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * A class representing an assignment for integer variables and boolean variables. This means a mapping from integer
- * variables to an integer value and from a boolean variable to either {@code true} or {@code false}.
+ * A class storing assignments for integer variables and boolean variables.
+ * <p>
+ * Integer variables are mapped to integer values and boolean variables are
+ * mapped to boolean values.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspAssignment {
+public final class CspAssignment {
     private final Map<IntegerVariable, Integer> integerAssignments;
     private final SortedSet<Variable> posBooleans;
     private final SortedSet<Literal> negBooleans;

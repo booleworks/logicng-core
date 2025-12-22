@@ -93,7 +93,7 @@ public class Bdd {
      * @return the formula for this BDD
      */
     public Formula toFormula() {
-        return toFormula(kernel.factory());
+        return toFormula(kernel.getFactory());
     }
 
     /**
@@ -119,7 +119,7 @@ public class Bdd {
      * @return the formula for this BDD
      */
     public Formula toFormula(final boolean followPathsToTrue) {
-        return toFormula(kernel.factory(), followPathsToTrue);
+        return toFormula(kernel.getFactory(), followPathsToTrue);
     }
 
     /**
@@ -253,7 +253,7 @@ public class Bdd {
      * @return the list of all models
      */
     public List<Model> enumerateAllModels() {
-        return enumerateAllModels(kernel.factory(), (Collection<Variable>) null);
+        return enumerateAllModels(kernel.getFactory(), (Collection<Variable>) null);
     }
 
     /**
@@ -271,7 +271,7 @@ public class Bdd {
      * @return the list of all models
      */
     public List<Model> enumerateAllModels(final Variable... variables) {
-        return enumerateAllModels(kernel.factory(), Arrays.asList(variables));
+        return enumerateAllModels(kernel.getFactory(), Arrays.asList(variables));
     }
 
     /**
@@ -290,7 +290,7 @@ public class Bdd {
      * @return the list of all models
      */
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
-        return apply(new BddModelEnumerationFunction(kernel.factory(), variables));
+        return apply(new BddModelEnumerationFunction(kernel.getFactory(), variables));
     }
 
     /**
@@ -308,7 +308,7 @@ public class Bdd {
      * @return the CNF for the formula represented by this BDD
      */
     public Formula cnf() {
-        return cnf(kernel.factory());
+        return cnf(kernel.getFactory());
     }
 
     /**
@@ -333,7 +333,7 @@ public class Bdd {
      * @return the DNF for the formula represented by this BDD
      */
     public Formula dnf() {
-        return dnf(kernel.factory());
+        return dnf(kernel.getFactory());
     }
 
     /**
@@ -407,7 +407,7 @@ public class Bdd {
      * @return an arbitrary model of this BDD
      */
     public Model model() {
-        return createModel(kernel.factory(), operations.satOne(index));
+        return createModel(kernel.getFactory(), operations.satOne(index));
     }
 
     /**
@@ -429,7 +429,7 @@ public class Bdd {
      * @return an arbitrary model of this BDD
      */
     public Model model(final boolean defaultValue, final Collection<Variable> variables) {
-        return model(kernel.factory(), defaultValue, variables);
+        return model(kernel.getFactory(), defaultValue, variables);
     }
 
     /**
@@ -459,7 +459,7 @@ public class Bdd {
      * @return an arbitrary model of this BDD
      */
     public Model model(final boolean defaultValue, final Variable... variables) {
-        return model(kernel.factory(), defaultValue, Arrays.asList(variables));
+        return model(kernel.getFactory(), defaultValue, Arrays.asList(variables));
     }
 
     /**
@@ -481,7 +481,7 @@ public class Bdd {
      * @return a full model of this BDD
      */
     public Model fullModel() {
-        return fullModel(kernel.factory());
+        return fullModel(kernel.getFactory());
     }
 
     /**
@@ -516,7 +516,7 @@ public class Bdd {
     public SortedSet<Variable> support() {
         final int supportBdd = operations.support(index);
         // only variables, cannot create new literals
-        final Model model = createModel(kernel.factory(), supportBdd);
+        final Model model = createModel(kernel.getFactory(), supportBdd);
         assert model == null || model.negativeLiterals().isEmpty();
         return model == null ? Collections.emptySortedSet() : new TreeSet<>(model.positiveVariables());
     }
@@ -585,7 +585,7 @@ public class Bdd {
      * @return the BDD as LogicNG data structure
      */
     public BddNode toLngBdd() {
-        return apply(new LngBddFunction(kernel.factory()));
+        return apply(new LngBddFunction(kernel.getFactory()));
     }
 
     /**

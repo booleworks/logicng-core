@@ -69,12 +69,14 @@
     <version.maven-helper>3.6.0</version.maven-helper>
     <version.surefire>3.5.0</version.surefire>
     <version.nexus-staging>1.6.13</version.nexus-staging>
-    <version.maven-gpg>1.6</version.maven-gpg>
     <version.osgi-plugin>5.1.9</version.osgi-plugin>
     <version.maven-source>3.3.1</version.maven-source>
     <version.maven-javadoc>3.10.0</version.maven-javadoc>
     <version.maven-jar>3.4.2</version.maven-jar>
     <version.formatter>2.24.1</version.formatter>
+
+    <version.maven-gpg>3.2.8</version.maven-gpg>
+    <version.central-publishing>0.9.0</version.central-publishing>
   </properties>
 
   <build>
@@ -243,14 +245,14 @@
         <plugins>
           <!-- Deploy to Maven Central -->
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${version.nexus-staging}</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${version.central-publishing}</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
+              <!-- Requires a server configuration in settings.xml with this id
+                   and a user token from https://central.sonatype.com/ as username/password-->
+              <publishingServerId>central</publishingServerId>
             </configuration>
           </plugin>
 
@@ -273,61 +275,48 @@
       </build>
     </profile>
 
-    <profile>
-      <id>gh-action-release</id>
-      <build>
-        <plugins>
-          <!--Deploy to Maven Central -->
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${version.nexus-staging}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/content/repositories/snapshots</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
+    <!--    <profile>-->
+    <!--      <id>gh-action-release</id>-->
+    <!--      <build>-->
+    <!--        <plugins>-->
+    <!--          &lt;!&ndash;Deploy to Maven Central &ndash;&gt;-->
+    <!--          <plugin>-->
+    <!--            <groupId>org.sonatype.plugins</groupId>-->
+    <!--            <artifactId>nexus-staging-maven-plugin</artifactId>-->
+    <!--            <version>${version.nexus-staging}</version>-->
+    <!--            <extensions>true</extensions>-->
+    <!--            <configuration>-->
+    <!--              <serverId>ossrh</serverId>-->
+    <!--              <nexusUrl>https://s01.oss.sonatype.org/content/repositories/snapshots</nexusUrl>-->
+    <!--              <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+    <!--            </configuration>-->
+    <!--          </plugin>-->
 
-          <!--Sign components -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${version.maven-gpg}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <!-- Don't stop for asking for the passphrase-->
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-      </distributionManagement>
-    </profile>
+    <!--          &lt;!&ndash;Sign components &ndash;&gt;-->
+    <!--          <plugin>-->
+    <!--            <groupId>org.apache.maven.plugins</groupId>-->
+    <!--            <artifactId>maven-gpg-plugin</artifactId>-->
+    <!--            <version>${version.maven-gpg}</version>-->
+    <!--            <executions>-->
+    <!--              <execution>-->
+    <!--                <id>sign-artifacts</id>-->
+    <!--                <phase>verify</phase>-->
+    <!--                <goals>-->
+    <!--                  <goal>sign</goal>-->
+    <!--                </goals>-->
+    <!--                <configuration>-->
+    <!--                  &lt;!&ndash; Don't stop for asking for the passphrase&ndash;&gt;-->
+    <!--                  <gpgArguments>-->
+    <!--                    <arg>&#45;&#45;pinentry-mode</arg>-->
+    <!--                    <arg>loopback</arg>-->
+    <!--                  </gpgArguments>-->
+    <!--                </configuration>-->
+    <!--              </execution>-->
+    <!--            </executions>-->
+    <!--          </plugin>-->
+    <!--        </plugins>-->
+    <!--      </build>-->
+    <!--    </profile>-->
 
     <profile>
       <id>all-tests</id>

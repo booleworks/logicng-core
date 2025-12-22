@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -12,7 +15,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * A function term representing the absolut operation, i.e, the value of the operand is negated if it is negative.
+ * A function term representing the absolut operation, i.e, the value of the
+ * operand is negated if it is negative.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class AbsoluteFunction extends UnaryFunction {
     /**
@@ -23,7 +29,8 @@ public class AbsoluteFunction extends UnaryFunction {
     /**
      * Constructs a new absolut function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param operand the operand
      */
     public AbsoluteFunction(final Term operand) {

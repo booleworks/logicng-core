@@ -1,9 +1,14 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 
 /**
  * An interface for atomic terms holding integers.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public interface IntegerHolder extends Comparable<IntegerHolder> {
     /**

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -8,6 +11,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.modelcounting.ModelCounter;
 
 import java.math.BigInteger;
@@ -16,17 +20,29 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Class grouping functions for counting models of CSP problems.
+ * Functions for counting models of CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspModelCounting {
+public final class CspModelCounting {
     private CspModelCounting() {
+    }
+
+    /**
+     * Counts the model of a CSP.
+     * @param csp the csp
+     * @param cf  the factory
+     * @return the model count or the abortion reason produced by the handler
+     */
+    public static BigInteger count(final Csp csp, final CspFactory cf) {
+        return count(csp, cf, NopHandler.get()).getResult();
     }
 
     /**
      * Counts the model of a CSP.
      * @param csp     the csp
      * @param cf      the factory
-     * @param handler handler for processing encoding events
+     * @param handler handler for processing events
      * @return the model count or the abortion reason produced by the handler
      */
     public static LngResult<BigInteger> count(final Csp csp, final CspFactory cf, final ComputationHandler handler) {

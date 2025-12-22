@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.literals;
 
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
@@ -13,7 +16,10 @@ import java.util.Set;
  * <p>
  * {@code x (op) y} with {@code op in {=, <=, !=}}
  * <p>
- * This class is an intermediate representation used by encoding algorithms. It should not be used directly.
+ * This class is an intermediate representation used by encoding algorithms. It
+ * should not be used directly.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class OpXY implements RCSPLiteral {
     private final IntegerHolder x, y;

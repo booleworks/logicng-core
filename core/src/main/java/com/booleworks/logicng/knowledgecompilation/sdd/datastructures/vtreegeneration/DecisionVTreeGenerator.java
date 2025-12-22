@@ -54,7 +54,7 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
      * @param solver the solver
      */
     public DecisionVTreeGenerator(final Formula cnf, final DnnfSatSolver solver) {
-        this.f = solver.f();
+        this.f = solver.getFactory();
         this.cnf = cnf;
         this.solver = solver;
 

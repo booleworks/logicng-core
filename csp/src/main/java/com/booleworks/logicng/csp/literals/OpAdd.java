@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.literals;
 
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
@@ -13,14 +16,18 @@ import java.util.Set;
  * <p>
  * {@code z (op) x + y} with {@code op in {=, <=, >=, !=}}
  * <p>
- * This class is an intermediate representation used by encoding algorithms. It should not be used directly.
+ * This class is an intermediate representation used by encoding algorithms. It
+ * should not be used directly.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class OpAdd implements RCSPLiteral {
     private final IntegerHolder z, x, y;
     private final Operator op;
 
     /**
-     * Constructs new addition relation: {@code z (op) x + y; op in {=, <=, >=, !=}}
+     * Constructs new addition relation:
+     * {@code z (op) x + y; op in {=, <=, >=, !=}}
      * @param op operator of the relation
      * @param z  argument for z
      * @param x  argument for x

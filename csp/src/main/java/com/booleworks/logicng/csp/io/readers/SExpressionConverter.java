@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.io.readers;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -23,10 +26,13 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
- * Converts files using the common S-expression format to the LNG format for CSP.
+ * Converts files using the common S-expression format to the LNG format for
+ * CSP.
  * <p>
  * This converter is not tested and does not support all features.
  * It is not supposed to be used without a manual validation afterward.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class SExpressionConverter {
     private SExpressionConverter() {
@@ -63,7 +69,8 @@ public class SExpressionConverter {
     }
 
     /**
-     * Converts files using the common S-expression format to the LNG format for CSP.
+     * Converts files using the common S-expression format to the LNG format for
+     * CSP.
      * <p>
      * This converter is not tested and does not support all features.
      * It is not supposed to be used without a manual validation afterward.

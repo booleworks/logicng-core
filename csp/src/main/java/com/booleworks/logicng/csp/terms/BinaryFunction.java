@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import java.util.Objects;
@@ -5,6 +8,8 @@ import java.util.SortedSet;
 
 /**
  * An arithmetic function term with exactly two operands.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class BinaryFunction extends Function {
     /**

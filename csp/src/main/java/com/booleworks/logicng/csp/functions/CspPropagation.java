@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -16,8 +19,10 @@ import java.util.stream.Collectors;
 
 /**
  * A class grouping functions for propagating CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspPropagation {
+public final class CspPropagation {
     /**
      * Prefix for auxiliary variables introduced by the propagation.
      */
@@ -27,13 +32,15 @@ public class CspPropagation {
     }
 
     /**
-     * Propagates a CSP problem. This is an optimization that reduces the variable's domains if it recognizes that
-     * the full domain is not necessary.
+     * Propagates a CSP problem. This is an optimization that reduces the
+     * variable's domains if it recognizes that the full domain is not
+     * necessary.
      * <p>
-     * A problem can only be propagated once!
+     * <strong>Important: A problem can only be propagated once!</strong>
      * @param csp the un-propagated CSP problem
      * @param cf  the factory
      * @return the propagated CSP problem
+     * @throws IllegalArgumentException if {@code csp} was already propagated
      */
     public static Csp propagate(final Csp csp, final CspFactory cf) {
         if (!csp.getPropagateSubstitutions().isEmpty()) {

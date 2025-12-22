@@ -1,4 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.io;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.io.parsers.CspParser;
@@ -8,9 +14,6 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CspParserTest {
     final FormulaFactory f = FormulaFactory.caching();

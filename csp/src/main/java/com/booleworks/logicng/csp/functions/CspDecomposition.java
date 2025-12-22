@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -13,9 +16,11 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Class grouping functions related to decomposing formula into CSP problems.
+ * Functions related to decomposing formula into CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspDecomposition {
+public final class CspDecomposition {
     private CspDecomposition() {
     }
 

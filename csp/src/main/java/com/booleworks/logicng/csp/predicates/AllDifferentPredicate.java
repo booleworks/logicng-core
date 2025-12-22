@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 
 /**
  * A predicate that evaluates whether all operands have different values.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class AllDifferentPredicate extends CspPredicate {
 
@@ -26,7 +31,8 @@ public class AllDifferentPredicate extends CspPredicate {
     /**
      * Constructs a new all-different predicate.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new predicates.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new predicates.
      * @param terms operands which are tested to be different
      * @param f     the formula factory
      */

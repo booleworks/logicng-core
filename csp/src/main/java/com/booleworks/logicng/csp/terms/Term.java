@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
@@ -16,10 +19,12 @@ import java.util.TreeSet;
 /**
  * This class represents an arithmetic term.
  * <p>
- * {@link IntegerConstant} and {@link IntegerVariable} are the atomic terms. {@link Function}s are complex terms
- * composed of other terms.
+ * {@link IntegerConstant} and {@link IntegerVariable} are the atomic terms.
+ * {@link Function}s are complex terms composed of other terms.
  * <p>
  * All terms are created using a {@link CspFactory}.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class Term {
 
@@ -188,8 +193,10 @@ public abstract class Term {
          * Constructs a new term decomposition.
          * @param linearExpression          the linear sum
          * @param additionalConstraints     the additional constraints
-         * @param auxiliaryIntegerVariables integer variables produced by the decomposition
-         * @param auxiliaryBooleanVariables boolean variables produced by the decomposition
+         * @param auxiliaryIntegerVariables integer variables produced by the
+         *                                  decomposition
+         * @param auxiliaryBooleanVariables boolean variables produced by the
+         *                                  decomposition
          */
         public Decomposition(final LinearExpression linearExpression, final Set<IntegerClause> additionalConstraints,
                              final Set<IntegerVariable> auxiliaryIntegerVariables,
@@ -233,12 +240,14 @@ public abstract class Term {
         }
 
         /**
-         * Merges a term composition with a collection of predicate decompositions into one term decomposition.
+         * Merges a term composition with a collection of predicate
+         * decompositions into one term decomposition.
          * <p>
-         * It preserves the linear sum, merges all auxiliary variables, and the predicates' clauses are added as
-         * additional constraints.
+         * It preserves the linear sum, merges all auxiliary variables, and the
+         * predicates' clauses are added as additional constraints.
          * @param term                    term decomposition
-         * @param predicateDecompositions collection of predicate decompositions to merge
+         * @param predicateDecompositions collection of predicate decompositions
+         *                                to merge
          * @return merged term decomposition
          */
         public static Decomposition merge(final Decomposition term,

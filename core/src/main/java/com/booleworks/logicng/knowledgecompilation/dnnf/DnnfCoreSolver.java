@@ -86,7 +86,7 @@ public class DnnfCoreSolver extends LngCoreSolver implements DnnfSatSolver {
     }
 
     @Override
-    public FormulaFactory f() {
+    public FormulaFactory getFactory() {
         return f;
     }
 
