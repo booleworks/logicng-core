@@ -24,6 +24,9 @@ public class ComputationStartedEvent implements LngEvent {
     public static final ComputationStartedEvent FACTORIZATION_STARTED = new ComputationStartedEvent("Factorization");
     public static final ComputationStartedEvent BDD_COMPUTATION_STARTED = new ComputationStartedEvent("BDD Computation");
     public static final ComputationStartedEvent DNNF_COMPUTATION_STARTED = new ComputationStartedEvent("DNNF Computation");
+    public static final ComputationStartedEvent DTREE_GENERATION_STARTED = new ComputationStartedEvent("DTREE Computation");
+    public static final ComputationStartedEvent SDD_COMPUTATION_STARTED = new ComputationStartedEvent("SDD Computation");
+    public static final ComputationStartedEvent VTREE_GENERATION_STARTED = new ComputationStartedEvent("VTREE Computation");
     public static final ComputationStartedEvent SAT_CALL_STARTED = new ComputationStartedEvent("SAT Call");
     public static final ComputationStartedEvent MAX_SAT_CALL_STARTED = new ComputationStartedEvent("MaxSAT Call");
     public static final ComputationStartedEvent BACKBONE_COMPUTATION_STARTED = new ComputationStartedEvent("Backbone Computation");

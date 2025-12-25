@@ -1,0 +1,274 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
+package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
+
+import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
+import com.booleworks.logicng.util.Pair;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.Stack;
+import java.util.TreeSet;
+
+/**
+ * A collection of uncategorized utility functions for SDDs.
+ * <p>
+ * These functions are intended to be used internally and might have very
+ * specific contracts and use cases.  Nevertheless, it should all be properly
+ * documented and tested, so using them is still safe, unless mentioned
+ * otherwise.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddUtil {
+    private SddUtil() {
+
+    }
+
+    /**
+     * A utility function that computes the variables used in an SDD node and
+     * its children.
+     * <p>
+     * Note that, this is a low-level function. The function returns the
+     * internal indices of the variables.  There are higher level alternatives
+     * that return {@link Variable}
+     * @param node the SDD node
+     * @return a set with the variables of the sdd node
+     * @see com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction SddVariablesFunction
+     * @see SddNode#variables(Sdd)
+     * @see SddNode#variables()
+     */
+    public static SortedSet<Integer> variables(final SddNode node) {
+        final SortedSet<Integer> result = new TreeSet<>();
+        final Stack<SddNode> stack = new Stack<>();
+        final Set<SddNode> visited = new HashSet<>();
+        stack.push(node);
+        visited.add(node);
+        while (!stack.isEmpty()) {
+            final SddNode current = stack.pop();
+            if (current.isLiteral()) {
+                result.add(current.asTerminal().getVTree().getVariable());
+            } else if (current.isDecomposition()) {
+                for (final SddElement element : current.asDecomposition()) {
+                    if (visited.add(element.getPrime())) {
+                        stack.add(element.getPrime());
+                    }
+                    if (visited.add(element.getSub())) {
+                        stack.add(element.getSub());
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Converts a set of variables into the internal index representation.
+     * Variables that are currently not known to the SDD container are ignored.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param <C>       the type of the collection for the result
+     * @param sdd       the SDD container
+     * @param variables the input variables
+     * @param dst       the collection to which the result is written
+     * @return the destination collection
+     * @see SddUtil#varsToIndicesExpectKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToVars(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Sdd sdd,
+                                                                           final Collection<Variable> variables,
+                                                                           final C dst) {
+        for (final Variable var : variables) {
+            final int idx = sdd.variableToIndex(var);
+            if (idx != -1) {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a collection of variables into the internal index representation.
+     * The function expects to know all variables otherwise it will throw a
+     * runtime exception.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param <C>       the type of the collection for the result
+     * @param sdd       the SDD container
+     * @param variables the input variables
+     * @param dst       the collection to which the result is written
+     * @return the destination collection
+     * @throws IllegalArgumentException if the function encounters an unknown variable
+     * @see SddUtil#varsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToVars(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Sdd sdd,
+                                                                             final Collection<Variable> variables,
+                                                                             final C dst) {
+        for (final Variable var : variables) {
+            final int idx = sdd.variableToIndex(var);
+            if (idx == -1) {
+                throw new IllegalArgumentException("Variable is not known to SDD: " + var);
+            } else {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a set of literals into the internal index representation.
+     * Variables that are currently not known to the SDD container are ignored.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param <C>      the type of the collection for the result
+     * @param sdd      the SDD container
+     * @param literals the input literals
+     * @param dst      the collection to which the result is written
+     * @return the destination collection
+     * @see SddUtil#litsToIndicesExpectKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToLits(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Integer>> C litsToIndicesOnlyKnown(final Sdd sdd,
+                                                                           final Collection<Literal> literals,
+                                                                           final C dst) {
+        for (final Literal lit : literals) {
+            final int idx = sdd.literalToIndex(lit);
+            if (idx != -1) {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a collection of literals into the internal index representation.
+     * The function expects to know all variables otherwise it will throw a
+     * runtime exception.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param <C>      the type of the collection for the result
+     * @param sdd      the SDD container
+     * @param literals the input variables
+     * @param dst      the collection to which the result is written
+     * @return the destination collection
+     * @throws IllegalArgumentException if the function encounters an unknown variable
+     * @see SddUtil#litsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#indicesToLits(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Integer>> C litsToIndicesExpectKnown(final Sdd sdd,
+                                                                             final Collection<Literal> literals,
+                                                                             final C dst) {
+        for (final Literal lit : literals) {
+            final int idx = sdd.literalToIndex(lit);
+            if (idx != 0) {
+                dst.add(idx);
+            } else {
+                throw new IllegalArgumentException("Variable is not known to SDD: " + lit.variable());
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a set of internal indices into to variables.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * <p>
+     * Warning: Passing integers that do not represent variables is undefined behaviour.
+     * @param <C>     the type of the collection for the result
+     * @param sdd     the SDD container
+     * @param indices the internal indices
+     * @param dst     the collection to which the result is written
+     * @return the destination collection
+     * @see SddUtil#varsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#varsToIndicesExpectKnown(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Variable>> C indicesToVars(final Sdd sdd, final Collection<Integer> indices,
+                                                                   final C dst) {
+        for (final int idx : indices) {
+            dst.add(sdd.indexToVariable(idx));
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a set of internal indices into to variables.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * <p>
+     * Warning: Passing integers that do not represent variables is undefined behaviour.
+     * @param <C>     the type of the collection for the result
+     * @param sdd     the SDD container
+     * @param indices the internal indices
+     * @param dst     the collection to which the result is written
+     * @return the destination collection
+     * @see SddUtil#litsToIndicesOnlyKnown(Sdd, Collection, Collection)
+     * @see SddUtil#litsToIndicesExpectKnown(Sdd, Collection, Collection)
+     */
+    public static <C extends Collection<Literal>> C indicesToLits(final Sdd sdd, final Collection<Integer> indices,
+                                                                  final C dst) {
+        for (final int idx : indices) {
+            dst.add(sdd.indexToLiteral(idx));
+        }
+        return dst;
+    }
+
+    /**
+     * Computes the lowest common ancestor from a collection of compressed SDD
+     * elements.
+     * <p>
+     * Passing not compressed elements results in undefined behaviour.
+     * @param sdd      the SDD container
+     * @param elements compressed elements
+     * @return the lowest common ancestor of the elements
+     * @see VTreeRoot#lcaOf(VTree, VTree)
+     * @see VTreeUtil#lcaFromVariables(Sdd, Collection)
+     */
+    public static VTree lcaOfCompressedElements(final Sdd sdd, final Collection<SddElement> elements) {
+        assert !elements.isEmpty();
+
+        final VTreeRoot root = sdd.getVTree();
+        VTree lLca = null;
+        VTree rLca = null;
+
+        for (final SddElement element : elements) {
+            final VTree pVTree = element.getPrime().getVTree();
+            final VTree sVTree = element.getSub().getVTree();
+            assert pVTree != null;
+
+            lLca = lLca == null ? pVTree : root.lcaOf(pVTree, lLca);
+            if (sVTree != null && rLca != null) {
+                rLca = root.lcaOf(sVTree, rLca);
+            } else if (sVTree != null) {
+                rLca = sVTree;
+            }
+        }
+
+        assert lLca != null && rLca != null;
+        assert lLca.getPosition() < rLca.getPosition();
+
+        final Pair<VTree, VTreeRoot.CmpType> lca = root.cmpVTrees(lLca, rLca);
+
+        assert lca.getSecond() == VTreeRoot.CmpType.INCOMPARABLE;
+        assert lca.getFirst() != null;
+
+        return lca.getFirst();
+    }
+}

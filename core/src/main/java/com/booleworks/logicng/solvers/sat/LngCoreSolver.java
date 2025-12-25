@@ -800,6 +800,10 @@ public class LngCoreSolver {
         trail.push(lit);
     }
 
+    protected void pushTrailLim() {
+        trailLim.push(trail.size());
+    }
+
     /**
      * Attaches a given clause to the solver (i.e. the watchers for this clause
      * are initialized).
@@ -1210,7 +1214,7 @@ public class LngCoreSolver {
                 while (decisionLevel() < assumptions.size()) {
                     final int p = assumptions.get(decisionLevel());
                     if (value(p) == TRUE) {
-                        trailLim.push(trail.size());
+                        pushTrailLim();
                     } else if (value(p) == FALSE) {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
@@ -1235,7 +1239,7 @@ public class LngCoreSolver {
                         return LngResult.of(TRUE);
                     }
                 }
-                trailLim.push(trail.size());
+                pushTrailLim();
                 uncheckedEnqueue(next, null);
             }
         }

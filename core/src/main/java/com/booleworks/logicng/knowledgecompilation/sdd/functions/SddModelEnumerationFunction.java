@@ -1,0 +1,379 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
+package com.booleworks.logicng.knowledgecompilation.sdd.functions;
+
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeIterationState;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
+import com.booleworks.logicng.util.Pair;
+
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+/**
+ * A function for computing the (projected) model enumeration.
+ * <p>
+ * The function takes two sets of variables.  The first set is for variables
+ * directly considered during the enumeration.  Variables contained in the set
+ * but not in the SDD will still be completely enumerated (be careful as this
+ * blows up the result).  The second set is for additional variables, which will
+ * not be enumerated, but each model will contain complementary values for these
+ * variables. Note that, the use of additional variables can significantly
+ * increase the computation time if you enumerate a large number of models, as
+ * each model needs to compute the additional variables separately.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
+    protected final Sdd sdd;
+    protected final Set<Variable> variables;
+    protected final Set<Integer> variableIdxs;
+    protected final Set<Variable> additionalVariables;
+
+    protected SddModelEnumerationFunction(final Set<Variable> variables, final Set<Variable> additionalVariables,
+                                          final Sdd sdd) {
+        this.sdd = sdd;
+        this.variableIdxs = SddUtil.varsToIndicesOnlyKnown(sdd, variables, new HashSet<>());
+        this.variables = variables;
+        this.additionalVariables =
+                additionalVariables.stream().filter(v -> !variables.contains(v)).collect(Collectors.toSet());
+    }
+
+    /**
+     * The SDD container used for this enumeration.
+     * @return the SDD container used for this enumeration
+     */
+    public Sdd getSdd() {
+        return sdd;
+    }
+
+    /**
+     * The set of enumeration variables.
+     * @return the set of enumeration variables
+     */
+    public Set<Variable> getVariables() {
+        return Collections.unmodifiableSet(variables);
+    }
+
+    /**
+     * The set of additional variables.
+     * @return the set of additional variable
+     */
+    public Set<Variable> getAdditionalVariables() {
+        return Collections.unmodifiableSet(additionalVariables);
+    }
+
+    @Override
+    public LngResult<List<Model>> execute(final SddNode node, final ComputationHandler handler) {
+        if (!handler.shouldResume(ComputationStartedEvent.MODEL_ENUMERATION_STARTED)) {
+            return LngResult.canceled(ComputationStartedEvent.MODEL_ENUMERATION_STARTED);
+        }
+        if (node.isFalse()) {
+            return LngResult.of(List.of());
+        }
+
+        final LngResult<SddNode> projectedNodeResult = projectNode(node, handler);
+        if (!projectedNodeResult.isSuccess()) {
+            return LngResult.canceled(projectedNodeResult.getCancelCause());
+        }
+        final SddNode projectedNode = projectedNodeResult.getResult();
+
+        final List<Variable> dontCareVariables = computeDontCareVariables(projectedNode);
+        final Pair<List<Literal>, Set<Integer>> additionalVarSets = splitAdditionalVariables(node);
+        final List<Literal> additionalLitsOutside = additionalVarSets.getFirst();
+        final Set<Integer> additionalVarIndicesInside = additionalVarSets.getSecond();
+        final BitSet additionalVarInsideMap = new BitSet();
+        for (final int additionalVar : additionalVarIndicesInside) {
+            additionalVarInsideMap.set(additionalVar);
+        }
+
+        final SddEvaluation.PartialEvalState partialEvalState = new SddEvaluation.PartialEvalState(sdd);
+        final HashMap<SddNodeDecomposition, SddNodeIterationState> states = new HashMap<>();
+        final List<Model> models = new ArrayList<>();
+        do {
+            final CompactModel model = new CompactModel(new ArrayList<>(), new ArrayList<>());
+            final BitSet modelMask;
+            if (additionalVarIndicesInside.isEmpty()) {
+                modelMask = null;
+            } else {
+                modelMask = new BitSet();
+            }
+            write(projectedNode, model, modelMask, states);
+            model.getDontCareVariables().addAll(dontCareVariables);
+            model.getLiterals().addAll(additionalLitsOutside);
+            final LngEvent expandedResult =
+                    expandModel(model, modelMask, additionalVarInsideMap, node, partialEvalState, handler, models);
+            if (expandedResult != null) {
+                return LngResult.partial(models, expandedResult);
+            }
+        } while (goNext(projectedNode, states));
+        return LngResult.of(models);
+    }
+
+    protected LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
+        return node.execute(new SddProjectionFunction(sdd, variables), handler);
+    }
+
+    protected List<Variable> computeDontCareVariables(final SddNode node) {
+        final Set<Integer> variablesInProjVTree = new HashSet<>();
+        VTreeUtil.vars(node.getVTree(), variableIdxs, variablesInProjVTree);
+        return variables.stream()
+                .filter(v -> !sdd.knows(v) || !variablesInProjVTree.contains(sdd.variableToIndex(v)))
+                .collect(Collectors.toList());
+    }
+
+    protected Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
+        final Set<Integer> additionalVarIdxs =
+                SddUtil.varsToIndicesOnlyKnown(sdd, additionalVariables, new HashSet<>());
+        final Set<Integer> variablesInNodeVTree = new HashSet<>();
+        VTreeUtil.vars(node.getVTree(), additionalVarIdxs, variablesInNodeVTree);
+        final List<Variable> additionalVarsOutside = additionalVariables
+                .stream()
+                .filter(v -> !sdd.knows(v) || !variablesInNodeVTree.contains(sdd.variableToIndex(v)))
+                .collect(Collectors.toList());
+        final List<Literal> additionalLitsOutside =
+                additionalVarsOutside.stream().map(v -> v.negate(sdd.getFactory())).collect(Collectors.toList());
+
+        final Set<Variable> additionalVarsInside = additionalVariables
+                .stream()
+                .filter(v -> !additionalVarsOutside.contains(v))
+                .collect(Collectors.toSet());
+        final Set<Integer> additionalVarIndicesInside =
+                SddUtil.varsToIndicesExpectKnown(sdd, additionalVarsInside, new HashSet<>());
+        return new Pair<>(additionalLitsOutside, additionalVarIndicesInside);
+    }
+
+    /**
+     * Creates a builder for SDD model enumeration function.
+     * <p>
+     * The builder takes two sets of variables {@code variables} and
+     * {@code additionalVariable}. {@code variables} is for variables considered
+     * during the enumeration.  Variables contained in the set but not in the
+     * SDD will still be completely enumerated (be careful as this blows up the
+     * result).  {@code additionalVariables} will not be enumerated, but each
+     * model will contain complementary values for these variables.
+     * <p>
+     * Note that, the use of additional variables can significantly increase the
+     * computation time if you enumerate a large number of models, as each model
+     * needs to compute the additional variables separately.
+     * @param sdd       the SDD container
+     * @param variables the enumeration variables
+     * @return a builder for SDD model enumeration function
+     */
+    public static Builder builder(final Sdd sdd, final Collection<Variable> variables) {
+        return new Builder(sdd, variables);
+    }
+
+    /**
+     * Builder for SDD model enumeration function.
+     */
+    public static class Builder {
+        private Set<Variable> variables;
+        private Set<Variable> additionalVariables;
+        private final Sdd sdd;
+
+        private Builder(final Sdd sdd, final Collection<Variable> variables) {
+            this.variables = new TreeSet<>(variables);
+            this.additionalVariables = new TreeSet<>();
+            this.sdd = sdd;
+        }
+
+        /**
+         * Overwrite the enumeration variables.
+         * <p>
+         * These variables are considered during the enumeration.  Variables
+         * contained in the set but not in the SDD will still be completely
+         * enumerated (be careful as this blows up the result).
+         * @param variables the enumeration variables.
+         * @return this builder
+         */
+        public Builder variables(final Collection<Variable> variables) {
+            this.variables = new TreeSet<>(variables);
+            return this;
+        }
+
+        /**
+         * Sets the additional variables for the enumeration. By default, this
+         * set is empty.
+         * <p>
+         * Additional variables will not be enumerated, but each model will
+         * contain complementary values for these variables.
+         * <p>
+         * Note that, the use of additional variables can significantly increase
+         * the computation time if you enumerate a large number of models, as
+         * each model needs to compute the additional variables separately.
+         * @param additionalVariables the additional variables
+         * @return this builder
+         */
+        public Builder additionalVariables(final Collection<Variable> additionalVariables) {
+            this.additionalVariables = new TreeSet<>(additionalVariables);
+            return this;
+        }
+
+        /**
+         * Build the model enumeration function.
+         * <p>
+         * The builder is reusable after this call.
+         * @return the model enumeration function.
+         */
+        public SddModelEnumerationFunction build() {
+            return new SddModelEnumerationFunction(variables, additionalVariables, sdd);
+        }
+    }
+
+    protected LngEvent expandModel(final CompactModel model, final BitSet modelMask,
+                                   final BitSet additionalVars, final SddNode node,
+                                   final SddEvaluation.PartialEvalState state,
+                                   final ComputationHandler handler, final List<Model> extendedModels) {
+        final LngIntVector dontCareLitIdxs = new LngIntVector(model.getDontCareVariables().size());
+        final int offset = model.getLiterals().size();
+        for (final Variable dontCare : model.getDontCareVariables()) {
+            dontCareLitIdxs.push(sdd.literalToIndex(dontCare));
+            model.getLiterals().add(dontCare.negate(sdd.getFactory()));
+        }
+        return extendModelsInplace(offset, 0, model.getDontCareVariables(), dontCareLitIdxs, modelMask, additionalVars,
+                node, state, handler, model.getLiterals(), extendedModels);
+    }
+
+    protected LngEvent extendModelsInplace(final int offset, final int index,
+                                           final List<Variable> dontCareVariables,
+                                           final LngIntVector dontCareIdxs, final BitSet modelMask,
+                                           final BitSet additionalVars, final SddNode node,
+                                           final SddEvaluation.PartialEvalState state,
+                                           final ComputationHandler handler, final List<Literal> dst,
+                                           final List<Model> extendedModels) {
+        if (index == dontCareVariables.size()) {
+            final List<Literal> extendedModel = new ArrayList<>(dst);
+            if (!additionalVars.isEmpty()) {
+                SddEvaluation.partialEvaluateInplace((BitSet) modelMask.clone(), additionalVars, node, state,
+                        extendedModel);
+            }
+            extendedModels.add(new Model(extendedModel));
+            if (!handler.shouldResume(EnumerationFoundModelsEvent.FOUND_ONE_MODEL)) {
+                return EnumerationFoundModelsEvent.FOUND_ONE_MODEL;
+            }
+            return null;
+        } else {
+            dst.set(offset + index, dontCareVariables.get(index).negate(sdd.getFactory()));
+            if (modelMask != null && dontCareIdxs.get(index) != -1) {
+                modelMask.clear(dontCareIdxs.get(index));
+                modelMask.set(sdd.negateLitIdx(dontCareIdxs.get(index)));
+            }
+            final LngEvent event = extendModelsInplace(offset, index + 1, dontCareVariables, dontCareIdxs, modelMask,
+                    additionalVars, node, state, handler, dst, extendedModels);
+            if (event != null) {
+                return event;
+            }
+            dst.set(offset + index, dontCareVariables.get(index));
+            if (modelMask != null && dontCareIdxs.get(index) != -1) {
+                modelMask.set(dontCareIdxs.get(index));
+                modelMask.clear(sdd.negateLitIdx(dontCareIdxs.get(index)));
+            }
+            return extendModelsInplace(offset, index + 1, dontCareVariables, dontCareIdxs, modelMask,
+                    additionalVars, node, state, handler, dst, extendedModels);
+        }
+    }
+
+    protected boolean goNext(final SddNode node, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+        if (node.isDecomposition()) {
+            final SddNodeDecomposition decomp = node.asDecomposition();
+            final SddNodeIterationState state = states.get(decomp);
+            SddElement activeElement = state.getActiveElement();
+            if (!goNext(activeElement, states)) {
+                activeElement = state.next();
+                if (activeElement == null) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected boolean goNext(final SddElement element, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+        if (!goNext(element.getPrime(), states)) {
+            if (element.getPrime().isDecomposition()) {
+                states.get(element.getPrime().asDecomposition()).reset();
+            }
+            if (!goNext(element.getSub(), states)) {
+                if (element.getSub().isDecomposition()) {
+                    states.get(element.getSub().asDecomposition()).reset();
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void write(final SddNode node, final CompactModel model, final BitSet modelMask,
+                         final Map<SddNodeDecomposition, SddNodeIterationState> states) {
+        if (node.isFalse()) {
+            throw new RuntimeException("Cannot write model of unsatisfiable node");
+        } else if (node.isTrue()) {
+        } else if (node.isLiteral()) {
+            final int varIdx = node.asTerminal().getVTree().getVariable();
+            final boolean phase = node.asTerminal().getPhase();
+            final Variable var = sdd.indexToVariable(varIdx);
+            final Literal lit = phase ? var : var.negate(sdd.getFactory());
+            model.getLiterals().add(lit);
+            if (modelMask != null) {
+                modelMask.set(sdd.literalToIndex(varIdx, phase));
+            }
+        } else {
+            final SddNodeDecomposition decomp = node.asDecomposition();
+            SddNodeIterationState state = states.get(decomp);
+            if (state == null) {
+                state = new SddNodeIterationState(decomp);
+                states.put(decomp, state);
+            }
+            final SddElement activeElement = state.getActiveElement();
+            assert activeElement != null;
+            write(activeElement.getPrime(), model, modelMask, states);
+            write(activeElement.getSub(), model, modelMask, states);
+            final VTreeInternal vtree = node.getVTree().asInternal();
+            final VTree primeVtree = activeElement.getPrime().getVTree();
+            final VTree subVtree = activeElement.getSub().getVTree();
+            addGapVars(sdd, model.getDontCareVariables(), primeVtree, vtree.getLeft());
+            addGapVars(sdd, model.getDontCareVariables(), subVtree, vtree.getRight());
+        }
+    }
+
+    protected void addGapVars(final Sdd sdd, final Collection<Variable> model, final VTree usedVTree,
+                              final VTree targetVTree) {
+        final ArrayList<Integer> gapVarIdxs = new ArrayList<>();
+        VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVarIdxs);
+        for (final int idx : gapVarIdxs) {
+            final Variable var = sdd.indexToVariable(idx);
+            model.add(var);
+        }
+    }
+}

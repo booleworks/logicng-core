@@ -23,6 +23,8 @@ test_files/writers/temp/*.dot
 test_files/writers/temp/*.txt
 test_files/writers/temp/*.cnf
 test_files/writers/temp/*.map
+test_files/writers/temp/*.vtree
+test_files/writers/temp/*.sdd
 
 # LSP
 .settings

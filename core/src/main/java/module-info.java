@@ -45,6 +45,11 @@ module logicng.core {
     exports com.booleworks.logicng.knowledgecompilation.dnnf.datastructures;
     exports com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
     exports com.booleworks.logicng.knowledgecompilation.dnnf.functions;
+    exports com.booleworks.logicng.knowledgecompilation.sdd.compilers;
+    exports com.booleworks.logicng.knowledgecompilation.sdd.functions;
+    exports com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
+    exports com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
+    exports com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
     exports com.booleworks.logicng.modelcounting;
 

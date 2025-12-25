@@ -25,6 +25,9 @@ public class SimpleEvent implements LngEvent {
     public static final SimpleEvent DNNF_DTREE_MIN_FILL_NEW_ITERATION = new SimpleEvent("DNNF DTree MinFill new iteration");
     public static final SimpleEvent DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE = new SimpleEvent("DNNF DTree processing next order variable");
     public static final SimpleEvent DNNF_SHANNON_EXPANSION = new SimpleEvent("DNNF Shannon Expansion");
+    public static final SimpleEvent VTREE_CUTSET_GENERATION = new SimpleEvent("VTree Cutset Generation");
+    public static final SimpleEvent SDD_APPLY = new SimpleEvent("SDD Apply");
+    public static final SimpleEvent SDD_SHANNON_EXPANSION = new SimpleEvent("SDD Shannon Expansion");
     public static final SimpleEvent SAT_CONFLICT_DETECTED = new SimpleEvent("SAT conflict detected");
     public static final SimpleEvent MODEL_ENUMERATION_COMMIT = new SimpleEvent("Model Enumeration Commit");
     public static final SimpleEvent MODEL_ENUMERATION_ROLLBACK = new SimpleEvent("Model Enumeration Rollback");

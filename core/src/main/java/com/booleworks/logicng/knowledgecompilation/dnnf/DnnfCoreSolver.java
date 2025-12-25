@@ -115,7 +115,7 @@ public class DnnfCoreSolver extends LngCoreSolver implements DnnfSatSolver {
     public boolean decide(final int var, final boolean phase) {
         newlyImpliedDirty = true;
         final int lit = mkLit(var, !phase);
-        trailLim.push(trail.size());
+        pushTrailLim();
         uncheckedEnqueue(lit, null);
         return propagateAfterDecide();
     }

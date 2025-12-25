@@ -7,6 +7,7 @@ package com.booleworks.logicng.knowledgecompilation.dnnf;
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.DNNF_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.DTREE_GENERATION_STARTED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_NEW_ITERATION;
@@ -119,6 +120,7 @@ public class DnnfCompilerTest {
                 entry(SAT_CALL_FINISHED, 125),
                 entry(SUBSUMPTION_STARTING_UB_TREE_GENERATION, 1),
                 entry(SUBSUMPTION_ADDED_NEW_SET, 4104),
+                entry(DTREE_GENERATION_STARTED, 1),
                 entry(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED, 1),
                 entry(DNNF_DTREE_MIN_FILL_NEW_ITERATION, 411),
                 entry(DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE, 411),
