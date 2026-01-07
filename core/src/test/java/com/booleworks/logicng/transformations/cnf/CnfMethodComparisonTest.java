@@ -7,7 +7,7 @@ package com.booleworks.logicng.transformations.cnf;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.backbones.Backbone;
+import com.booleworks.logicng.datastructures.Backbone;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;

@@ -4,8 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneType;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
@@ -17,26 +17,27 @@ import java.util.Collection;
 /**
  * A solver function which computes a backbone for the formula on the solver.
  * <p>
- * Backbone functions are instantiated via their builder {@link #builder()}.
- * @version 2.1.0
+ * Backbone functions are instantiated via their builder {@link #builder(Collection)}.
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class BackboneFunction implements SolverFunction<Backbone> {
+public final class BackboneSolverFunction implements SolverFunction<Backbone> {
 
     private final Collection<Variable> variables;
     private final BackboneType type;
 
-    private BackboneFunction(final Collection<Variable> variables, final BackboneType type) {
+    private BackboneSolverFunction(final Collection<Variable> variables, final BackboneType type) {
         this.variables = variables;
         this.type = type;
     }
 
     /**
      * Returns the builder for this function.
+     * @param variables the relevant variables for the backbone computation
      * @return the builder
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(final Collection<Variable> variables) {
+        return new Builder(variables);
     }
 
     @Override
@@ -52,8 +53,8 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
         private Collection<Variable> variables;
         private BackboneType type = BackboneType.POSITIVE_AND_NEGATIVE;
 
-        private Builder() {
-            // Initialize only via factory
+        private Builder(final Collection<Variable> variables) {
+            this.variables = variables;
         }
 
         /**
@@ -92,8 +93,8 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
          * configuration.
          * @return the backbone function
          */
-        public BackboneFunction build() {
-            return new BackboneFunction(variables, type);
+        public BackboneSolverFunction build() {
+            return new BackboneSolverFunction(variables, type);
         }
     }
 }

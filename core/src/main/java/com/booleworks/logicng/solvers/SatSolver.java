@@ -4,10 +4,10 @@
 
 package com.booleworks.logicng.solvers;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.encodings.CcEncoder;
@@ -23,7 +23,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.functions.BackboneFunction;
+import com.booleworks.logicng.solvers.functions.BackboneSolverFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
@@ -396,7 +396,7 @@ public class SatSolver {
      * @return the backbone
      */
     public Backbone backbone(final Collection<Variable> relevantVariables, final BackboneType type) {
-        return execute(BackboneFunction.builder().variables(relevantVariables).type(type).build());
+        return execute(BackboneSolverFunction.builder(relevantVariables).type(type).build());
     }
 
     /**

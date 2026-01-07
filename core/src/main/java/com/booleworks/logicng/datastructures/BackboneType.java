@@ -2,7 +2,7 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package com.booleworks.logicng.backbones;
+package com.booleworks.logicng.datastructures;
 
 /**
  * An enumeration which type of backbone should be computed:

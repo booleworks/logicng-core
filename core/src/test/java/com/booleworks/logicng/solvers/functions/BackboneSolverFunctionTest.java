@@ -9,7 +9,7 @@ import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigPa
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.backbones.Backbone;
+import com.booleworks.logicng.datastructures.Backbone;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -36,7 +36,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 @SuppressWarnings("unused")
-public class BackboneFunctionTest {
+public class BackboneSolverFunctionTest {
 
     public static List<Arguments> solvers() {
         final FormulaFactory f = FormulaFactory.caching();
@@ -100,9 +100,10 @@ public class BackboneFunctionTest {
             throws ParserException {
         final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
-        Backbone backbone = solver.execute(BackboneFunction.builder().variables(
-                        f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
-                .build());
+        Backbone backbone = solver.execute(BackboneSolverFunction.builder(List.of(f.variable("a"),
+                f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"),
+                f.variable("f")
+        )).build());
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
         solver.add(f.parse("a => b"));

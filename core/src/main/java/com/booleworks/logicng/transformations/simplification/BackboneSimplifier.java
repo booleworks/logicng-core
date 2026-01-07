@@ -4,15 +4,15 @@
 
 package com.booleworks.logicng.transformations.simplification;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.solvers.SatSolver;
-import com.booleworks.logicng.solvers.functions.BackboneFunction;
+import com.booleworks.logicng.solvers.functions.BackboneSolverFunction;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 
 /**
@@ -33,8 +33,7 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
     public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
-        final LngResult<Backbone> backboneResult = solver.execute(BackboneFunction.builder()
-                .variables(formula.variables(f))
+        final LngResult<Backbone> backboneResult = solver.execute(BackboneSolverFunction.builder(formula.variables(f))
                 .type(BackboneType.POSITIVE_AND_NEGATIVE)
                 .build(), handler);
         if (!backboneResult.isSuccess()) {

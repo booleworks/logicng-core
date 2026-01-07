@@ -3,8 +3,8 @@
 
 package com.booleworks.logicng.csp.datastructures;
 
-import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
+import com.booleworks.logicng.datastructures.Backbone;
 
 import java.util.Collections;
 import java.util.Map;

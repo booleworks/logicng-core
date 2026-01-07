@@ -5,13 +5,13 @@ package com.booleworks.logicng.csp.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspBackbone;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;

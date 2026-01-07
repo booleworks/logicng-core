@@ -12,11 +12,11 @@ import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BAC
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngBooleanVector;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.collections.LngVector;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;

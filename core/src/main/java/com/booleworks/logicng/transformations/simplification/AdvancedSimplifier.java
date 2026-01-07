@@ -6,15 +6,15 @@ package com.booleworks.logicng.transformations.simplification;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.ADVANCED_SIMPLIFICATION_STARTED;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneGeneration;
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.explanations.smus.Smus;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.functions.BackboneFunction;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.primecomputation.PrimeCompiler;
@@ -24,7 +24,6 @@ import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -88,8 +87,9 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
-            final LngResult<Backbone> backboneResult = BackboneGeneration.compute(f, Collections.singletonList(formula),
-                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, handler);
+            final LngResult<Backbone> backboneResult =
+                    BackboneFunction.get(f, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE)
+                            .apply(formula, handler);
             if (!backboneResult.isSuccess()) {
                 return LngResult.canceled(backboneResult.getCancelCause());
             }

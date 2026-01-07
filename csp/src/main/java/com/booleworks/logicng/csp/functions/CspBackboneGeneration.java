@@ -3,21 +3,21 @@
 
 package com.booleworks.logicng.csp.functions;
 
-import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspBackbone;
 import com.booleworks.logicng.csp.datastructures.CspValueHookMap;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
+import com.booleworks.logicng.datastructures.Backbone;
+import com.booleworks.logicng.datastructures.BackboneType;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SatSolver;
-import com.booleworks.logicng.solvers.functions.BackboneFunction;
+import com.booleworks.logicng.solvers.functions.BackboneSolverFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -165,8 +165,8 @@ public final class CspBackboneGeneration {
                 .flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
         final List<Variable> relevantVariables = new ArrayList<>(booleanVariables);
         relevantVariables.addAll(hookVariables);
-        final BackboneFunction backboneFunction =
-                BackboneFunction.builder().variables(relevantVariables).type(type).build();
+        final BackboneSolverFunction backboneFunction =
+                BackboneSolverFunction.builder(relevantVariables).type(type).build();
         final LngResult<Backbone> backboneResult = solver.execute(backboneFunction, handler);
         if (!backboneResult.isSuccess()) {
             return LngResult.canceled(backboneResult.getCancelCause());
