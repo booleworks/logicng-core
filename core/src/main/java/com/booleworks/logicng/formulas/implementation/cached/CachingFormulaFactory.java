@@ -437,10 +437,10 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     private void setCnfCaches(final Formula formula, final boolean isCnf) {
         if (isCnf) {
-            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, true);
-            transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> new HashMap<>()).put(formula, formula);
+            predicateCache.computeIfAbsent(IS_CNF, k -> newCacheMap()).put(formula, true);
+            transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> newCacheMap()).put(formula, formula);
         } else {
-            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, false);
+            predicateCache.computeIfAbsent(IS_CNF, k -> newCacheMap()).put(formula, false);
         }
     }
 
@@ -454,7 +454,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache (mapping from formula to formula)
      */
     public Map<Formula, Formula> getTransformationCacheForType(final CacheEntry key) {
-        return transformationCache.computeIfAbsent(key, m -> new HashMap<>());
+        return transformationCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     /**
@@ -469,7 +469,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      */
     @SuppressWarnings("unchecked")
     public <T> Map<Formula, T> getFunctionCacheForType(final CacheEntry key) {
-        return (Map<Formula, T>) functionCache.computeIfAbsent(key, m -> new HashMap<>());
+        return (Map<Formula, T>) functionCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     /**
@@ -482,7 +482,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache (mapping from formula to formula)
      */
     public Map<Formula, Boolean> getPredicateCacheForType(final CacheEntry key) {
-        return predicateCache.computeIfAbsent(key, m -> new HashMap<>());
+        return predicateCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     @Override
