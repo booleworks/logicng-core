@@ -63,7 +63,8 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = name.hashCode() ^ (phase ? 1 : 0);
+            final int nameHash = name.hashCode();
+            hashCode = getPhase() ? nameHash : nameHash * nameHash;
         }
         return hashCode;
     }
