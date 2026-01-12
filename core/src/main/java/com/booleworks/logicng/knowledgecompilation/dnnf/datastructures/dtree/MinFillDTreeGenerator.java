@@ -130,7 +130,6 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
             final Variable[] ordering = new Variable[numberOfVertices];
             final boolean[] processed = new boolean[numberOfVertices];
-            int treewidth = 0;
 
             for (int iteration = 0; iteration < numberOfVertices; iteration++) {
                 if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_NEW_ITERATION)) {
@@ -189,16 +188,6 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                             fillEdgeList.get(secondNeighbor).push(firstNeighbor);
                         }
                     }
-                }
-
-                int currentNumberOfEdges = 0;
-                for (int k = 0; k < numberOfVertices; k++) {
-                    if (k != bestVertex && !processed[k] && fillAdjMatrix[bestVertex][k]) {
-                        currentNumberOfEdges++;
-                    }
-                }
-                if (treewidth < currentNumberOfEdges) {
-                    treewidth = currentNumberOfEdges;
                 }
 
                 processed[bestVertex] = true;
