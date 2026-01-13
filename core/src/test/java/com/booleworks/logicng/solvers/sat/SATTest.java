@@ -244,14 +244,14 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
-    public void testVariableRemovedBySimplificationOccursInModel() throws ParserException {
+    public void testVariableRemovedBySimplificationOccursInModel() {
         final FormulaFactory f =
                 FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
         final SatSolver solver = SatSolver.newSolver(f,
                 SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
-        final Formula formula = f.parse("A & B => A");
+        final Formula formula = parse(f, "A & B => A");
         solver.add(formula); // during NNF conversion, used by the PG
         // transformation, the formula simplifies to verum
         // when added to the solver
@@ -270,12 +270,12 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
-    public void testRelaxationFormulas() throws ParserException {
+    public void testRelaxationFormulas() {
         for (final SatSolver s : solvers) {
-            final Formula formula = f.parse("a & (b | c)");
+            final Formula formula = parse(f, "a & (b | c)");
             s.add(formula);
             assertSolverSat(s);
-            s.addWithRelaxation(f.variable("x"), f.parse("~a & ~b"));
+            s.addWithRelaxation(f.variable("x"), parse(f, "~a & ~b"));
             assertSolverSat(s);
             assertThat(s.satCall().model(f.variables("a", "b", "c", "x")).positiveVariables())
                     .contains(f.variable("x"));
@@ -810,29 +810,29 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
-    public void testFormulaOnSolverWithContradiction1() throws ParserException {
+    public void testFormulaOnSolverWithContradiction1() {
         for (final SatSolver solver : solvers) {
             solver.add(f.variable("A"));
             solver.add(f.variable("B"));
-            solver.add(f.parse("C & (~A | ~B)"));
+            solver.add(parse(f, "C & (~A | ~B)"));
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
                     .containsExactlyInAnyOrder(f.variable("A"), f.variable("B"), f.variable("C"), f.falsum());
         }
     }
 
     @Test
-    public void testFormulaOnSolverWithContradiction2() throws ParserException {
+    public void testFormulaOnSolverWithContradiction2() {
         for (final SatSolver solver : solvers) {
-            solver.add(f.parse("A <=> B"));
-            solver.add(f.parse("B <=> ~A"));
+            solver.add(parse(f, "A <=> B"));
+            solver.add(parse(f, "B <=> ~A"));
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
-                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
-                            f.parse("B | A"));
+                    .containsExactlyInAnyOrder(parse(f, "A | ~B"), parse(f, "~A | B"), parse(f, "~B | ~A"),
+                            parse(f, "B | A"));
             solver.sat(); // adds learnt clauses s.t. the formula on the solver
             // changes
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
-                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
-                            f.parse("B | A"),
+                    .containsExactlyInAnyOrder(parse(f, "A | ~B"), parse(f, "~A | B"), parse(f, "~B | ~A"),
+                            parse(f, "B | A"),
                             f.literal("A", !solver.getConfig().getInitialPhase()),
                             f.literal("B", !solver.getConfig().getInitialPhase()), f.falsum());
         }
@@ -952,9 +952,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
-    public void testModelEnumerationWithAdditionalVariables() throws ParserException {
+    public void testModelEnumerationWithAdditionalVariables() {
         final SatSolver solver = SatSolver.newSolver(f);
-        solver.add(f.parse("A | B | C | D | E"));
+        solver.add(parse(f, "A | B | C | D | E"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B"))
                 .additionalVariables(f.variables("C", "D")).build());
         for (final Model model : models) {

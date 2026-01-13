@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MODEL_ENUMERATION_STARTED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
@@ -21,7 +22,6 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
@@ -60,8 +60,8 @@ class TimeoutModelEnumerationHandlerTest {
     }
 
     @Test
-    public void testThatMethodsAreCalled() throws ParserException {
-        final Formula formula = f.parse("A & B | C");
+    public void testThatMethodsAreCalled() {
+        final Formula formula = parse(f, "A & B | C");
         for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);

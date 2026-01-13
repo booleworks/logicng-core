@@ -65,10 +65,12 @@ public class AntlrPropositionalParserTest {
         assertThat(parser.parse("~Var")).isEqualTo(f.not(f.variable("Var")));
         assertThat(parser.parse("a & b")).isEqualTo(f.and(f.variable("a"), f.variable("b")));
         assertThat(parser.parse("~a & ~b")).isEqualTo(f.and(f.literal("a", false), f.literal("b", false)));
-        assertThat(parser.parse("~a & b & ~c & d")).isEqualTo(f.and(f.literal("a", false), f.variable("b"), f.literal("c", false), f.variable("d")));
+        assertThat(parser.parse("~a & b & ~c & d")).isEqualTo(
+                f.and(f.literal("a", false), f.variable("b"), f.literal("c", false), f.variable("d")));
         assertThat(parser.parse("a | b")).isEqualTo(f.or(f.variable("a"), f.variable("b")));
         assertThat(parser.parse("~a | ~b")).isEqualTo(f.or(f.literal("a", false), f.literal("b", false)));
-        assertThat(parser.parse("~a | b | ~c | d")).isEqualTo(f.or(f.literal("a", false), f.variable("b"), f.literal("c", false), f.variable("d")));
+        assertThat(parser.parse("~a | b | ~c | d")).isEqualTo(
+                f.or(f.literal("a", false), f.variable("b"), f.literal("c", false), f.variable("d")));
         assertThat(parser.parse("a => b")).isEqualTo(f.implication(f.variable("a"), f.variable("b")));
         assertThat(parser.parse("~a => ~b")).isEqualTo(f.implication(f.literal("a", false), f.literal("b", false)));
         assertThat(parser.parse("a <=> b")).isEqualTo(f.equivalence(f.variable("a"), f.variable("b")));
@@ -78,15 +80,24 @@ public class AntlrPropositionalParserTest {
     @Test
     public void testParseMultiplication() throws ParserException {
         final AntlrPropositionalParser parser = new AntlrPropositionalParser(f);
-        assertThat(parser.parse("13 * abc = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
-        assertThat(parser.parse("-13 * a = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("a")}, new int[]{-13}));
-        assertThat(parser.parse("13 * ~abc = -442")).isEqualTo(f.pbc(CType.EQ, -442, new Literal[]{f.literal("abc", false)}, new int[]{13}));
-        assertThat(parser.parse("-13 * ~a = -442")).isEqualTo(f.pbc(CType.EQ, -442, new Literal[]{f.literal("a", false)}, new int[]{-13}));
-        assertThat(parser.parse("13 * abc = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
-        assertThat(parser.parse("13 * abc > 4")).isEqualTo(f.pbc(CType.GT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
-        assertThat(parser.parse("13 * abc >= 4")).isEqualTo(f.pbc(CType.GE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
-        assertThat(parser.parse("13 * abc < 4")).isEqualTo(f.pbc(CType.LT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
-        assertThat(parser.parse("13 * abc <= 4")).isEqualTo(f.pbc(CType.LE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc = 4")).isEqualTo(
+                f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("-13 * a = 4")).isEqualTo(
+                f.pbc(CType.EQ, 4, new Literal[]{f.variable("a")}, new int[]{-13}));
+        assertThat(parser.parse("13 * ~abc = -442")).isEqualTo(
+                f.pbc(CType.EQ, -442, new Literal[]{f.literal("abc", false)}, new int[]{13}));
+        assertThat(parser.parse("-13 * ~a = -442")).isEqualTo(
+                f.pbc(CType.EQ, -442, new Literal[]{f.literal("a", false)}, new int[]{-13}));
+        assertThat(parser.parse("13 * abc = 4")).isEqualTo(
+                f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc > 4")).isEqualTo(
+                f.pbc(CType.GT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc >= 4")).isEqualTo(
+                f.pbc(CType.GE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc < 4")).isEqualTo(
+                f.pbc(CType.LT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc <= 4")).isEqualTo(
+                f.pbc(CType.LE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
     }
 
     @Test
@@ -97,22 +108,28 @@ public class AntlrPropositionalParserTest {
         assertThat(parser.parse("5 * c + -5 * ~c >= -5")).isEqualTo(
                 f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("c", false)}, new int[]{5, -5}));
         assertThat(parser.parse("6 * a + -6 * ~b + 12 * ~c > -6")).isEqualTo(
-                f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12}));
+                f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)},
+                        new int[]{6, -6, 12}));
         assertThat(parser.parse("c + -4 * ~d < -4")).isEqualTo(
                 f.pbc(CType.LT, -4, new Literal[]{f.variable("c"), f.literal("d", false)}, new int[]{1, -4}));
         assertThat(parser.parse("5 * c + ~c >= -5")).isEqualTo(
                 f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("c", false)}, new int[]{5, 1}));
-        assertThat(parser.parse("c + d >= -5")).isEqualTo(f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("d", true)}, new int[]{1, 1}));
+        assertThat(parser.parse("c + d >= -5")).isEqualTo(
+                f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("d", true)}, new int[]{1, 1}));
         assertThat(parser.parse("~c + ~d >= -5")).isEqualTo(
                 f.pbc(CType.GE, -5, new Literal[]{f.literal("c", false), f.literal("d", false)}, new int[]{1, 1}));
-        assertThat(parser.parse("~c = -5")).isEqualTo(f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", false)}, new int[]{1}));
-        assertThat(parser.parse("~(c = -5)")).isEqualTo(f.not(f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", true)}, new int[]{1})));
+        assertThat(parser.parse("~c = -5")).isEqualTo(
+                f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", false)}, new int[]{1}));
+        assertThat(parser.parse("~(c = -5)")).isEqualTo(
+                f.not(f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", true)}, new int[]{1})));
     }
 
     @Test
     public void testCombination() throws ParserException {
         final AntlrPropositionalParser parser = new AntlrPropositionalParser(f);
-        final Formula pbc = f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});
+        final Formula pbc =
+                f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)},
+                        new int[]{6, -6, 12});
         assertThat(parser.parse("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)")).isEqualTo(
                 f.and(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))), pbc));
         assertThat(parser.parse("~(6 * a - 6 * ~b - -12 * ~c > -6)")).isEqualTo(f.not(pbc));
@@ -121,7 +138,9 @@ public class AntlrPropositionalParserTest {
     @Test
     public void testParseUnsafe() {
         final AntlrPropositionalParser parser = new AntlrPropositionalParser(f);
-        final Formula pbc = f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});
+        final Formula pbc =
+                f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)},
+                        new int[]{6, -6, 12});
         assertThat(parser.parseUnsafe("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)")).isEqualTo(
                 f.and(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))), pbc));
         assertThat(parser.parseUnsafe("~(6 * a - 6 * ~b - -12 * ~c > -6)")).isEqualTo(f.not(pbc));
@@ -132,28 +151,50 @@ public class AntlrPropositionalParserTest {
         final AntlrPropositionalParser parser = new AntlrPropositionalParser(f);
         assertThat(parser.parse("x | y & z")).isEqualTo(f.or(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
         assertThat(parser.parse("x & y | z")).isEqualTo(f.or(f.and(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x => y & z")).isEqualTo(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x & y => z")).isEqualTo(f.implication(f.and(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x <=> y & z")).isEqualTo(f.equivalence(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x & y <=> z")).isEqualTo(f.equivalence(f.and(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x => y | z")).isEqualTo(f.implication(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x | y => z")).isEqualTo(f.implication(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x <=> y | z")).isEqualTo(f.equivalence(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x | y <=> z")).isEqualTo(f.equivalence(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x => y => z")).isEqualTo(f.implication(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x <=> y <=> z")).isEqualTo(f.equivalence(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("(x | y) & z")).isEqualTo(f.and(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x & (y | z)")).isEqualTo(f.and(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("(x => y) & z")).isEqualTo(f.and(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x & (y => z)")).isEqualTo(f.and(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("(x => y) | z")).isEqualTo(f.or(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x | (y => z)")).isEqualTo(f.or(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("(x <=> y) & z")).isEqualTo(f.and(f.equivalence(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x & (y <=> z)")).isEqualTo(f.and(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("(x <=> y) | z")).isEqualTo(f.or(f.equivalence(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x | (y <=> z)")).isEqualTo(f.or(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
-        assertThat(parser.parse("x => y <=> z")).isEqualTo(f.equivalence(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
-        assertThat(parser.parse("x => (y <=> z)")).isEqualTo(f.implication(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x => y & z")).isEqualTo(
+                f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x & y => z")).isEqualTo(
+                f.implication(f.and(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x <=> y & z")).isEqualTo(
+                f.equivalence(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x & y <=> z")).isEqualTo(
+                f.equivalence(f.and(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x => y | z")).isEqualTo(
+                f.implication(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x | y => z")).isEqualTo(
+                f.implication(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x <=> y | z")).isEqualTo(
+                f.equivalence(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x | y <=> z")).isEqualTo(
+                f.equivalence(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x => y => z")).isEqualTo(
+                f.implication(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x <=> y <=> z")).isEqualTo(
+                f.equivalence(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("(x | y) & z")).isEqualTo(
+                f.and(f.or(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x & (y | z)")).isEqualTo(
+                f.and(f.variable("x"), f.or(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("(x => y) & z")).isEqualTo(
+                f.and(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x & (y => z)")).isEqualTo(
+                f.and(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("(x => y) | z")).isEqualTo(
+                f.or(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x | (y => z)")).isEqualTo(
+                f.or(f.variable("x"), f.implication(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("(x <=> y) & z")).isEqualTo(
+                f.and(f.equivalence(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x & (y <=> z)")).isEqualTo(
+                f.and(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("(x <=> y) | z")).isEqualTo(
+                f.or(f.equivalence(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x | (y <=> z)")).isEqualTo(
+                f.or(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
+        assertThat(parser.parse("x => y <=> z")).isEqualTo(
+                f.equivalence(f.implication(f.variable("x"), f.variable("y")), f.variable("z")));
+        assertThat(parser.parse("x => (y <=> z)")).isEqualTo(
+                f.implication(f.variable("x"), f.equivalence(f.variable("y"), f.variable("z"))));
     }
 
     @Test
@@ -173,7 +214,8 @@ public class AntlrPropositionalParserTest {
         assertThat(parser.parse("a\n&\tb")).isEqualTo(f.and(f.variable("a"), f.variable("b")));
         assertThat(parser.parse(" a\r=>\t\tb")).isEqualTo(f.implication(f.variable("a"), f.variable("b")));
         assertThat(parser.parse(" 2\n*a\r+\n\n-4*\tb    +3*x=2")).isEqualTo(
-                f.pbc(CType.EQ, 2, Arrays.asList(f.variable("a"), f.variable("b"), f.variable("x")), Arrays.asList(2, -4, 3)));
+                f.pbc(CType.EQ, 2, Arrays.asList(f.variable("a"), f.variable("b"), f.variable("x")),
+                        Arrays.asList(2, -4, 3)));
     }
 
     @Test
@@ -183,9 +225,11 @@ public class AntlrPropositionalParserTest {
         assertThat(parser.parse("12 & A")).isEqualTo(f.and(f.variable("12"), f.variable("A")));
         assertThat(parser.parse("~12 & A")).isEqualTo(f.and(f.literal("12", false), f.variable("A")));
         assertThat(parser.parse("12 * 12 + 13 * A + 10 * B <= 25")).isEqualTo(
-                f.pbc(CType.LE, 25, new Literal[]{f.variable("12"), f.variable("A"), f.variable("B")}, new int[]{12, 13, 10}));
+                f.pbc(CType.LE, 25, new Literal[]{f.variable("12"), f.variable("A"), f.variable("B")},
+                        new int[]{12, 13, 10}));
         assertThat(parser.parse("-12 * ~12 + 13 * A + 10 * B <= 25")).isEqualTo(
-                f.pbc(CType.LE, 25, new Literal[]{f.literal("12", false), f.variable("A"), f.variable("B")}, new int[]{-12, 13, 10}));
+                f.pbc(CType.LE, 25, new Literal[]{f.literal("12", false), f.variable("A"), f.variable("B")},
+                        new int[]{-12, 13, 10}));
     }
 
     @Test
@@ -246,7 +290,8 @@ public class AntlrPropositionalParserTest {
 
     @Test
     public void testIllegalFormula3() {
-        assertThatThrownBy(() -> new AntlrPropositionalParser(f).parse("A | A + (C | B + C)")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new AntlrPropositionalParser(f).parse("A | A + (C | B + C)")).isInstanceOf(
+                ParserException.class);
     }
 
     @Test
@@ -274,17 +319,6 @@ public class AntlrPropositionalParserTest {
     public void testIllegalSkipPosition() {
         assertThatThrownBy(() -> new AntlrPropositionalParser(f).parse("- 1*x <= 3")).isInstanceOf(
                 ParserException.class);
-    }
-
-    @Test
-    public void testAsGetFactoryParser() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        f.setParser(new AntlrPropositionalParser(f));
-        final Formula pbc = f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});
-
-        assertThat(f.parse("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)")).isEqualTo(
-                f.and(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))), pbc));
-        assertThat(f.parse("~(6 * a - 6 * ~b - -12 * ~c > -6)")).isEqualTo(f.not(pbc));
     }
 
     @Test

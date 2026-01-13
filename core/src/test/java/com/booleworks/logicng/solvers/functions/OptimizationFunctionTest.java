@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.solvers.functions.OptimizationFunction.builder;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.INITIAL_PHASE;
@@ -87,7 +88,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     public void testUnsatFormula(final Function<FormulaFactory, SatSolver> solver, final FormulaFactory f,
                                  final String solverDescription)
             throws ParserException {
-        final Formula formula = f.parse("a & b & (a => ~b)");
+        final Formula formula = parse(f, "a & b & (a => ~b)");
         final LngResult<Model> minimumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), false, solver.apply(f), NopHandler.get());
         assertThat(minimumModel).isNull();
@@ -101,7 +102,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     public void testSingleModel(final Function<FormulaFactory, SatSolver> solver, final FormulaFactory f,
                                 final String solverDescription)
             throws ParserException {
-        final Formula formula = f.parse("~a & ~b & ~c");
+        final Formula formula = parse(f, "~a & ~b & ~c");
         final LngResult<Model> minimumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), false, solver.apply(f), NopHandler.get());
         testMinimumModel(formula, minimumModel, formula.variables(f));
@@ -194,9 +195,9 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
     @ParameterizedTest(name = "{index} {2}")
     @MethodSource("solverSuppliers")
-    public void testIncrementalityMinimizeAndMaximize(final Function<FormulaFactory, SatSolver> solverSupplier, final FormulaFactory f)
-            throws ParserException {
-        Formula formula = f.parse("(a|b|c|d|e) & (p|q) & (x|y|z)");
+    public void testIncrementalityMinimizeAndMaximize(final Function<FormulaFactory, SatSolver> solverSupplier,
+                                                      final FormulaFactory f) {
+        Formula formula = parse(f, "(a|b|c|d|e) & (p|q) & (x|y|z)");
         final SatSolver solver = solverSupplier.apply(f);
         final SortedSet<Variable> vars = new TreeSet<>(formula.variables(f));
         solver.add(formula);
@@ -206,7 +207,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(minimumModel.positiveVariables()).hasSize(3);
         assertThat(maximumModel.positiveVariables()).hasSize(10);
 
-        formula = f.parse("~p");
+        formula = parse(f, "~p");
         vars.addAll(formula.variables(f));
         solver.add(formula);
         minimumModel = solver.execute(builder().minimize().literals(vars).build());
@@ -214,7 +215,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(minimumModel.positiveVariables()).hasSize(3).contains(f.variable("q"));
         assertThat(maximumModel.positiveVariables()).hasSize(9).contains(f.variable("q"));
 
-        formula = f.parse("(x => n) & (y => m) & (a => ~b & ~c)");
+        formula = parse(f, "(x => n) & (y => m) & (a => ~b & ~c)");
         vars.addAll(formula.variables(f));
         solver.add(formula);
         minimumModel = solver.execute(builder().minimize().literals(vars).build());
@@ -224,7 +225,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 .contains(f.variable("q"), f.variable("z"))
                 .doesNotContain(f.variable("a"));
 
-        formula = f.parse("(z => v & w) & (m => v) & (b => ~c & ~d & ~e)");
+        formula = parse(f, "(z => v & w) & (m => v) & (b => ~c & ~d & ~e)");
         vars.addAll(formula.variables(f));
         solver.add(formula);
         minimumModel = solver.execute(builder().minimize().literals(vars).build());
@@ -235,7 +236,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 .contains(f.variable("q"), f.variable("x"), f.variable("n"), f.variable("v"), f.variable("w"))
                 .doesNotContain(f.variable("b"));
 
-        formula = f.parse("~q");
+        formula = parse(f, "~q");
         vars.addAll(formula.variables(f));
         solver.add(formula);
         assertThatThrownBy(() -> solver.execute(builder().minimize().literals(vars).build()))
@@ -249,8 +250,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @ParameterizedTest(name = "{index} {2}")
     @MethodSource("solverSuppliers")
     public void testAdditionalVariables(final Function<FormulaFactory, SatSolver> solver, final FormulaFactory f,
-                                        final String solverDescription)
-            throws ParserException {
+                                        final String solverDescription) {
         final Variable a = f.variable("a");
         final Literal na = f.literal("a", false);
         final Variable b = f.variable("b");
@@ -260,7 +260,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final Literal nx = f.literal("x", false);
         final Variable y = f.variable("y");
 
-        final Formula formula = f.parse("(a|b) & (~a => c) & (x|y)");
+        final Formula formula = parse(f, "(a|b) & (~a => c) & (x|y)");
 
         final List<Literal> literalsANBX = Arrays.asList(a, nb, x);
         final LngResult<Model> minimumModel = optimize(Collections.singleton(formula), literalsANBX,

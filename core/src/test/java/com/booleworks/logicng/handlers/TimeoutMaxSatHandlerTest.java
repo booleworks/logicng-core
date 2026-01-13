@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
@@ -19,7 +20,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.MaxSatSolver;
@@ -74,12 +74,12 @@ class TimeoutMaxSatHandlerTest {
     }
 
     @Test
-    public void testThatMethodsAreCalled() throws ParserException {
+    public void testThatMethodsAreCalled() {
         for (final MaxSatSolver solver : solvers) {
             final int weight = solver.supportsWeighted() ? 2 : 1;
-            solver.addHardFormula(f.parse("A&B"));
-            solver.addSoftFormula(f.parse("~A"), weight);
-            solver.addSoftFormula(f.parse("~B"), weight);
+            solver.addHardFormula(parse(f, "A&B"));
+            solver.addSoftFormula(parse(f, "~A"), weight);
+            solver.addSoftFormula(parse(f, "~B"), weight);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             when(handler.shouldResume(any())).thenReturn(true);
             solver.solve(handler);

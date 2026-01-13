@@ -21,6 +21,16 @@ public final class Utf8StringRepresentation extends FormulaStringRepresentation 
 
     private static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
 
+    private static final Utf8StringRepresentation INSTANCE = new Utf8StringRepresentation();
+
+    /**
+     * Returns the singleton instance.
+     * @return the singleton instance
+     */
+    public static Utf8StringRepresentation get() {
+        return INSTANCE;
+    }
+
     /**
      * Returns the UTF8 string for a variable name
      * @param name the name

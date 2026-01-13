@@ -17,6 +17,8 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class CachingFormulaFactoryTest {
 
     @Test
@@ -170,5 +172,31 @@ public class CachingFormulaFactoryTest {
                         ", conjunctions3=1" + ", conjunctions4=1" + ", conjunctionsN=1" + ", disjunctions2=1" +
                         ", disjunctions3=1" + ", disjunctions4=1" + ", disjunctionsN=1" + ", pbcs=0" + ", ccs=0" +
                         ", ccCounter=0" + ", pbCounter=0" + ", cnfCounter=0" + '}');
+    }
+
+    @Test
+    public void testThreadSafeConfig() {
+        final CachingFormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().threadSafe(true)
+                .build());
+        assertThat(f.implications).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.posLiterals).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.negLiterals).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.nots).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.implications).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.equivalences).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ands2).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ands3).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ands4).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.andsN).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ors2).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ors3).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.ors4).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.orsN).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.pbConstraints).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.cardinalityConstraints).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.transformationCache).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.predicateCache).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.functionCache).isInstanceOf(ConcurrentHashMap.class);
+        assertThat(f.pbEncodingCache).isInstanceOf(ConcurrentHashMap.class);
     }
 }

@@ -20,6 +20,15 @@ import java.util.regex.Pattern;
 public final class LatexStringRepresentation extends FormulaStringRepresentation {
 
     private static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
+    private static final LatexStringRepresentation INSTANCE = new LatexStringRepresentation();
+
+    /**
+     * Returns the singleton instance.
+     * @return the singleton instance
+     */
+    public static LatexStringRepresentation get() {
+        return INSTANCE;
+    }
 
     /**
      * Returns the latex string for a variable name

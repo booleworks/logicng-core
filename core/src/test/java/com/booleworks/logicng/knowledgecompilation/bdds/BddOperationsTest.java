@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
@@ -74,11 +75,11 @@ public class BddOperationsTest {
 
     @Test
     public void testToFormulaStyles() throws ParserException {
-        final Bdd bdd = BddFactory.build(f, f.parse("~A | ~B | ~C"), kernel);
-        final Formula expFollowPathsToTrue = f.parse("~A | A & (~B | B & ~C)");
+        final Bdd bdd = BddFactory.build(f, parser.parse("~A | ~B | ~C"), kernel);
+        final Formula expFollowPathsToTrue = parser.parse("~A | A & (~B | B & ~C)");
         assertThat(bdd.toFormula()).isEqualTo(expFollowPathsToTrue);
         assertThat(bdd.toFormula(true)).isEqualTo(expFollowPathsToTrue);
-        assertThat(bdd.toFormula(false)).isEqualTo(f.parse("~(A & B & C)"));
+        assertThat(bdd.toFormula(false)).isEqualTo(parser.parse("~(A & B & C)"));
     }
 
     @RandomTag
@@ -339,8 +340,8 @@ public class BddOperationsTest {
         assertThat(bddAnd.variableProfile()).containsExactly(a1, b1, c1);
     }
 
-    private void compareFormula(final Bdd bdd, final String formula) throws ParserException {
-        compareFormula(bdd, bdd.kernel.getFactory().parse(formula));
+    private void compareFormula(final Bdd bdd, final String formula) {
+        compareFormula(bdd, parse(bdd.kernel.getFactory(), formula));
     }
 
     private void compareFormula(final Bdd bdd, final Formula compareFormula) {

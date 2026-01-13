@@ -84,11 +84,12 @@ public class LngCachedPbConstraint extends LngCachedFormula implements PbConstra
     @Override
     public List<Formula> getEncoding(final FormulaFactory generatingFactory) {
         List<Formula> encoding;
-        encoding = f.pbEncodingCache.get(this);
-        if (encoding == null) {
-            encoding = PbEncoder.encode(generatingFactory, this);
-            if (generatingFactory == getFactory()) {
-                f.pbEncodingCache.put(this, encoding);
+        if (generatingFactory == getFactory()) {
+            encoding = f.pbEncodingCache.computeIfAbsent(this, pbc -> PbEncoder.encode(generatingFactory, this));
+        } else {
+            encoding = f.pbEncodingCache.get(this);
+            if (encoding == null) {
+                encoding = PbEncoder.encode(generatingFactory, this);
             }
         }
         return Collections.unmodifiableList(encoding);

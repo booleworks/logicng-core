@@ -6,6 +6,7 @@ package com.booleworks.logicng.io.writers;
 
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.printer.DefaultStringRepresentation;
 import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 
 import java.io.BufferedWriter;
@@ -42,7 +43,7 @@ public final class FormulaWriter {
      */
     public static void write(final String fileName, final Formula formula, final boolean splitAndMultiline)
             throws IOException {
-        write(new File(fileName), formula, splitAndMultiline, formula.getFactory().getStringRepresentation());
+        write(new File(fileName), formula, splitAndMultiline, DefaultStringRepresentation.get());
     }
 
     /**
@@ -75,7 +76,7 @@ public final class FormulaWriter {
      */
     public static void write(final File file, final Formula formula, final boolean splitAndMultiline)
             throws IOException {
-        write(file, formula, splitAndMultiline, formula.getFactory().getStringRepresentation());
+        write(file, formula, splitAndMultiline, DefaultStringRepresentation.get());
     }
 
     /**

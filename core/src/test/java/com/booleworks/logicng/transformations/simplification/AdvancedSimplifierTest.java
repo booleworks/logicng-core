@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.transformations.simplification;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_INC_WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_LINEAR_SU;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_OLL;
@@ -94,7 +95,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 new TimeoutHandler(5_000L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                 new TimeoutHandler(System.currentTimeMillis() + 5_000L, TimeoutHandler.TimerType.FIXED_END)
         );
-        final Formula formula = _c.f.parse("a & b | ~c & a");
+        final Formula formula = _c.p.parse("a & b | ~c & a");
         for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formula, false);
         }
@@ -119,7 +120,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testPrimeCompilerIsCancelled(final FormulaContext _c) throws ParserException {
         final ComputationHandler handler = new BoundedOptimizationHandler(-1, 0);
-        final Formula formula = _c.f.parse("a&(b|c)");
+        final Formula formula = _c.p.parse("a&(b|c)");
         testHandler(handler, formula, true);
     }
 
@@ -127,7 +128,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSmusComputationIsCancelled(final FormulaContext _c) throws ParserException {
         final ComputationHandler handler = new BoundedOptimizationHandler(-1, 5);
-        final Formula formula = _c.f.parse("a&(b|c)");
+        final Formula formula = _c.p.parse("a&(b|c)");
         testHandler(handler, formula, true);
     }
 
@@ -166,8 +167,9 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     public void testCancellationPoints() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
-                f.parse("~v16 & ~v22 & ~v12 & (~v4 | ~v14) & (~v4 | ~v15) & (v3 | v4) & (v3 | ~v14) & (v3 | ~v15) " +
-                        "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & v19");
+                parse(f, "~v16 & ~v22 & ~v12 & (~v4 | ~v14) & (~v4 | ~v15) & (v3 | v4) & (v3 | ~v14) & (v3 | ~v15) " +
+                        "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & "
+                        + "v19");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 30; numOptimizationStarts++) {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 500; numSatHandlerStarts++) {
                 final ComputationHandler handler =

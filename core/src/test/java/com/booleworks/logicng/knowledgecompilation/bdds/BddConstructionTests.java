@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
@@ -32,8 +33,8 @@ public class BddConstructionTests {
         f = FormulaFactory.caching();
         variables = new ArrayList<>(f.variables("a", "b", "c", "d", "e", "f", "g"));
         kernel = new BddKernel(f, variables, 1000, 10000);
-        initFormula = f.parse("(a & b) => (c | d & ~e)");
-        secondFormula = f.parse("(g & f) <=> (c | ~a | ~d)");
+        initFormula = parse(f, "(a & b) => (c | d & ~e)");
+        secondFormula = parse(f, "(g & f) <=> (c | ~a | ~d)");
         initBdd = BddFactory.build(f, initFormula, kernel);
         secondBdd = BddFactory.build(f, secondFormula, kernel);
     }

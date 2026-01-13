@@ -27,20 +27,20 @@ public class CanonicalDnfEnumerationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSamples(final FormulaContext _c) throws ParserException {
         final CanonicalDnfEnumeration de = new CanonicalDnfEnumeration(_c.f);
-        assertThat(_c.f.falsum().transform(de)).isEqualTo(_c.f.parse("$false"));
-        assertThat(_c.f.verum().transform(de)).isEqualTo(_c.f.parse("$true"));
-        assertThat(_c.f.parse("a").transform(de)).isEqualTo(_c.f.parse("a"));
-        assertThat(_c.f.parse("~a").transform(de)).isEqualTo(_c.f.parse("~a"));
-        assertThat(_c.f.parse("~a & b").transform(de)).isEqualTo(_c.f.parse("~a & b"));
-        assertThat(_c.f.parse("~a | b").transform(de)).isEqualTo(_c.f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(_c.f.parse("a => b").transform(de)).isEqualTo(_c.f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(_c.f.parse("a <=> b").transform(de)).isEqualTo(_c.f.parse("a & b | ~a & ~b"));
-        assertThat(_c.f.parse("a + b = 1").transform(de)).isEqualTo(_c.f.parse("~a & b | a & ~b"));
-        assertThat(_c.f.parse("a & (b | ~c)").transform(de))
-                .isEqualTo(_c.f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
-        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(de)).isEqualTo(_c.f.parse("$false"));
-        assertThat(_c.f.parse("a | b | ~a & ~b").transform(de))
-                .isEqualTo(_c.f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
+        assertThat(_c.f.falsum().transform(de)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.f.verum().transform(de)).isEqualTo(_c.p.parse("$true"));
+        assertThat(_c.p.parse("a").transform(de)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~a").transform(de)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~a & b").transform(de)).isEqualTo(_c.p.parse("~a & b"));
+        assertThat(_c.p.parse("~a | b").transform(de)).isEqualTo(_c.p.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(_c.p.parse("a => b").transform(de)).isEqualTo(_c.p.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(_c.p.parse("a <=> b").transform(de)).isEqualTo(_c.p.parse("a & b | ~a & ~b"));
+        assertThat(_c.p.parse("a + b = 1").transform(de)).isEqualTo(_c.p.parse("~a & b | a & ~b"));
+        assertThat(_c.p.parse("a & (b | ~c)").transform(de))
+                .isEqualTo(_c.p.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
+        assertThat(_c.p.parse("a & b & (~a | ~b)").transform(de)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.p.parse("a | b | ~a & ~b").transform(de))
+                .isEqualTo(_c.p.parse("~a & b | a & b | a & ~b | ~a & ~b"));
     }
 
     @ParameterizedTest

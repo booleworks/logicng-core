@@ -37,26 +37,26 @@ public class ContainsPbcPredicateTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNot(final FormulaContext _c) throws ParserException {
-        assertThat(_c.f.parse("~a").holds(predicate)).isFalse();
-        assertThat(_c.f.parse("~(a | b)").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("~a").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("~(a | b)").holds(predicate)).isFalse();
 
-        assertThat(_c.f.parse("~(a | (a + b = 3))").holds(predicate)).isTrue();
-        assertThat(_c.f.parse("~(a & ~(a + b = 3))").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("~(a | (a + b = 3))").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("~(a & ~(a + b = 3))").holds(predicate)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testMixed(final FormulaContext _c) throws ParserException {
-        assertThat(_c.f.parse("a => b").holds(predicate)).isFalse();
-        assertThat(_c.f.parse("a <=> b").holds(predicate)).isFalse();
-        assertThat(_c.f.parse("a => (b | c & ~(e | d))").holds(predicate)).isFalse();
-        assertThat(_c.f.parse("a <=> (b | c & ~(e | d))").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("a => b").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("a <=> b").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("a => (b | c & ~(e | d))").holds(predicate)).isFalse();
+        assertThat(_c.p.parse("a <=> (b | c & ~(e | d))").holds(predicate)).isFalse();
 
-        assertThat(_c.f.parse("a => (3*a + ~b <= 4)").holds(predicate)).isTrue();
-        assertThat(_c.f.parse("(3*a + ~b <= 4) <=> b").holds(predicate)).isTrue();
-        assertThat(_c.f.parse("a => (b | c & (3*a + ~b <= 4) & ~(e | d))").holds(predicate)).isTrue();
-        assertThat(_c.f.parse("a <=> (b | c & ~(e | (3*a + ~b <= 4) | d))").holds(predicate)).isTrue();
-        assertThat(_c.f.parse("3*a + ~b <= 4").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("a => (3*a + ~b <= 4)").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("(3*a + ~b <= 4) <=> b").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("a => (b | c & (3*a + ~b <= 4) & ~(e | d))").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("a <=> (b | c & ~(e | (3*a + ~b <= 4) | d))").holds(predicate)).isTrue();
+        assertThat(_c.p.parse("3*a + ~b <= 4").holds(predicate)).isTrue();
     }
 
     @ParameterizedTest

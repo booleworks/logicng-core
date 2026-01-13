@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.formulas;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.datastructures.Assignment;
@@ -39,54 +40,54 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimpleFormulas(final FormulaContext _c) throws ParserException {
-        assertThat(_c.f.parse("$true").toString()).isEqualTo("$true");
-        assertThat(_c.f.parse("$false").toString()).isEqualTo("$false");
-        assertThat(_c.f.parse("a").toString()).isEqualTo("a");
-        assertThat(_c.f.parse("~a").toString()).isEqualTo("~a");
-        assertThat(_c.f.parse("a & a & b").toString()).isEqualTo("a & b");
-        assertThat(_c.f.parse("a | a | b").toString()).isEqualTo("a | b");
-        assertThat(_c.f.parse("a => a & b").toString()).isEqualTo("a => a & b");
-        assertThat(_c.f.parse("a <=> a & b").toString()).isEqualTo("a <=> a & b");
+        assertThat(_c.p.parse("$true").toString()).isEqualTo("$true");
+        assertThat(_c.p.parse("$false").toString()).isEqualTo("$false");
+        assertThat(_c.p.parse("a").toString()).isEqualTo("a");
+        assertThat(_c.p.parse("~a").toString()).isEqualTo("~a");
+        assertThat(_c.p.parse("a & a & b").toString()).isEqualTo("a & b");
+        assertThat(_c.p.parse("a | a | b").toString()).isEqualTo("a | b");
+        assertThat(_c.p.parse("a => a & b").toString()).isEqualTo("a => a & b");
+        assertThat(_c.p.parse("a <=> a & b").toString()).isEqualTo("a <=> a & b");
     }
 
     @Test
-    public void testContradictionsCaching() throws ParserException {
+    public void testContradictionsCaching() {
         final FormulaFactory f = FormulaFactory.caching(CONFIG);
-        assertThat(f.parse("a & ~a").toString()).isEqualTo("a & ~a");
-        assertThat(f.parse("~a & a").toString()).isEqualTo("a & ~a");
-        assertThat(f.parse("~a & a & a & ~a & a & a & ~a").toString()).isEqualTo("a & ~a");
-        assertThat(f.parse("(a | b) & ~(a | b)").toString()).isEqualTo("(a | b) & ~(a | b)");
-        assertThat(f.parse("(a | b) & ~(b | a)").toString()).isEqualTo("(a | b) & ~(a | b)");
+        assertThat(parse(f, "a & ~a").toString()).isEqualTo("a & ~a");
+        assertThat(parse(f, "~a & a").toString()).isEqualTo("a & ~a");
+        assertThat(parse(f, "~a & a & a & ~a & a & a & ~a").toString()).isEqualTo("a & ~a");
+        assertThat(parse(f, "(a | b) & ~(a | b)").toString()).isEqualTo("(a | b) & ~(a | b)");
+        assertThat(parse(f, "(a | b) & ~(b | a)").toString()).isEqualTo("(a | b) & ~(a | b)");
     }
 
     @Test
-    public void testContradictionsNonCaching() throws ParserException {
+    public void testContradictionsNonCaching() {
         final FormulaFactory f = FormulaFactory.nonCaching(CONFIG);
-        assertThat(f.parse("a & ~a").toString()).isEqualTo("a & ~a");
-        assertThat(f.parse("~a & a").toString()).isEqualTo("~a & a");
-        assertThat(f.parse("~a & a & a & ~a & a & a & ~a").toString()).isEqualTo("~a & a");
-        assertThat(f.parse("(a | b) & ~(a | b)").toString()).isEqualTo("(a | b) & ~(a | b)");
-        assertThat(f.parse("(a | b) & ~(b | a)").toString()).isEqualTo("(a | b) & ~(b | a)");
+        assertThat(parse(f, "a & ~a").toString()).isEqualTo("a & ~a");
+        assertThat(parse(f, "~a & a").toString()).isEqualTo("~a & a");
+        assertThat(parse(f, "~a & a & a & ~a & a & a & ~a").toString()).isEqualTo("~a & a");
+        assertThat(parse(f, "(a | b) & ~(a | b)").toString()).isEqualTo("(a | b) & ~(a | b)");
+        assertThat(parse(f, "(a | b) & ~(b | a)").toString()).isEqualTo("(a | b) & ~(b | a)");
     }
 
     @Test
-    public void testTautologiesCaching() throws ParserException {
+    public void testTautologiesCaching() {
         final FormulaFactory f = FormulaFactory.caching(CONFIG);
-        assertThat(f.parse("a | ~a").toString()).isEqualTo("a | ~a");
-        assertThat(f.parse("~a | a").toString()).isEqualTo("a | ~a");
-        assertThat(f.parse("~a | a | a | ~a | a | a | ~a").toString()).isEqualTo("a | ~a");
-        assertThat(f.parse("(a & b) | ~(a & b)").toString()).isEqualTo("a & b | ~(a & b)");
-        assertThat(f.parse("(a & b) | ~(b & a)").toString()).isEqualTo("a & b | ~(a & b)");
+        assertThat(parse(f, "a | ~a").toString()).isEqualTo("a | ~a");
+        assertThat(parse(f, "~a | a").toString()).isEqualTo("a | ~a");
+        assertThat(parse(f, "~a | a | a | ~a | a | a | ~a").toString()).isEqualTo("a | ~a");
+        assertThat(parse(f, "(a & b) | ~(a & b)").toString()).isEqualTo("a & b | ~(a & b)");
+        assertThat(parse(f, "(a & b) | ~(b & a)").toString()).isEqualTo("a & b | ~(a & b)");
     }
 
     @Test
-    public void testTautologiesNonCaching() throws ParserException {
+    public void testTautologiesNonCaching() {
         final FormulaFactory f = FormulaFactory.nonCaching(CONFIG);
-        assertThat(f.parse("a | ~a").toString()).isEqualTo("a | ~a");
-        assertThat(f.parse("~a | a").toString()).isEqualTo("~a | a");
-        assertThat(f.parse("~a | a | a | ~a | a | a | ~a").toString()).isEqualTo("~a | a");
-        assertThat(f.parse("(a & b) | ~(a & b)").toString()).isEqualTo("a & b | ~(a & b)");
-        assertThat(f.parse("(a & b) | ~(b & a)").toString()).isEqualTo("a & b | ~(b & a)");
+        assertThat(parse(f, "a | ~a").toString()).isEqualTo("a | ~a");
+        assertThat(parse(f, "~a | a").toString()).isEqualTo("~a | a");
+        assertThat(parse(f, "~a | a | a | ~a | a | a | ~a").toString()).isEqualTo("~a | a");
+        assertThat(parse(f, "(a & b) | ~(a & b)").toString()).isEqualTo("a & b | ~(a & b)");
+        assertThat(parse(f, "(a & b) | ~(b & a)").toString()).isEqualTo("a & b | ~(b & a)");
     }
 
     @ParameterizedTest
@@ -172,14 +173,14 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @MethodSource("contexts")
     public void testSatSolverWithTautologies(final FormulaContext _c) throws ParserException {
         final SatSolver solver = SatSolver.newSolver(_c.f);
-        solver.add(_c.f.parse("A"));
-        solver.add(_c.f.parse("A => B"));
-        solver.add(_c.f.parse("C | ~C"));
+        solver.add(_c.p.parse("A"));
+        solver.add(_c.p.parse("A => B"));
+        solver.add(_c.p.parse("C | ~C"));
         List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
         models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false)));
-        solver.add(_c.f.parse("D | ~D"));
+        solver.add(_c.p.parse("D | ~D"));
         models = solver.enumerateAllModels(_c.f.variables("A", "B", "C", "D"));
         assertThat(models).hasSize(4);
         models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
@@ -191,14 +192,14 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @MethodSource("contexts")
     public void testSatSolverWithContradictions(final FormulaContext _c) throws ParserException {
         final SatSolver solver = SatSolver.newSolver(_c.f);
-        solver.add(_c.f.parse("A"));
-        solver.add(_c.f.parse("A => B"));
-        solver.add(_c.f.parse("C | ~C"));
+        solver.add(_c.p.parse("A"));
+        solver.add(_c.p.parse("A => B"));
+        solver.add(_c.p.parse("C | ~C"));
         final List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
         models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false)));
-        solver.add(_c.f.parse("D & ~D"));
+        solver.add(_c.p.parse("D & ~D"));
         assertThat(solver.sat()).isFalse();
     }
 
@@ -207,8 +208,8 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     public void testSubstitution(final FormulaContext _c) throws ParserException {
         assertThat(_c.tautology.substitute(_c.f, _c.a, _c.na)).isEqualTo(_c.tautology);
         assertThat(_c.contradiction.substitute(_c.f, _c.a, _c.na)).isEqualTo(_c.contradiction);
-        assertThat(_c.tautology.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B | ~B"));
-        assertThat(_c.contradiction.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B & ~B"));
+        assertThat(_c.tautology.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.p.parse("B | ~B"));
+        assertThat(_c.contradiction.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.p.parse("B & ~B"));
     }
 
     @ParameterizedTest

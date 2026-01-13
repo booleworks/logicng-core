@@ -47,7 +47,7 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO);
-            solver.addHardFormula(f.parse("a | b"));
+            solver.addHardFormula(parse(f, "a | b"));
             solver.addSoftFormula(A, -1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The weight of a formula must be > 0");
@@ -57,7 +57,7 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
     public void testExceptionalBehaviorForLinearUS() {
         assertThatThrownBy(() -> {
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US);
-            solver.addHardFormula(f.parse("a | b"));
+            solver.addHardFormula(parse(f, "a | b"));
             solver.addSoftFormula(A, 3);
             solver.solve();
         }).isInstanceOf(IllegalStateException.class)
@@ -68,7 +68,7 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                     .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                     .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER)
                     .build());
-            solver.addHardFormula(f.parse("a | b"));
+            solver.addHardFormula(parse(f, "a | b"));
             solver.addSoftFormula(A, 1);
             solver.solve();
         }).isInstanceOf(IllegalStateException.class)
@@ -76,9 +76,9 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void testCornerCase() throws ParserException {
+    public void testCornerCase() {
         final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO);
-        solver.addHardFormula(f.parse("a | b"));
+        solver.addHardFormula(parse(f, "a | b"));
         solver.addHardFormula(f.verum());
         solver.addSoftFormula(A, 1);
         MaxSatResult result = solver.solve();

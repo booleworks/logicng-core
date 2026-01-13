@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -58,7 +59,8 @@ public class SatCallTest {
 
         openCall.close();
 
-        assertThat(solver.satCall().addFormulas(List.of(f.parse("(~a | ~b)"), f.parse("a"), f.parse("b"))).unsatCore())
+        assertThat(
+                solver.satCall().addFormulas(List.of(parse(f, "(~a | ~b)"), parse(f, "a"), parse(f, "b"))).unsatCore())
                 .isNotNull();
         assertThat(solver.execute(FormulaOnSolverFunction.get())).isEqualTo(Set.of());
         final SolverState newState = solver.saveState();
@@ -70,25 +72,25 @@ public class SatCallTest {
     }
 
     @Test
-    public void testDirectSatMethod() throws ParserException {
+    public void testDirectSatMethod() {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().build());
-        solver.add(f.parse("a | b"));
-        solver.add(f.parse("c & (~c | ~a)"));
+        solver.add(parse(f, "a | b"));
+        solver.add(parse(f, "c & (~c | ~a)"));
         assertThat(solver.satCall().sat().getResult()).isTrue();
         assertThat(solver.satCall().addFormulas(f.literal("b", false)).sat().getResult()).isFalse();
         assertThat(solver.sat()).isTrue();
     }
 
     @Test
-    public void testDirectModelMethod() throws ParserException {
+    public void testDirectModelMethod() {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().build());
-        solver.add(f.parse("a | b"));
-        solver.add(f.parse("c & (~c | ~a)"));
+        solver.add(parse(f, "a | b"));
+        solver.add(parse(f, "c & (~c | ~a)"));
         final Set<Variable> abc = Set.of(f.variable("a"), f.variable("b"), f.variable("c"));
         final Set<Variable> abcd = Set.of(f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"));
         assertThat(solver.satCall().model(abc).toAssignment())
                 .isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
-        assertThat(solver.satCall().addFormulas(f.parse("c | d")).model(abcd).toAssignment()).isIn(
+        assertThat(solver.satCall().addFormulas(parse(f, "c | d")).model(abcd).toAssignment()).isIn(
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", false)),
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", true))
         );
@@ -97,31 +99,31 @@ public class SatCallTest {
     }
 
     @Test
-    public void testDirectUnsatCoreMethod() throws ParserException {
+    public void testDirectUnsatCoreMethod() {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().proofGeneration(true).build());
-        solver.add(f.parse("a | b"));
-        solver.add(f.parse("c & (~c | ~a)"));
+        solver.add(parse(f, "a | b"));
+        solver.add(parse(f, "c & (~c | ~a)"));
         assertThat(solver.satCall().addFormulas(f.literal("b", false)).unsatCore().getPropositions())
                 .containsExactlyInAnyOrder(
-                        new StandardProposition(f.parse("a | b")),
-                        new StandardProposition(f.parse("c")),
-                        new StandardProposition(f.parse("~c | ~a")),
-                        new StandardProposition(f.parse("~b"))
+                        new StandardProposition(parse(f, "a | b")),
+                        new StandardProposition(parse(f, "c")),
+                        new StandardProposition(parse(f, "~c | ~a")),
+                        new StandardProposition(parse(f, "~b"))
                 );
-        assertThat(solver.satCall().addFormulas(f.parse("~b | a")).unsatCore().getPropositions())
+        assertThat(solver.satCall().addFormulas(parse(f, "~b | a")).unsatCore().getPropositions())
                 .containsExactlyInAnyOrder(
-                        new StandardProposition(f.parse("a | b")),
-                        new StandardProposition(f.parse("c")),
-                        new StandardProposition(f.parse("~c | ~a")),
-                        new StandardProposition(f.parse("~b | a"))
+                        new StandardProposition(parse(f, "a | b")),
+                        new StandardProposition(parse(f, "c")),
+                        new StandardProposition(parse(f, "~c | ~a")),
+                        new StandardProposition(parse(f, "~b | a"))
                 );
         assertThat(solver.sat()).isTrue();
-        solver.add(f.parse("~b"));
+        solver.add(parse(f, "~b"));
         assertThat(solver.satCall().unsatCore().getPropositions()).containsExactlyInAnyOrder(
-                new StandardProposition(f.parse("a | b")),
-                new StandardProposition(f.parse("c")),
-                new StandardProposition(f.parse("~c | ~a")),
-                new StandardProposition(f.parse("~b"))
+                new StandardProposition(parse(f, "a | b")),
+                new StandardProposition(parse(f, "c")),
+                new StandardProposition(parse(f, "~c | ~a")),
+                new StandardProposition(parse(f, "~b"))
         );
     }
 
@@ -157,11 +159,11 @@ public class SatCallTest {
     }
 
     @Test
-    public void testSelectionOrder() throws ParserException {
+    public void testSelectionOrder() {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().proofGeneration(true).build());
-        solver.add(f.parse("a | b | c | d"));
-        solver.add(f.parse("~a | ~b"));
-        solver.add(f.parse("~c | ~d"));
+        solver.add(parse(f, "a | b | c | d"));
+        solver.add(parse(f, "~a | ~b"));
+        solver.add(parse(f, "~c | ~d"));
         final Variable a = f.variable("a");
         final Variable b = f.variable("b");
         final Variable c = f.variable("c");
@@ -180,47 +182,49 @@ public class SatCallTest {
     }
 
     @Test
-    public void testAdditionalFormulasAndPropositions() throws ParserException {
+    public void testAdditionalFormulasAndPropositions() {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder()
                 .cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF).proofGeneration(true).build());
-        solver.add(f.parse("a | b | c | d"));
-        solver.add(new StandardProposition(f.parse("a => b")));
-        solver.add(new StandardProposition(f.parse("c => d")));
-        solver.add(new StandardProposition(f.parse("e => ~a & ~b")));
-        solver.add(new StandardProposition(f.parse("~f => ~c & ~d")));
+        solver.add(parse(f, "a | b | c | d"));
+        solver.add(new StandardProposition(parse(f, "a => b")));
+        solver.add(new StandardProposition(parse(f, "c => d")));
+        solver.add(new StandardProposition(parse(f, "e => ~a & ~b")));
+        solver.add(new StandardProposition(parse(f, "~f => ~c & ~d")));
 
         assertThat(
-                solver.satCall().addFormulas(f.parse("e <=> ~f")).addFormulas(f.parse("~f")).unsatCore().getPropositions())
+                solver.satCall().addFormulas(parse(f, "e <=> ~f")).addFormulas(parse(f, "~f")).unsatCore()
+                        .getPropositions())
                 .containsExactlyInAnyOrder(
-                        new StandardProposition(f.parse("a | b | c | d")),
-                        new StandardProposition(f.parse("e => ~a & ~b")),
-                        new StandardProposition(f.parse("~f => ~c & ~d")),
-                        new StandardProposition(f.parse("e <=> ~f")),
-                        new StandardProposition(f.parse("~f"))
+                        new StandardProposition(parse(f, "a | b | c | d")),
+                        new StandardProposition(parse(f, "e => ~a & ~b")),
+                        new StandardProposition(parse(f, "~f => ~c & ~d")),
+                        new StandardProposition(parse(f, "e <=> ~f")),
+                        new StandardProposition(parse(f, "~f"))
                 );
 
-        assertThat(solver.satCall().addFormulas(f.parse("e <=> ~f"), f.parse("e")).unsatCore().getPropositions())
+        assertThat(solver.satCall().addFormulas(parse(f, "e <=> ~f"), parse(f, "e")).unsatCore().getPropositions())
                 .containsExactlyInAnyOrder(
-                        new StandardProposition(f.parse("a | b | c | d")),
-                        new StandardProposition(f.parse("e => ~a & ~b")),
-                        new StandardProposition(f.parse("~f => ~c & ~d")),
-                        new StandardProposition(f.parse("e <=> ~f")),
-                        new StandardProposition(f.parse("e"))
+                        new StandardProposition(parse(f, "a | b | c | d")),
+                        new StandardProposition(parse(f, "e => ~a & ~b")),
+                        new StandardProposition(parse(f, "~f => ~c & ~d")),
+                        new StandardProposition(parse(f, "e <=> ~f")),
+                        new StandardProposition(parse(f, "e"))
                 );
 
         assertThat(solver.satCall()
-                .addPropositions(new StandardProposition(f.parse("e <=> ~f")), new StandardProposition(f.parse("e")))
+                .addPropositions(new StandardProposition(parse(f, "e <=> ~f")), new StandardProposition(parse(f, "e")))
                 .unsatCore().getPropositions())
                 .containsExactlyInAnyOrder(
-                        new StandardProposition(f.parse("a | b | c | d")),
-                        new StandardProposition(f.parse("e => ~a & ~b")),
-                        new StandardProposition(f.parse("~f => ~c & ~d")),
-                        new StandardProposition(f.parse("e <=> ~f")),
-                        new StandardProposition(f.parse("e"))
+                        new StandardProposition(parse(f, "a | b | c | d")),
+                        new StandardProposition(parse(f, "e => ~a & ~b")),
+                        new StandardProposition(parse(f, "~f => ~c & ~d")),
+                        new StandardProposition(parse(f, "e <=> ~f")),
+                        new StandardProposition(parse(f, "e"))
                 );
 
         assertThat(
-                solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e")))
+                solver.satCall().addFormulas(parse(f, "e <=> f"))
+                        .addPropositions(new StandardProposition(parse(f, "~e")))
                         .model(solver.getUnderlyingSolver().knownVariables()).toAssignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),
@@ -230,8 +234,8 @@ public class SatCallTest {
                         f.literal("d", false), f.literal("e", false), f.literal("f", false))
         );
 
-        assertThat(solver.satCall().addPropositions(new StandardProposition(f.parse("e <=> f")))
-                .addPropositions(new StandardProposition(f.parse("~e")))
+        assertThat(solver.satCall().addPropositions(new StandardProposition(parse(f, "e <=> f")))
+                .addPropositions(new StandardProposition(parse(f, "~e")))
                 .model(solver.getUnderlyingSolver().knownVariables()).toAssignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),

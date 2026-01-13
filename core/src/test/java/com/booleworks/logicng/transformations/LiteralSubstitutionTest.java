@@ -33,8 +33,8 @@ public class LiteralSubstitutionTest extends TestWithFormulaContext {
     public void testSimpleFormula(final FormulaContext _c) throws ParserException {
         final LiteralSubstitution s1 = ls(_c.f);
 
-        assertThat(_c.f.parse("$true").transform(s1)).isEqualTo(_c.f.parse("$true"));
-        assertThat(_c.f.parse("$false").transform(s1)).isEqualTo(_c.f.parse("$false"));
+        assertThat(_c.p.parse("$true").transform(s1)).isEqualTo(_c.p.parse("$true"));
+        assertThat(_c.p.parse("$false").transform(s1)).isEqualTo(_c.p.parse("$false"));
     }
 
     @ParameterizedTest
@@ -42,14 +42,14 @@ public class LiteralSubstitutionTest extends TestWithFormulaContext {
     public void testLiterals(final FormulaContext _c) throws ParserException {
         final LiteralSubstitution s1 = ls(_c.f);
 
-        assertThat(_c.f.parse("m").transform(s1)).isEqualTo(_c.f.parse("m"));
-        assertThat(_c.f.parse("~m").transform(s1)).isEqualTo(_c.f.parse("~m"));
-        assertThat(_c.f.parse("a").transform(s1)).isEqualTo(_c.f.parse("a_t"));
-        assertThat(_c.f.parse("~a").transform(s1)).isEqualTo(_c.f.parse("a_f"));
-        assertThat(_c.f.parse("b").transform(s1)).isEqualTo(_c.f.parse("b"));
-        assertThat(_c.f.parse("~b").transform(s1)).isEqualTo(_c.f.parse("x"));
-        assertThat(_c.f.parse("c").transform(s1)).isEqualTo(_c.f.parse("y"));
-        assertThat(_c.f.parse("~c").transform(s1)).isEqualTo(_c.f.parse("~y"));
+        assertThat(_c.p.parse("m").transform(s1)).isEqualTo(_c.p.parse("m"));
+        assertThat(_c.p.parse("~m").transform(s1)).isEqualTo(_c.p.parse("~m"));
+        assertThat(_c.p.parse("a").transform(s1)).isEqualTo(_c.p.parse("a_t"));
+        assertThat(_c.p.parse("~a").transform(s1)).isEqualTo(_c.p.parse("a_f"));
+        assertThat(_c.p.parse("b").transform(s1)).isEqualTo(_c.p.parse("b"));
+        assertThat(_c.p.parse("~b").transform(s1)).isEqualTo(_c.p.parse("x"));
+        assertThat(_c.p.parse("c").transform(s1)).isEqualTo(_c.p.parse("y"));
+        assertThat(_c.p.parse("~c").transform(s1)).isEqualTo(_c.p.parse("~y"));
     }
 
     @ParameterizedTest
@@ -57,19 +57,19 @@ public class LiteralSubstitutionTest extends TestWithFormulaContext {
     public void testFormulas(final FormulaContext _c) throws ParserException {
         final LiteralSubstitution s1 = ls(_c.f);
 
-        assertThat(_c.f.parse("~(a & b & ~c & x)").transform(s1)).isEqualTo(_c.f.parse("~(a_t & b & ~y & x)"));
-        assertThat(_c.f.parse("a & b & ~c & x").transform(s1)).isEqualTo(_c.f.parse("a_t & b & ~y & x"));
-        assertThat(_c.f.parse("a | b | ~c | x").transform(s1)).isEqualTo(_c.f.parse("a_t | b | ~y | x"));
-        assertThat(_c.f.parse("(a | b) => (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) => (~y | x)"));
-        assertThat(_c.f.parse("(a | b) <=> (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) <=> (~y | x)"));
-        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1))
-                .isEqualTo(_c.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
+        assertThat(_c.p.parse("~(a & b & ~c & x)").transform(s1)).isEqualTo(_c.p.parse("~(a_t & b & ~y & x)"));
+        assertThat(_c.p.parse("a & b & ~c & x").transform(s1)).isEqualTo(_c.p.parse("a_t & b & ~y & x"));
+        assertThat(_c.p.parse("a | b | ~c | x").transform(s1)).isEqualTo(_c.p.parse("a_t | b | ~y | x"));
+        assertThat(_c.p.parse("(a | b) => (~c | x)").transform(s1)).isEqualTo(_c.p.parse("(a_t | b) => (~y | x)"));
+        assertThat(_c.p.parse("(a | b) <=> (~c | x)").transform(s1)).isEqualTo(_c.p.parse("(a_t | b) <=> (~y | x)"));
+        assertThat(_c.p.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1))
+                .isEqualTo(_c.p.parse("2*a_t + 3*x + -4*~y + x <= 5"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEmptySubstitution(final FormulaContext _c) throws ParserException {
-        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution(_c.f, Map.of())))
-                .isEqualTo(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5"));
+        assertThat(_c.p.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution(_c.f, Map.of())))
+                .isEqualTo(_c.p.parse("2*a + 3*~b + -4*~c + x <= 5"));
     }
 }

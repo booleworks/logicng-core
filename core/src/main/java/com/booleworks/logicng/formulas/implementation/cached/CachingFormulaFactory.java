@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
@@ -68,7 +69,29 @@ public class CachingFormulaFactory extends FormulaFactory {
         super(config);
         cFalse = new LngCachedFalse(this);
         cTrue = new LngCachedTrue(this);
-        clear();
+        posLiterals = newCacheMap();
+        negLiterals = newCacheMap();
+        nots = newCacheMap();
+        implications = newCacheMap();
+        equivalences = newCacheMap();
+        ands2 = newCacheMap();
+        ands3 = newCacheMap();
+        ands4 = newCacheMap();
+        andsN = newCacheMap();
+        ors2 = newCacheMap();
+        ors3 = newCacheMap();
+        ors4 = newCacheMap();
+        orsN = newCacheMap();
+        pbConstraints = newCacheMap();
+        cardinalityConstraints = newCacheMap();
+        transformationCache = newCacheMap();
+        predicateCache = newCacheMap();
+        functionCache = newCacheMap();
+        pbEncodingCache = newCacheMap();
+    }
+
+    private <K, V> Map<K, V> newCacheMap() {
+        return threadSafe ? new ConcurrentHashMap<>() : new HashMap<>();
     }
 
     @Override
@@ -77,7 +100,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         Implication implication = implications.get(key);
         if (implication == null) {
             implication = new LngCachedImplication(left, right, this);
-            implications.put(key, implication);
+            final Implication existingImplication = implications.putIfAbsent(key, implication);
+            return existingImplication == null ? implication : existingImplication;
         }
         return implication;
     }
@@ -88,7 +112,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         Equivalence equivalence = equivalences.get(key);
         if (equivalence == null) {
             equivalence = new LngCachedEquivalence(left, right, this);
-            equivalences.put(key, equivalence);
+            final Equivalence existingEquivalence = equivalences.putIfAbsent(key, equivalence);
+            return existingEquivalence == null ? equivalence : existingEquivalence;
         }
         return equivalence;
     }
@@ -98,7 +123,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         Not not = nots.get(operand);
         if (not == null) {
             not = new LngCachedNot(operand, this);
-            nots.put(operand, not);
+            final Not existingNot = nots.putIfAbsent(operand, not);
+            return existingNot == null ? not : existingNot;
         }
         return not;
     }
@@ -132,8 +158,16 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempAnd != null) {
             return tempAnd;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsAnd(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands;
+        final boolean isCnf;
+        if (operands.size() < 2) {
+            condensedOperands = operands;
+            isCnf = false;
+        } else {
+            final CondensedOperands condensedOperandsCnf = condenseOperandsAnd(operands);
+            condensedOperands = condensedOperandsCnf.getOperands();
+            isCnf = condensedOperandsCnf.isCnf();
+        }
         if (condensedOperands == null) {
             return falsum();
         }
@@ -159,14 +193,28 @@ public class CachingFormulaFactory extends FormulaFactory {
                 break;
         }
         and = condAndMap.get(condensedOperands);
-        if (and == null) {
-            tempAnd = new LngCachedAnd(condensedOperands, this);
-            setCnfCaches(tempAnd, cnfCheck);
-            opAndMap.put(operands, tempAnd);
-            condAndMap.put(condensedOperands, tempAnd);
-            return tempAnd;
+        if (threadSafe) {
+            if (and == null) {
+                tempAnd = condAndMap.computeIfAbsent(condensedOperands, k -> {
+                    final And temp = new LngCachedAnd(condensedOperands, this);
+                    setCnfCaches(temp, isCnf);
+                    return temp;
+                });
+                final And existingAnd = opAndMap.put(operands, tempAnd);
+                // This can only fail if `cnf()` was called with invalid arguments.
+                assert existingAnd == null || existingAnd == tempAnd : "Formula Factory corrupted!";
+                return tempAnd;
+            }
+        } else {
+            if (and == null) {
+                tempAnd = new LngCachedAnd(condensedOperands, this);
+                setCnfCaches(tempAnd, isCnf);
+                opAndMap.put(operands, tempAnd);
+                condAndMap.put(condensedOperands, tempAnd);
+                return tempAnd;
+            }
+            opAndMap.put(operands, and);
         }
-        opAndMap.put(operands, and);
         return and;
     }
 
@@ -194,12 +242,20 @@ public class CachingFormulaFactory extends FormulaFactory {
                 break;
         }
         And tempAnd = opAndMap.get(clauses);
-        if (tempAnd != null) {
-            return tempAnd;
+        if (tempAnd == null) {
+            if (threadSafe) {
+                return opAndMap.computeIfAbsent(clauses, k -> {
+                    final And temp = new LngCachedAnd(k, this);
+                    setCnfCaches(temp, true);
+                    return temp;
+                });
+            } else {
+                tempAnd = new LngCachedAnd(clauses, this);
+                setCnfCaches(tempAnd, true);
+                opAndMap.put(clauses, tempAnd);
+                return tempAnd;
+            }
         }
-        tempAnd = new LngCachedAnd(clauses, this);
-        setCnfCaches(tempAnd, true);
-        opAndMap.put(clauses, tempAnd);
         return tempAnd;
     }
 
@@ -227,8 +283,16 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempOr != null) {
             return tempOr;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsOr(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands;
+        final boolean isCnf;
+        if (operands.size() < 2) {
+            condensedOperands = operands;
+            isCnf = false;
+        } else {
+            final CondensedOperands condensedOperandsCnf = condenseOperandsOr(operands);
+            condensedOperands = condensedOperandsCnf.getOperands();
+            isCnf = condensedOperandsCnf.isCnf();
+        }
         if (condensedOperands == null) {
             return verum();
         }
@@ -254,14 +318,28 @@ public class CachingFormulaFactory extends FormulaFactory {
                 break;
         }
         or = condOrMap.get(condensedOperands);
-        if (or == null) {
-            tempOr = new LngCachedOr(condensedOperands, this);
-            setCnfCaches(tempOr, cnfCheck);
-            opOrMap.put(operands, tempOr);
-            condOrMap.put(condensedOperands, tempOr);
-            return tempOr;
+        if (threadSafe) {
+            if (or == null) {
+                tempOr = condOrMap.computeIfAbsent(condensedOperands, k -> {
+                    final Or temp = new LngCachedOr(condensedOperands, this);
+                    setCnfCaches(temp, isCnf);
+                    return temp;
+                });
+                final Or existingOr = opOrMap.putIfAbsent(operands, tempOr);
+                // This can only fail if `clause()` was called with invalid arguments.
+                assert existingOr == null || existingOr == tempOr : "Formula Factory corrupted!";
+                return tempOr;
+            }
+        } else {
+            if (or == null) {
+                tempOr = new LngCachedOr(condensedOperands, this);
+                setCnfCaches(tempOr, isCnf);
+                opOrMap.put(operands, tempOr);
+                condOrMap.put(condensedOperands, tempOr);
+                return tempOr;
+            }
+            opOrMap.put(operands, or);
         }
-        opOrMap.put(operands, or);
         return or;
     }
 
@@ -289,12 +367,20 @@ public class CachingFormulaFactory extends FormulaFactory {
                 break;
         }
         Or tempOr = opOrMap.get(literals);
-        if (tempOr != null) {
-            return tempOr;
+        if (tempOr == null) {
+            if (threadSafe) {
+                return opOrMap.computeIfAbsent(literals, k -> {
+                    final Or temp = new LngCachedOr(k, this);
+                    setCnfCaches(temp, true);
+                    return temp;
+                });
+            } else {
+                tempOr = new LngCachedOr(literals, this);
+                setCnfCaches(tempOr, true);
+                opOrMap.put(literals, tempOr);
+                return tempOr;
+            }
         }
-        tempOr = new LngCachedOr(literals, this);
-        setCnfCaches(tempOr, true);
-        opOrMap.put(literals, tempOr);
         return tempOr;
     }
 
@@ -306,7 +392,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         Variable var = posLiterals.get(name);
         if (var == null) {
             var = new LngCachedVariable(name, this);
-            posLiterals.put(name, var);
+            final Variable existingVar = posLiterals.putIfAbsent(name, var);
+            return existingVar == null ? var : existingVar;
         }
         return var;
     }
@@ -316,7 +403,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         Literal lit = negLiterals.get(name);
         if (lit == null) {
             lit = new LngCachedLiteral(name, false, this);
-            negLiterals.put(name, lit);
+            final Literal existingLiteral = negLiterals.putIfAbsent(name, lit);
+            return existingLiteral == null ? lit : existingLiteral;
         }
         return lit;
     }
@@ -328,7 +416,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         PbConstraint constraint = pbConstraints.get(operands);
         if (constraint == null) {
             constraint = new LngCachedPbConstraint(literals, coefficients, comparator, rhs, this);
-            pbConstraints.put(operands, constraint);
+            final PbConstraint existingConstraint = pbConstraints.putIfAbsent(operands, constraint);
+            return existingConstraint == null ? constraint : existingConstraint;
         }
         return constraint;
     }
@@ -339,17 +428,19 @@ public class CachingFormulaFactory extends FormulaFactory {
         CardinalityConstraint constraint = cardinalityConstraints.get(operands);
         if (constraint == null) {
             constraint = new LngCachedCardinalityConstraint(importOrPanic(literals), comparator, rhs, this);
-            cardinalityConstraints.put(operands, constraint);
+            final CardinalityConstraint existingConstraint = cardinalityConstraints.putIfAbsent(operands, constraint);
+            return existingConstraint == null ? constraint : existingConstraint;
+        } else {
+            return constraint;
         }
-        return constraint;
     }
 
     private void setCnfCaches(final Formula formula, final boolean isCnf) {
         if (isCnf) {
-            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, true);
-            transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> new HashMap<>()).put(formula, formula);
+            predicateCache.computeIfAbsent(IS_CNF, k -> newCacheMap()).put(formula, true);
+            transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> newCacheMap()).put(formula, formula);
         } else {
-            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, false);
+            predicateCache.computeIfAbsent(IS_CNF, k -> newCacheMap()).put(formula, false);
         }
     }
 
@@ -363,7 +454,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache (mapping from formula to formula)
      */
     public Map<Formula, Formula> getTransformationCacheForType(final CacheEntry key) {
-        return transformationCache.computeIfAbsent(key, m -> new HashMap<>());
+        return transformationCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     /**
@@ -378,7 +469,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      */
     @SuppressWarnings("unchecked")
     public <T> Map<Formula, T> getFunctionCacheForType(final CacheEntry key) {
-        return (Map<Formula, T>) functionCache.computeIfAbsent(key, m -> new HashMap<>());
+        return (Map<Formula, T>) functionCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     /**
@@ -391,7 +482,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache (mapping from formula to formula)
      */
     public Map<Formula, Boolean> getPredicateCacheForType(final CacheEntry key) {
-        return predicateCache.computeIfAbsent(key, m -> new HashMap<>());
+        return predicateCache.computeIfAbsent(key, m -> newCacheMap());
     }
 
     @Override
@@ -407,31 +498,28 @@ public class CachingFormulaFactory extends FormulaFactory {
         }
     }
 
-    /**
-     * Removes all formulas from the factory cache.
-     */
     @Override
-    public void clear() {
-        super.clear();
-        posLiterals = new HashMap<>();
-        negLiterals = new HashMap<>();
-        nots = new HashMap<>();
-        implications = new HashMap<>();
-        equivalences = new HashMap<>();
-        ands2 = new HashMap<>();
-        ands3 = new HashMap<>();
-        ands4 = new HashMap<>();
-        andsN = new HashMap<>();
-        ors2 = new HashMap<>();
-        ors3 = new HashMap<>();
-        ors4 = new HashMap<>();
-        orsN = new HashMap<>();
-        pbConstraints = new HashMap<>();
-        cardinalityConstraints = new HashMap<>();
-        transformationCache = new HashMap<>();
-        predicateCache = new HashMap<>();
-        functionCache = new HashMap<>();
-        pbEncodingCache = new HashMap<>();
+    protected void initCaches() {
+        super.initCaches();
+        posLiterals = newCacheMap();
+        negLiterals = newCacheMap();
+        nots = newCacheMap();
+        implications = newCacheMap();
+        equivalences = newCacheMap();
+        ands2 = newCacheMap();
+        ands3 = newCacheMap();
+        ands4 = newCacheMap();
+        andsN = newCacheMap();
+        ors2 = newCacheMap();
+        ors3 = newCacheMap();
+        ors4 = newCacheMap();
+        orsN = newCacheMap();
+        pbConstraints = newCacheMap();
+        cardinalityConstraints = newCacheMap();
+        transformationCache = newCacheMap();
+        predicateCache = newCacheMap();
+        functionCache = newCacheMap();
+        pbEncodingCache = newCacheMap();
     }
 
     /**

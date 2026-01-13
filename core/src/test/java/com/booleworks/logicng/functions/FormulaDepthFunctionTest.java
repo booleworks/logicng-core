@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
@@ -15,7 +16,6 @@ import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -82,7 +82,7 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
         final CachingFormulaFactory f = FormulaFactory.caching();
         final FormulaDepthFunction df = new FormulaDepthFunction(f);
 
-        final Formula formula = f.parse("A & B | C");
+        final Formula formula = parse(f, "A & B | C");
         final Map<Formula, Integer> cache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
         assertThat(cache.get(formula)).isNull();
         assertThat(formula.apply(df)).isEqualTo(2);
@@ -98,7 +98,7 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
         final Map<Formula, Integer> cache = new HashMap<>();
         final FormulaDepthFunction df = new FormulaDepthFunction(f, cache);
 
-        final Formula formula = f.parse("A & B | C");
+        final Formula formula = parse(f, "A & B | C");
         final Map<Formula, Integer> ffCache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
 
         assertThat(cache.get(formula)).isNull();
@@ -120,7 +120,7 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
         final Map<Formula, Integer> cache = new HashMap<>();
         final FormulaDepthFunction df = new FormulaDepthFunction(f, cache);
 
-        final Formula formula = f.parse("A & B | C");
+        final Formula formula = parse(f, "A & B | C");
         assertThat(cache.get(formula)).isNull();
         assertThat(formula.apply(df)).isEqualTo(2);
         assertThat(cache.get(formula)).isEqualTo(2);

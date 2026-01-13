@@ -10,11 +10,7 @@ import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.explanations.mus.MusConfig;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
-import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 import com.booleworks.logicng.functions.SubNodeFunction;
-import com.booleworks.logicng.io.parsers.FormulaParser;
-import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
@@ -51,20 +47,18 @@ import java.util.stream.Collectors;
  */
 public abstract class FormulaFactory {
 
-    protected FormulaParser parser;
     protected final String name;
-    protected final FormulaStringRepresentation stringRepresentation;
     protected final FormulaFactoryConfig.FormulaMergeStrategy formulaMergeStrategy;
     protected final boolean simplifyComplementaryOperands;
     protected final Map<ConfigurationType, Configuration> configurations;
-    protected final SubNodeFunction subformulaFunction;
-    protected final Map<String, AtomicInteger> auxVarCounters;
+    protected final ThreadLocal<SubNodeFunction> subformulaFunction;
+    protected Map<String, AtomicInteger> auxVarCounters;
     protected final String auxVarPrefix;
     protected CFalse cFalse;
     protected CTrue cTrue;
-    protected boolean cnfCheck;
-    protected FormulaFactoryImporter importer;
-    protected boolean readOnly;
+    protected final ThreadLocal<FormulaFactoryImporter> importer;
+    protected final boolean threadSafe;
+    volatile protected boolean readOnly;
 
     public static CachingFormulaFactory caching(final FormulaFactoryConfig config) {
         return new CachingFormulaFactory(config);
@@ -84,8 +78,8 @@ public abstract class FormulaFactory {
 
     protected FormulaFactory(final FormulaFactoryConfig config) {
         name = config.name;
-        stringRepresentation = config.stringRepresentation.get();
         formulaMergeStrategy = config.formulaMergeStrategy;
+        threadSafe = config.threadSafe;
         if (config.formulaMergeStrategy == FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT &&
                 this instanceof CachingFormulaFactory) {
             throw new IllegalArgumentException(
@@ -93,12 +87,11 @@ public abstract class FormulaFactory {
         }
         simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         configurations = initDefaultConfigs();
-        auxVarCounters = new ConcurrentHashMap<>();
-        clear();
-        subformulaFunction = new SubNodeFunction(this);
         auxVarPrefix = "@AUX_" + name + "_";
-        parser = new PropositionalParser(this);
+        initCaches();
         readOnly = false;
+        importer = ThreadLocal.withInitial(() -> new FormulaFactoryImporter(this));
+        subformulaFunction = ThreadLocal.withInitial(() -> new SubNodeFunction(this));
     }
 
     /**
@@ -120,11 +113,11 @@ public abstract class FormulaFactory {
     /**
      * Removes all formulas from the factory cache.
      */
-    public void clear() {
+    protected void initCaches() {
         if (readOnly) {
             throwReadOnlyException();
         }
-        auxVarCounters.clear();
+        auxVarCounters = new ConcurrentHashMap<>();
         for (final InternalAuxVarType auxType : InternalAuxVarType.values()) {
             auxVarCounters.put(auxType.getPrefix(), new AtomicInteger(0));
         }
@@ -202,7 +195,7 @@ public abstract class FormulaFactory {
      * @return a function to compute the sub-formulas
      */
     public SubNodeFunction getSubformulaFunction() {
-        return subformulaFunction;
+        return subformulaFunction.get();
     }
 
     /**
@@ -846,15 +839,15 @@ public abstract class FormulaFactory {
      * @param operands the formulas
      * @return a condensed array of operands
      */
-    protected LinkedHashSet<Formula> condenseOperandsOr(final Collection<? extends Formula> operands) {
+    protected CondensedOperands condenseOperandsOr(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
-        cnfCheck = true;
+        boolean cnfCheck = true;
         for (final Formula form : operands) {
             if (form.getType() == FType.OR) {
                 for (final Formula op : ((NAryOperator) form).getOperands()) {
                     final byte ret = addFormulaOr(ops, op);
                     if (ret == 0x00) {
-                        return null;
+                        return new CondensedOperands(null, cnfCheck);
                     }
                     if (ret == 0x02) {
                         cnfCheck = false;
@@ -863,14 +856,14 @@ public abstract class FormulaFactory {
             } else {
                 final byte ret = addFormulaOr(ops, form);
                 if (ret == 0x00) {
-                    return null;
+                    return new CondensedOperands(null, cnfCheck);
                 }
                 if (ret == 0x02) {
                     cnfCheck = false;
                 }
             }
         }
-        return ops;
+        return new CondensedOperands(ops, cnfCheck);
     }
 
     /**
@@ -878,15 +871,15 @@ public abstract class FormulaFactory {
      * @param operands the formulas
      * @return a condensed array of operands
      */
-    protected LinkedHashSet<Formula> condenseOperandsAnd(final Collection<? extends Formula> operands) {
+    protected CondensedOperands condenseOperandsAnd(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
-        cnfCheck = true;
+        boolean cnfCheck = true;
         for (final Formula form : operands) {
             if (form.getType() == FType.AND) {
                 for (final Formula op : ((NAryOperator) form).getOperands()) {
                     final byte ret = addFormulaAnd(ops, op);
                     if (ret == 0x00) {
-                        return null;
+                        return new CondensedOperands(null, cnfCheck);
                     }
                     if (ret == 0x02) {
                         cnfCheck = false;
@@ -895,14 +888,14 @@ public abstract class FormulaFactory {
             } else {
                 final byte ret = addFormulaAnd(ops, form);
                 if (ret == 0x00) {
-                    return null;
+                    return new CondensedOperands(null, cnfCheck);
                 }
                 if (ret == 0x02) {
                     cnfCheck = false;
                 }
             }
         }
-        return ops;
+        return new CondensedOperands(ops, cnfCheck);
     }
 
     /**
@@ -911,30 +904,7 @@ public abstract class FormulaFactory {
      * @return the number of internal nodes
      */
     public long numberOfNodes(final Formula formula) {
-        return formula.apply(subformulaFunction).size();
-    }
-
-    /**
-     * Sets a formula parser for this factory.  By default, this will be the
-     * included JavaCC-based formula parser.  But you could replace with an
-     * ANTLR-based parser or your application-specific parser.
-     * @param parser the formula parser
-     */
-    public void setParser(final FormulaParser parser) {
-        this.parser = parser;
-    }
-
-    /**
-     * Parses a given string to a formula using a pseudo boolean parser.
-     * @param string a string representing the formula
-     * @return the formula
-     * @throws ParserException if the parser throws an exception
-     */
-    public Formula parse(final String string) throws ParserException {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return parser.parse(string);
+        return formula.apply(subformulaFunction.get()).size();
     }
 
     /**
@@ -1016,10 +986,7 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        if (importer == null) {
-            importer = new FormulaFactoryImporter(this);
-        }
-        return formula.transform(importer);
+        return formula.transform(importer.get());
     }
 
     /**
@@ -1131,36 +1098,25 @@ public abstract class FormulaFactory {
         }
     }
 
-    /**
-     * Returns a string representation of a formula with this factories' string
-     * representation.
-     * @param formula the formula
-     * @return the string representation
-     */
-    public String string(final Formula formula) {
-        return stringRepresentation.toString(formula);
-    }
-
-    /**
-     * Returns a string representation of a formula with this the given
-     * representation.
-     * @param formula              the formula
-     * @param stringRepresentation the string representation
-     * @return the string representation
-     */
-    public String string(final Formula formula, final FormulaStringRepresentation stringRepresentation) {
-        return stringRepresentation.toString(formula);
-    }
-
-    /**
-     * Returns the formula formatter of this factory.
-     * @return the formula formatter of this factory
-     */
-    public FormulaStringRepresentation getStringRepresentation() {
-        return stringRepresentation;
-    }
-
     protected void throwReadOnlyException() {
         throw new IllegalArgumentException("Tried to alter a formula factory in read-only mode.");
+    }
+
+    protected final static class CondensedOperands {
+        final LinkedHashSet<Formula> operands;
+        final boolean isCnf;
+
+        public CondensedOperands(final LinkedHashSet<Formula> operands, final boolean isCnf) {
+            this.operands = operands;
+            this.isCnf = isCnf;
+        }
+
+        public LinkedHashSet<Formula> getOperands() {
+            return operands;
+        }
+
+        public boolean isCnf() {
+            return isCnf;
+        }
     }
 }

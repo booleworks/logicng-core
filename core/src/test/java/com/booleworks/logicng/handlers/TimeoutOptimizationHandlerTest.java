@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MODEL_ENUMERATION_STARTED;
@@ -23,7 +24,6 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
@@ -62,8 +62,8 @@ class TimeoutOptimizationHandlerTest {
     }
 
     @Test
-    public void testThatMethodsAreCalled() throws ParserException {
-        final Formula formula = f.parse("a & b & (~a => b)");
+    public void testThatMethodsAreCalled() {
+        final Formula formula = parse(f, "a & b & (~a => b)");
         for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);

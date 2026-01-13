@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.encodings;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
@@ -13,7 +14,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
@@ -134,7 +134,7 @@ public class PbEncoderTest implements LogicNGTest {
     }
 
     @Test
-    public void testCCNormalized() throws ParserException {
+    public void testCCNormalized() {
         final List<Literal> lits = new ArrayList<>();
         lits.add(f.literal("m", true));
         lits.add(f.literal("n", true));
@@ -142,6 +142,7 @@ public class PbEncoderTest implements LogicNGTest {
         coeffs2.add(2);
         coeffs2.add(2);
         final PbConstraint normCC = (PbConstraint) f.pbc(CType.LE, 2, lits, coeffs2);
-        assertThat(com.booleworks.logicng.encodings.PbEncoder.encode(f, normCC, configs.get(0))).containsExactly(f.parse("~m | ~n"));
+        assertThat(com.booleworks.logicng.encodings.PbEncoder.encode(f, normCC, configs.get(0)))
+                .containsExactly(parse(f, "~m | ~n"));
     }
 }

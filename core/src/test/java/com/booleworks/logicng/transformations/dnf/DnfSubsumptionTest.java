@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.transformations.dnf;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -82,6 +83,6 @@ public class DnfSubsumptionTest extends TestWithFormulaContext {
     public void testNotInDNF() {
         final FormulaFactory f = FormulaFactory.caching();
         final DnfSubsumption s = new DnfSubsumption(f);
-        assertThatThrownBy(() -> s.apply(f.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> s.apply(parse(f, "a => b"))).isInstanceOf(IllegalArgumentException.class);
     }
 }

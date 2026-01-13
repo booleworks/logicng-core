@@ -7,11 +7,8 @@ package com.booleworks.logicng.formulas;
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
-import com.booleworks.logicng.formulas.printer.DefaultStringRepresentation;
-import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Supplier;
 
 /**
  * The configuration object for a formula factory.
@@ -45,15 +42,15 @@ public final class FormulaFactoryConfig extends Configuration {
 
     final String name;
     final FormulaMergeStrategy formulaMergeStrategy;
-    final Supplier<FormulaStringRepresentation> stringRepresentation;
     final boolean simplifyComplementaryOperands;
+    final boolean threadSafe;
 
     private FormulaFactoryConfig(final Builder builder) {
         super(ConfigurationType.FORMULA_FACTORY);
         name = builder.name;
         formulaMergeStrategy = builder.formulaMergeStrategy;
-        stringRepresentation = builder.stringRepresentation;
         simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
+        threadSafe = builder.threadSafe;
     }
 
     /**
@@ -72,8 +69,8 @@ public final class FormulaFactoryConfig extends Configuration {
     public static class Builder {
         private String name = generateRandomName();
         private FormulaMergeStrategy formulaMergeStrategy = FormulaMergeStrategy.PANIC;
-        private Supplier<FormulaStringRepresentation> stringRepresentation = DefaultStringRepresentation::new;
         private boolean simplifyComplementaryOperands = true;
+        private boolean threadSafe = false;
 
         /**
          * Sets the name of this formula factory. The default is a random
@@ -109,18 +106,6 @@ public final class FormulaFactoryConfig extends Configuration {
         }
 
         /**
-         * Sets the formula string representation which should be used by
-         * default for creating strings from a formula. The default is
-         * {@link DefaultStringRepresentation}.
-         * @param stringRepresentation the formula string representation
-         * @return the builder
-         */
-        public Builder stringRepresentation(final Supplier<FormulaStringRepresentation> stringRepresentation) {
-            this.stringRepresentation = stringRepresentation;
-            return this;
-        }
-
-        /**
          * Sets the flag whether trivial contradictions and tautologies are
          * simplified in formulas. If set to false, a formula like
          * {@code A & ~A} or {@code A | ~A} can be generated on the formula
@@ -134,6 +119,19 @@ public final class FormulaFactoryConfig extends Configuration {
          */
         public Builder simplifyComplementaryOperands(final boolean simplifyComplementaryOperands) {
             this.simplifyComplementaryOperands = simplifyComplementaryOperands;
+            return this;
+        }
+
+        /**
+         * Sets the flag whether the formula factory should be thread-safe.
+         * This allows concurrent writes to all types of formula factories, but
+         * introduces additional cost when using
+         * {@link com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory CachingFormulaFactory}.
+         * @param threadSafe the flag whether the factory is thread-safe.
+         * @return the builder
+         */
+        public Builder threadSafe(final boolean threadSafe) {
+            this.threadSafe = threadSafe;
             return this;
         }
 

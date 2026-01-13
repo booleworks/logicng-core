@@ -6,6 +6,7 @@ package com.booleworks.logicng.formulas.implementation.cached;
 
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.printer.DefaultStringRepresentation;
 
 public abstract class LngCachedFormula implements Formula {
 
@@ -29,6 +30,6 @@ public abstract class LngCachedFormula implements Formula {
 
     @Override
     public String toString() {
-        return f.string(this);
+        return DefaultStringRepresentation.get().toString(this);
     }
 }

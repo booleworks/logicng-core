@@ -4,11 +4,11 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
@@ -43,9 +43,9 @@ public class VariableOccurrencesOnSolverFunctionTest {
     }
 
     @Test
-    public void testWithAllVariables() throws ParserException {
+    public void testWithAllVariables() {
         final SatSolver solver = SatSolver.newSolver(f);
-        solver.add(f.parse("(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
+        solver.add(parse(f, "(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
         final Map<Variable, Integer> counts = solver.execute(new VariableOccurrencesOnSolverFunction());
         assertThat(counts).hasSize(10);
         assertThat(counts).containsEntry(A, 3);
@@ -61,9 +61,9 @@ public class VariableOccurrencesOnSolverFunctionTest {
     }
 
     @Test
-    public void testWithRelevantVariables() throws ParserException {
+    public void testWithRelevantVariables() {
         final SatSolver solver = SatSolver.newSolver(f);
-        solver.add(f.parse("(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
+        solver.add(parse(f, "(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
         final Map<Variable, Integer> counts = solver.execute(
                 new VariableOccurrencesOnSolverFunction(new HashSet<>(Arrays.asList(A, C, X, J))));
         assertThat(counts).hasSize(4);

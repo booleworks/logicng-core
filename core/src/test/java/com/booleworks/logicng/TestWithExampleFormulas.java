@@ -11,6 +11,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.parsers.PropositionalParser;
 
 public abstract class TestWithExampleFormulas {
     protected final CachingFormulaFactory f = FormulaFactory.caching();
@@ -66,4 +68,12 @@ public abstract class TestWithExampleFormulas {
     protected final Formula PBC3 = f.pbc(CType.GE, 2, literals, coefficients);
     protected final Formula PBC4 = f.pbc(CType.LT, 2, literals, coefficients);
     protected final Formula PBC5 = f.pbc(CType.LE, 2, literals, coefficients);
+
+    public static Formula parse(final FormulaFactory f, final String formula) {
+        try {
+            return new PropositionalParser(f).parse(formula);
+        } catch (final ParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

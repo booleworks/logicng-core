@@ -40,8 +40,9 @@ public class SplitVariableProviderTest extends TestWithFormulaContext {
     public void testLeastCommonVariablesProvider(final FormulaContext _c) throws ParserException {
         final SortedSet<Variable> varSet = varSet(_c.f, "a b c d e f g h i j");
         final SatSolver solver = SatSolver.newSolver(_c.f);
-        solver.add(_c.f.parse(
-                "(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b | j | ~g) & (g | c)"));
+        solver.add(_c.p.parse(
+                "(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b"
+                        + " | j | ~g) & (g | c)"));
         assertThat(new LeastCommonVariablesProvider(.1, 100).getSplitVars(solver, null))
                 .containsExactly(_c.f.variable("i"));
         assertThat(new LeastCommonVariablesProvider(.1, 100).getSplitVars(solver, varSet))
@@ -73,8 +74,9 @@ public class SplitVariableProviderTest extends TestWithFormulaContext {
     public void testMostCommonVariablesProvider(final FormulaContext _c) throws ParserException {
         final SortedSet<Variable> varSet = varSet(_c.f, "a b c d e f g h i j");
         final SatSolver solver = SatSolver.newSolver(_c.f);
-        solver.add(_c.f.parse(
-                "(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b | j | ~g) & (g | c)"));
+        solver.add(_c.p.parse(
+                "(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b"
+                        + " | j | ~g) & (g | c)"));
         assertThat(new MostCommonVariablesProvider(.2, 100).getSplitVars(solver, null))
                 .containsExactlyElementsOf(varSet(_c.f, "b g"));
         assertThat(new MostCommonVariablesProvider(.2, 100).getSplitVars(solver, varSet))

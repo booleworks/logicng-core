@@ -211,12 +211,6 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void testFormulaGetFactoryParser() throws ParserException {
-        assertThat(f.parse("a & b")).isEqualTo(f.and(f.variable("a"), f.variable("b")));
-        assertThat(f.parse("2*a + -4*b + 3*x = 2")).isEqualTo(PBC1);
-    }
-
-    @Test
     public void testIllegalVariable1() {
         assertThatThrownBy(() -> new PropositionalParser(f).parse("$$%")).isInstanceOf(ParserException.class);
     }
