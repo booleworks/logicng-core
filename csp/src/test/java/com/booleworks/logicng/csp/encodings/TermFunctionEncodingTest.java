@@ -13,7 +13,8 @@ import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.functions.CspModelEnumeration;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -371,7 +372,7 @@ public class TermFunctionEncodingTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final EncodingResult result =
-                EncodingResult.resultForSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
+                new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
         assertThat(models).containsExactlyInAnyOrderElementsOf(expected);

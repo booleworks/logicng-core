@@ -5,7 +5,8 @@
 package com.booleworks.logicng.encodings;
 
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultFF;
 import com.booleworks.logicng.encodings.cc.CcAmo;
 import com.booleworks.logicng.encodings.cc.CcCardinalityNetwork;
 import com.booleworks.logicng.encodings.cc.CcModularTotalizer;
@@ -64,7 +65,7 @@ public class CcEncoder {
      */
     public static List<Formula> encode(final FormulaFactory f, final CardinalityConstraint cc,
                                        final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = new EncodingResultFF(f);
         encodeConstraint(result, cc, config);
         return Collections.unmodifiableList(result.getResult());
     }
@@ -94,10 +95,10 @@ public class CcEncoder {
      * @param cc the cardinality constraint
      * @return the encoding of the constraint and the incremental data
      */
-    public static Pair<List<Formula>, CcIncrementalData> encodeIncremental(final FormulaFactory f,
-                                                                           final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
-        final CcIncrementalData incData = encodeIncremental(result, cc);
+    public static Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> encodeIncremental(final FormulaFactory f,
+                                                                                             final CardinalityConstraint cc) {
+        final EncodingResultFF result = new EncodingResultFF(f);
+        final CcIncrementalData<EncodingResultFF> incData = encodeIncremental(result, cc);
         return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
 
@@ -108,10 +109,10 @@ public class CcEncoder {
      * @param config the configuration for the encoder
      * @return the encoding of the constraint and the incremental data
      */
-    public static Pair<List<Formula>, CcIncrementalData>
+    public static Pair<List<Formula>, CcIncrementalData<EncodingResultFF>>
     encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
-        final CcIncrementalData incData = encodeIncremental(result, cc, config);
+        final EncodingResultFF result = new EncodingResultFF(f);
+        final CcIncrementalData<EncodingResultFF> incData = encodeIncremental(result, cc, config);
         return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
 
@@ -121,7 +122,8 @@ public class CcEncoder {
      * @param cc     the cardinality constraint
      * @return the incremental data
      */
-    public static CcIncrementalData encodeIncremental(final EncodingResult result, final CardinalityConstraint cc) {
+    public static <T extends EncodingResult> CcIncrementalData<T> encodeIncremental(final T result,
+                                                                                    final CardinalityConstraint cc) {
         return encodeIncrementalConstraint(result, cc, null);
     }
 
@@ -132,14 +134,15 @@ public class CcEncoder {
      * @param config the configuration for the encoder
      * @return the incremental data
      */
-    public static CcIncrementalData encodeIncremental(final EncodingResult result, final CardinalityConstraint cc,
-                                                      final EncoderConfig config) {
+    public static <T extends EncodingResult> CcIncrementalData<T> encodeIncremental(final T result,
+                                                                                    final CardinalityConstraint cc,
+                                                                                    final EncoderConfig config) {
         return encodeIncrementalConstraint(result, cc, config);
     }
 
-    protected static CcIncrementalData encodeIncrementalConstraint(final EncodingResult result,
-                                                                   final CardinalityConstraint cc,
-                                                                   final EncoderConfig initConfig) {
+    protected static <T extends EncodingResult> CcIncrementalData<T> encodeIncrementalConstraint(final T result,
+                                                                                                 final CardinalityConstraint cc,
+                                                                                                 final EncoderConfig initConfig) {
         final var config = initConfig != null ? initConfig
                                               : (EncoderConfig) result.getFactory()
                                                       .configurationFor(ConfigurationType.ENCODER);
@@ -278,8 +281,10 @@ public class CcEncoder {
         }
     }
 
-    protected static CcIncrementalData amkIncremental(final EncodingResult result, final EncoderConfig config,
-                                                      final Variable[] vars, final int rhs) {
+    protected static <T extends EncodingResult> CcIncrementalData<T> amkIncremental(final T result,
+                                                                                    final EncoderConfig config,
+                                                                                    final Variable[] vars,
+                                                                                    final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
@@ -343,8 +348,10 @@ public class CcEncoder {
         }
     }
 
-    protected static CcIncrementalData alkIncremental(final EncodingResult result, final EncoderConfig config,
-                                                      final Variable[] vars, final int rhs) {
+    protected static <T extends EncodingResult> CcIncrementalData<T> alkIncremental(final T result,
+                                                                                    final EncoderConfig config,
+                                                                                    final Variable[] vars,
+                                                                                    final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }

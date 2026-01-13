@@ -7,7 +7,8 @@ package com.booleworks.logicng.encodings;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultFF;
 import com.booleworks.logicng.encodings.pbc.PbAdderNetwork;
 import com.booleworks.logicng.encodings.pbc.PbBinaryMerge;
 import com.booleworks.logicng.encodings.pbc.PbSwc;
@@ -38,7 +39,7 @@ public class PbEncoder {
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = new EncodingResultFF(f);
         encode(result, constraint, null);
         return Collections.unmodifiableList(result.getResult());
     }
@@ -61,7 +62,7 @@ public class PbEncoder {
      */
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint,
                                        final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = new EncodingResultFF(f);
         encode(result, constraint, config);
         return Collections.unmodifiableList(result.getResult());
     }

@@ -6,7 +6,7 @@ package com.booleworks.logicng.encodings.pbc;
 
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 

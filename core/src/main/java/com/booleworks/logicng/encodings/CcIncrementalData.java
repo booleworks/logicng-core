@@ -5,12 +5,9 @@
 package com.booleworks.logicng.encodings;
 
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.datastructures.EncodingResult;
-import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-
-import java.util.List;
 
 /**
  * Incremental data for an at-most-k cardinality constraint. When an at-most-k
@@ -20,8 +17,8 @@ import java.util.List;
  * @version 3.0.0
  * @since 1.1
  */
-public final class CcIncrementalData {
-    private final EncodingResult result;
+public final class CcIncrementalData<T extends EncodingResult> {
+    private final T result;
     private final EncoderConfig.AmkEncoder amkEncoder;
     private final EncoderConfig.AlkEncoder alkEncoder;
     private final LngVector<? extends Literal> vector1;
@@ -40,7 +37,7 @@ public final class CcIncrementalData {
      * @param vector2    the second internal vector
      * @param mod        the modulo value
      */
-    public CcIncrementalData(final EncodingResult result, final EncoderConfig.AmkEncoder amkEncoder, final int rhs,
+    public CcIncrementalData(final T result, final EncoderConfig.AmkEncoder amkEncoder, final int rhs,
                              final LngVector<? extends Literal> vector1, final LngVector<? extends Literal> vector2,
                              final int mod) {
         this.result = result;
@@ -60,7 +57,7 @@ public final class CcIncrementalData {
      * @param rhs     the current right-hand-side
      * @param vector1 the first internal vector
      */
-    public CcIncrementalData(final EncodingResult result, final EncoderConfig.AmkEncoder encoder, final int rhs,
+    public CcIncrementalData(final T result, final EncoderConfig.AmkEncoder encoder, final int rhs,
                              final LngVector<? extends Literal> vector1) {
         this(result, encoder, rhs, vector1, null, -1);
     }
@@ -76,7 +73,7 @@ public final class CcIncrementalData {
      * @param vector2    the second internal vector
      * @param mod        the modulo value
      */
-    public CcIncrementalData(final EncodingResult result, final EncoderConfig.AlkEncoder alkEncoder, final int rhs,
+    public CcIncrementalData(final T result, final EncoderConfig.AlkEncoder alkEncoder, final int rhs,
                              final int nVars,
                              final LngVector<? extends Literal> vector1, final LngVector<? extends Literal> vector2,
                              final int mod) {
@@ -100,20 +97,17 @@ public final class CcIncrementalData {
      * @param nVars      the number of variables
      * @param vector1    the first internal vector
      */
-    public CcIncrementalData(final EncodingResult result, final EncoderConfig.AlkEncoder alkEncoder, final int rhs,
+    public CcIncrementalData(final T result, final EncoderConfig.AlkEncoder alkEncoder, final int rhs,
                              final int nVars, final LngVector<? extends Literal> vector1) {
         this(result, alkEncoder, rhs, nVars, vector1, null, -1);
     }
 
     /**
-     * Tightens the upper bound of an at-most-k constraint and returns the
-     * resulting formula.
+     * Tightens the upper bound of an at-most-k constraint.
      * @param rhs the new upperBound
-     * @return the incremental encoding of the new upper bound
      */
-    public List<Formula> newUpperBound(final int rhs) {
+    public void newUpperBound(final int rhs) {
         computeUbConstraint(result, rhs);
-        return result.getResult();
     }
 
     /**
@@ -179,14 +173,11 @@ public final class CcIncrementalData {
     }
 
     /**
-     * Tightens the lower bound of an at-least-k constraint and returns the
-     * resulting formula.
+     * Tightens the lower bound of an at-least-k constraint.
      * @param rhs the new upperBound
-     * @return the incremental encoding of the new lower bound
      */
-    public List<Formula> newLowerBound(final int rhs) {
+    public void newLowerBound(final int rhs) {
         computeLbConstraint(result, rhs);
-        return result.getResult();
     }
 
     /**
@@ -259,6 +250,14 @@ public final class CcIncrementalData {
      */
     public int getCurrentRhs() {
         return currentRhs;
+    }
+
+    /**
+     * Returns the {@link EncodingResult} that is used as the target for the encodings.
+     * @return the {@link EncodingResult} that is used as the target for the encodings
+     */
+    public T getEncodingResult() {
+        return result;
     }
 
     @Override

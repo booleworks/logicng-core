@@ -4,9 +4,9 @@
 
 package com.booleworks.logicng.datastructures;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DatastructuresTest {
 
@@ -15,11 +15,5 @@ public class DatastructuresTest {
         assertThat(Tristate.valueOf("TRUE")).isEqualTo(Tristate.TRUE);
         assertThat(Tristate.valueOf("FALSE")).isEqualTo(Tristate.FALSE);
         assertThat(Tristate.valueOf("UNDEF")).isEqualTo(Tristate.UNDEF);
-    }
-
-    @Test
-    public void testEncodingAuxiliaryVariable() {
-        final EncodingAuxiliaryVariable eav = new EncodingAuxiliaryVariable("var", false);
-        assertThat(eav.toString()).isEqualTo("var");
     }
 }

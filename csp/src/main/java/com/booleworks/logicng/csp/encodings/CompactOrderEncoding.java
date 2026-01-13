@@ -13,7 +13,7 @@ import com.booleworks.logicng.csp.literals.EqMul;
 import com.booleworks.logicng.csp.literals.OpAdd;
 import com.booleworks.logicng.csp.literals.OpXY;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 

@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultFF;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
@@ -48,9 +49,9 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, 9, vars), config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >=
@@ -61,25 +62,32 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.getFirst());
             assertSolverSat(solver);
             assertSolverSat(solver); // <= 9
-            solver.add(incData.newUpperBound(8)); // <= 8
+            incData.newUpperBound(8);
+            solver.add(incData.getEncodingResult().getResult()); // <= 8
             assertSolverSat(solver);
             assertThat(incData.getCurrentRhs()).isEqualTo(8);
-            solver.add(incData.newUpperBound(7)); // <= 7
+            incData.newUpperBound(7);
+            solver.add(incData.getEncodingResult().getResult()); // <= 7
             assertSolverSat(solver);
-            solver.add(incData.newUpperBound(6)); // <= 6
+            incData.newUpperBound(6);
+            solver.add(incData.getEncodingResult().getResult()); // <= 6
             assertSolverSat(solver);
-            solver.add(incData.newUpperBound(5)); // <= 5
+            incData.newUpperBound(5);
+            solver.add(incData.getEncodingResult().getResult()); // <= 5
             assertSolverSat(solver);
-            solver.add(incData.newUpperBound(4)); // <= 4
+            incData.newUpperBound(4);
+            solver.add(incData.getEncodingResult().getResult()); // <= 4
             assertSolverSat(solver);
 
             final SolverState state = solver.saveState();
-            solver.add(incData.newUpperBound(3)); // <= 3
+            incData.newUpperBound(3);
+            solver.add(incData.getEncodingResult().getResult()); // <= 3
             assertSolverUnsat(solver);
             solver.loadState(state);
             assertSolverSat(solver);
 
-            solver.add(incData.newUpperBound(2)); // <= 2
+            incData.newUpperBound(2);
+            solver.add(incData.getEncodingResult().getResult()); // <= 2
             assertSolverUnsat(solver);
         }
     }
@@ -92,9 +100,9 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            Pair<List<Formula>, CcIncrementalData> cc =
+            Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LT, 10, vars), config);
-            CcIncrementalData incData = cc.getSecond();
+            CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
             assertThat(incData.toString()).contains("currentRhs=9");
 
             cc = CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GT, 1, vars), config);
@@ -136,9 +144,9 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 2, vars), config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             final SatSolver solver = SatSolver.newSolver(f);
             // >= 4
@@ -148,23 +156,30 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
 
             solver.add(cc.getFirst());
             assertSolverSat(solver); // >= 2
-            solver.add(incData.newLowerBound(3)); // >= 3
+            incData.newLowerBound(3);
+            solver.add(incData.getEncodingResult().getResult()); // >= 3
             assertSolverSat(solver);
-            solver.add(incData.newLowerBound(4)); // >= 4
+            incData.newLowerBound(4);
+            solver.add(incData.getEncodingResult().getResult()); // >= 4
             assertSolverSat(solver);
-            solver.add(incData.newLowerBound(5)); // >= 5
+            incData.newLowerBound(5);
+            solver.add(incData.getEncodingResult().getResult()); // >= 5
             assertSolverSat(solver);
-            solver.add(incData.newLowerBound(6)); // >= 6
+            incData.newLowerBound(6);
+            solver.add(incData.getEncodingResult().getResult()); // >= 6
             assertSolverSat(solver);
-            solver.add(incData.newLowerBound(7)); // >= 7
+            incData.newLowerBound(7);
+            solver.add(incData.getEncodingResult().getResult()); // >= 7
             assertSolverSat(solver);
 
             final SolverState state = solver.saveState();
-            solver.add(incData.newLowerBound(8)); // >= 8
+            incData.newLowerBound(8);
+            solver.add(incData.getEncodingResult().getResult()); // >= 8
             assertSolverUnsat(solver);
             solver.loadState(state);
             assertSolverSat(solver);
-            solver.add(incData.newLowerBound(9)); // <= 9
+            incData.newLowerBound(9);
+            solver.add(incData.getEncodingResult().getResult()); // <= 9
             assertSolverUnsat(solver);
         }
     }
@@ -179,9 +194,9 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             // >= 42
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config));
@@ -190,7 +205,8 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             // search the lower bound
             while (solver.sat()) {
                 // <= currentBound - 1
-                solver.add(incData.newUpperBound(--currentBound));
+                incData.newUpperBound(--currentBound);
+                solver.add(incData.getEncodingResult().getResult());
             }
             assertThat(currentBound).isEqualTo(41);
         }
@@ -206,9 +222,9 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, currentBound, vars), config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             // <= 42
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 87, vars), config));
@@ -217,7 +233,8 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             // search the lower bound
             while (solver.sat()) {
                 // <= currentBound + 1
-                solver.add(incData.newLowerBound(++currentBound));
+                incData.newLowerBound(++currentBound);
+                solver.add(incData.getEncodingResult().getResult());
             }
             assertThat(currentBound).isEqualTo(88);
         }
@@ -234,10 +251,10 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars),
                             config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             // >= 42
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config));
@@ -246,7 +263,8 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             // search the lower bound
             while (solver.sat()) {
                 // <= currentBound - 1
-                solver.add(incData.newUpperBound(--currentBound));
+                incData.newUpperBound(--currentBound);
+                solver.add(incData.getEncodingResult().getResult());
             }
             assertThat(currentBound).isEqualTo(41);
         }
@@ -263,16 +281,17 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CcIncrementalData> cc =
+            final Pair<List<Formula>, CcIncrementalData<EncodingResultFF>> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
-            final CcIncrementalData incData = cc.getSecond();
+            final CcIncrementalData<EncodingResultFF> incData = cc.getSecond();
 
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 234, vars), config));
             solver.add(cc.getFirst());
 
             // search the lower bound
             while (solver.sat()) {
-                solver.add(incData.newUpperBound(--currentBound));
+                incData.newUpperBound(--currentBound);
+                solver.add(incData.getEncodingResult().getResult());
             }
             assertThat(currentBound).isEqualTo(233);
         }

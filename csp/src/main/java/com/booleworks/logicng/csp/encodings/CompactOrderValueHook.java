@@ -8,7 +8,7 @@ import static com.booleworks.logicng.csp.encodings.CspEncodingContext.CSP_AUX_LN
 import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;

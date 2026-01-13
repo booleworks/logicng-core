@@ -8,8 +8,9 @@ import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -89,7 +90,7 @@ public final class CspSolving {
                                          final ComputationHandler handler) {
         final FormulaFactory f = cf.getFormulaFactory();
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         final LngResult<EncodingResult> r = cf.encodeCsp(csp, context, result, handler);
         if (!r.isSuccess()) {
             return LngResult.canceled(r.getCancelCause());
@@ -122,7 +123,7 @@ public final class CspSolving {
                                       final CspEncodingContext context, final CspFactory cf) {
         final FormulaFactory f = cf.getFormulaFactory();
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         return model(solver, csp, restrictions, context, cf);
     }
@@ -159,7 +160,7 @@ public final class CspSolving {
                                                            final ComputationHandler handler) {
         final FormulaFactory f = cf.getFormulaFactory();
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         return model(solver, csp, restrictions, context, cf, handler);
     }

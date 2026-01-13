@@ -7,6 +7,7 @@ package com.booleworks.logicng.solvers.functions;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.OPTIMIZATION_FUNCTION_STARTED;
 
 import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
@@ -149,7 +150,8 @@ public final class OptimizationFunction implements SolverFunction<Model> {
         }
         final Formula cc = f.cc(CType.GE, currentBound + 1, selectors);
         assert cc instanceof CardinalityConstraint;
-        final CcIncrementalData incrementalData = solver.addIncrementalCc((CardinalityConstraint) cc);
+        final CcIncrementalData<EncodingResultSolver> incrementalData =
+                solver.addIncrementalCc((CardinalityConstraint) cc);
         while (true) {
             try (final SatCall satCall = solver.satCall().handler(handler).solve()) {
                 final LngResult<Boolean> satResult = satCall.getSatResult();
@@ -159,7 +161,8 @@ public final class OptimizationFunction implements SolverFunction<Model> {
                     return LngResult.of(lastResultModel);
                 }
                 lastResultModel = satCall.model(resultModelVariables);
-                final OptimizationFoundBetterBoundEvent betterBoundEvent = new OptimizationFoundBetterBoundEvent(() -> satCall.model(resultModelVariables));
+                final OptimizationFoundBetterBoundEvent betterBoundEvent =
+                        new OptimizationFoundBetterBoundEvent(() -> satCall.model(resultModelVariables));
                 if (!handler.shouldResume(betterBoundEvent)) {
                     return LngResult.partial(lastResultModel, betterBoundEvent);
                 }

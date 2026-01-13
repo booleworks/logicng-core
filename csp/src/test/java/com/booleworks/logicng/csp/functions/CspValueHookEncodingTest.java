@@ -14,8 +14,9 @@ import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -55,7 +56,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
 
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final CspValueHookMap hooks =
                 CspValueHookEncoding.encodeValueHooks(csp, context, result, cf);
@@ -101,7 +102,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
 
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
 
         final List<IntegerVariable> relevantVars =
@@ -147,7 +148,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final FormulaFactory f = cf.getFormulaFactory();
         final CspEncodingContext context = CspEncodingContext.order();
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
 
         final List<CspAssignment> models =

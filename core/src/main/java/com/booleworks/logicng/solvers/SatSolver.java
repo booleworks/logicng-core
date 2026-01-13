@@ -8,8 +8,8 @@ import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Backbone;
 import com.booleworks.logicng.datastructures.BackboneType;
-import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.encodings.CcEncoder;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.PbEncoder;
@@ -129,17 +129,17 @@ public class SatSolver {
                         solver.addClause(LngCoreSolver.generateClauseVector(constraint.getOperands(), solver),
                                 proposition);
                     } else {
-                        CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                        CcEncoder.encode(new EncodingResultSolver(f, solver, proposition),
                                 (CardinalityConstraint) constraint
                         );
                     }
                 } else {
-                    CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                    CcEncoder.encode(new EncodingResultSolver(f, solver, proposition),
                             (CardinalityConstraint) constraint
                     );
                 }
             } else {
-                PbEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition), constraint);
+                PbEncoder.encode(new EncodingResultSolver(f, solver, proposition), constraint);
             }
         } else {
             addFormulaAsCnf(formula, proposition);
@@ -229,8 +229,8 @@ public class SatSolver {
      * @return the incremental data of this constraint, or null if the
      * right-hand side of cc is 1
      */
-    public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver, null);
+    public CcIncrementalData<EncodingResultSolver> addIncrementalCc(final CardinalityConstraint cc) {
+        final EncodingResultSolver result = new EncodingResultSolver(f, solver, null);
         return CcEncoder.encodeIncremental(result, cc);
     }
 
@@ -320,7 +320,7 @@ public class SatSolver {
      * @param handler  the computation handler
      * @param <RESULT> the result type of the function
      * @return the (potentially canceled) result of executing the solver
-     *         function on the current solver
+     * function on the current solver
      * @throws IllegalStateException if this solver is currently used in a
      *                               {@link SatCall}
      */

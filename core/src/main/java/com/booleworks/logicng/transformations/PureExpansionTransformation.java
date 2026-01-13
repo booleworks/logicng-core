@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.transformations;
 
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultFF;
 import com.booleworks.logicng.encodings.cc.CcAmo;
 import com.booleworks.logicng.formulas.BinaryOperator;
 import com.booleworks.logicng.formulas.Formula;
@@ -67,7 +67,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
             case PBC:
                 final PbConstraint pbc = (PbConstraint) formula;
                 if (pbc.isAmo() || pbc.isExo()) {
-                    final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
+                    final EncodingResultFF encodingResult = new EncodingResultFF(f);
                     final Variable[] vars = FormulaHelper.literalsAsVariables(pbc.getOperands());
                     CcAmo.pure(encodingResult, vars);
                     final List<Formula> encoding = encodingResult.getResult();

@@ -5,7 +5,7 @@
 package com.booleworks.logicng.encodings.cc;
 
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -47,8 +47,9 @@ public final class CcCardinalityNetwork {
         }
     }
 
-    public static CcIncrementalData amkForIncremental(final EncodingResult result, final Variable[] vars,
-                                                      final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> amkForIncremental(final T result,
+                                                                                    final Variable[] vars,
+                                                                                    final int rhs) {
         final FormulaFactory f = result.getFactory();
         final LngVector<Literal> input = new LngVector<>();
         final LngVector<Literal> output = new LngVector<>();
@@ -58,7 +59,7 @@ public final class CcCardinalityNetwork {
         CcSorting.sort(f, rhs + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
         assert output.size() > rhs;
         result.addClause(output.get(rhs).negate(f));
-        return new CcIncrementalData(result, EncoderConfig.AmkEncoder.CARDINALITY_NETWORK, rhs, output);
+        return new CcIncrementalData<>(result, EncoderConfig.AmkEncoder.CARDINALITY_NETWORK, rhs, output);
     }
 
     public static void alk(final EncodingResult result, final Variable[] vars, final int rhs) {
@@ -85,8 +86,9 @@ public final class CcCardinalityNetwork {
         }
     }
 
-    public static CcIncrementalData alkForIncremental(final EncodingResult result, final Variable[] vars,
-                                                      final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> alkForIncremental(final T result,
+                                                                                    final Variable[] vars,
+                                                                                    final int rhs) {
         final FormulaFactory f = result.getFactory();
         final LngVector<Literal> input = new LngVector<>();
         final LngVector<Literal> output = new LngVector<>();
@@ -97,7 +99,7 @@ public final class CcCardinalityNetwork {
         CcSorting.sort(f, newRhs + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
         assert output.size() > newRhs;
         result.addClause(output.get(newRhs).negate(f));
-        return new CcIncrementalData(result, EncoderConfig.AlkEncoder.CARDINALITY_NETWORK, rhs, vars.length, output);
+        return new CcIncrementalData<>(result, EncoderConfig.AlkEncoder.CARDINALITY_NETWORK, rhs, vars.length, output);
     }
 
     public static void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
