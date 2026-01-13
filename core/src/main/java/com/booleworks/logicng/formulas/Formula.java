@@ -415,6 +415,19 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
+     * Applies a given function on this formula and returns the result.
+     * @param function the function
+     * @param <T>      the result type of the function
+     * @param handler  the computation handler
+     * @return the result of the function which may have been canceled by the
+     * computation handler
+     */
+    default <T> LngResult<T> apply(final FormulaFunction<T> function, final ComputationHandler handler) {
+        return function.apply(this, handler);
+    }
+
+
+    /**
      * Returns a stream of this formula's operands.
      * <p>
      * Most times streams have worse performance then iterating over the formula
