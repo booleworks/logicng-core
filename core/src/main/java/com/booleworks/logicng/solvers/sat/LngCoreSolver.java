@@ -55,7 +55,6 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-// TODO: cleanup and sort methods
 public class LngCoreSolver {
 
     /**

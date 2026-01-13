@@ -42,7 +42,6 @@ import java.util.List;
  * @version 3.0.0
  * @since 1.0
  */
-// TODO sort and cleanup methods
 public class SatSolver {
 
     protected final FormulaFactory f;
@@ -157,16 +156,6 @@ public class SatSolver {
     }
 
     /**
-     * Adds a given set of propositions to the solver.
-     * @param propositions the set of propositions
-     */
-    public void addPropositions(final Proposition... propositions) {
-        for (final Proposition proposition : propositions) {
-            add(proposition);
-        }
-    }
-
-    /**
      * Adds a proposition to the solver. The formulas of the proposition are
      * first converted to CNF.
      * @param proposition the proposition
@@ -182,29 +171,6 @@ public class SatSolver {
     public void add(final Collection<? extends Formula> formulas) {
         for (final Formula formula : formulas) {
             add(formula);
-        }
-    }
-
-    /**
-     * Adds a formula to the solver by using the given relaxation variable, i.e.
-     * by adding the disjunction of the relaxation variable and the formula.
-     * @param relaxationVar the relaxation variable
-     * @param formula       the formula
-     */
-    public void addWithRelaxation(final Variable relaxationVar, final Formula formula) {
-        add(f.or(relaxationVar, formula));
-    }
-
-    /**
-     * Adds a collection of formulas to the solver by using the given relaxation
-     * variable, i.e. for each formula adding the disjunction of the relaxation
-     * variable and the formula.
-     * @param relaxationVar the relaxation variable
-     * @param formulas      the collection of formulas
-     */
-    public void addWithRelaxation(final Variable relaxationVar, final Collection<? extends Formula> formulas) {
-        for (final Formula formula : formulas) {
-            addWithRelaxation(relaxationVar, formula);
         }
     }
 
@@ -337,20 +303,6 @@ public class SatSolver {
      * @return the list of models
      */
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
-        return execute(ModelEnumerationFunction.builder(variables)
-                .configuration(ModelEnumerationConfig.builder()
-                        .strategy(DefaultModelEnumerationStrategy.builder().build()).build())
-                .build());
-    }
-
-    /**
-     * Enumerates all models of the current formula wrt. a given set of
-     * variables. If the set is {@code null}, all variables are considered
-     * relevant.
-     * @param variables the set of variables
-     * @return the list of models
-     */
-    public List<Model> enumerateAllModels(final Variable[] variables) {
         return execute(ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder()
                         .strategy(DefaultModelEnumerationStrategy.builder().build()).build())

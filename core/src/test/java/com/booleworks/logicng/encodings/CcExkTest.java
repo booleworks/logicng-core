@@ -13,6 +13,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class CcExkTest implements LogicNGTest {
 
     private final EncoderConfig[] configs;
@@ -56,7 +58,7 @@ public class CcExkTest implements LogicNGTest {
         } else {
             assertSolverUnsat(solver);
         }
-        assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(List.of(problemLits)))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() == rhs);
     }

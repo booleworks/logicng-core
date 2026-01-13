@@ -205,7 +205,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 lits[j] = f.variable("x" + j);
             }
             s.add(f.exo(lits));
-            final List<Model> models = s.enumerateAllModels(lits);
+            final List<Model> models = s.enumerateAllModels(List.of(lits));
             assertThat(models.size()).isEqualTo(100);
             for (final Model m : models) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
@@ -275,7 +275,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             final Formula formula = parse(f, "a & (b | c)");
             s.add(formula);
             assertSolverSat(s);
-            s.addWithRelaxation(f.variable("x"), parse(f, "~a & ~b"));
+            s.add(f.or(f.variable("x"), parse(f, "~a & ~b")));
             assertSolverSat(s);
             assertThat(s.satCall().model(f.variables("a", "b", "c", "x")).positiveVariables())
                     .contains(f.variable("x"));

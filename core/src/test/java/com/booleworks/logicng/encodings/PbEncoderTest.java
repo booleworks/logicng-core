@@ -51,11 +51,12 @@ public class PbEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, 0, lits, coeffs), config);
+            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f,
+                    (PbConstraint) f.pbc(CType.LE, 0, lits, coeffs), config);
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
-            assertThat(solver.enumerateAllModels(problemLits))
+            assertThat(solver.enumerateAllModels(List.of(problemLits)))
                     .hasSize(1)
                     .allMatch(m -> m.positiveVariables().isEmpty());
         }
@@ -75,12 +76,13 @@ public class PbEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, rhs, lits, coeffs),
+            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f,
+                    (PbConstraint) f.pbc(CType.LE, rhs, lits, coeffs),
                     config);
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
-            assertThat(solver.enumerateAllModels(problemLits))
+            assertThat(solver.enumerateAllModels(List.of(problemLits)))
                     .hasSize(numLits + 1)
                     .allMatch(m -> m.positiveVariables().size() <= rhs);
         }
@@ -109,12 +111,13 @@ public class PbEncoderTest implements LogicNGTest {
             problemLits[i] = f.variable("v" + i);
             coeffs[i] = 1;
         }
-        final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs),
+        final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f,
+                (PbConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs),
                 config);
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(clauses);
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(List.of(problemLits)))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() <= rhs);
     }

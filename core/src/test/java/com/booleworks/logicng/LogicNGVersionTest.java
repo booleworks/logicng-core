@@ -17,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 @ExtendWith(MockitoExtension.class)
 public class LogicNGVersionTest {
 
@@ -25,7 +27,7 @@ public class LogicNGVersionTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(parse(f, "(A | ~B) & (B | C)"));
-        solver.satCall().addFormulas(parse(f, "~A"), parse(f, "~C")).sat();
+        solver.satCall().addFormulas(List.of(parse(f, "~A"), parse(f, "~C"))).sat();
     }
 
     @Test

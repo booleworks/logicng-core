@@ -45,13 +45,13 @@ public class LngCoreSolverTest {
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(parse(f, "A & B"));
         assertThat(solver.sat()).isTrue();
-        assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat().getResult()).isTrue();
-        assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat().getResult()).isTrue();
-        assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat().getResult()).isFalse();
-        assertThat(solver.satCall().addFormulas(f.literal("B", false)).sat().getResult()).isFalse();
-        assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat().getResult()).isTrue();
-        assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat().getResult()).isTrue();
-        assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat().getResult()).isFalse();
+        assertThat(solver.satCall().addFormula(f.literal("A", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormula(f.literal("B", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormula(f.literal("A", false)).sat().getResult()).isFalse();
+        assertThat(solver.satCall().addFormula(f.literal("B", false)).sat().getResult()).isFalse();
+        assertThat(solver.satCall().addFormula(f.literal("A", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormula(f.literal("B", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormula(f.literal("A", false)).sat().getResult()).isFalse();
         assertThat(solver.sat()).isTrue();
     }
 

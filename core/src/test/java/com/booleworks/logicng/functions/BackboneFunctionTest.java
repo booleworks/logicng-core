@@ -200,22 +200,22 @@ public class BackboneFunctionTest {
         final SatSolver solver = SatSolver.newSolver(formula.getFactory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
-            if (solver.satCall().addFormulas(bbVar.negate(f)).sat().getResult()) {
+            if (solver.satCall().addFormula(bbVar.negate(f)).sat().getResult()) {
                 return false;
             }
         }
         for (final Variable bbVar : backbone.getNegativeBackbone()) {
-            if (solver.satCall().addFormulas(bbVar).sat().getResult()) {
+            if (solver.satCall().addFormula(bbVar).sat().getResult()) {
                 return false;
             }
         }
         for (final Variable variable : variables) {
             if (!backbone.getPositiveBackbone().contains(variable) &&
                     !backbone.getNegativeBackbone().contains(variable)) {
-                if (!solver.satCall().addFormulas(variable).sat().getResult()) {
+                if (!solver.satCall().addFormula(variable).sat().getResult()) {
                     return false;
                 }
-                if (!solver.satCall().addFormulas(variable.negate(f)).sat().getResult()) {
+                if (!solver.satCall().addFormula(variable.negate(f)).sat().getResult()) {
                     return false;
                 }
             }

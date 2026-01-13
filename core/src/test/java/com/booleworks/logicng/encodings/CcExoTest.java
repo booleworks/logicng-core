@@ -14,6 +14,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -104,7 +105,7 @@ public class CcExoTest implements LogicNGTest {
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.exo(problemLits));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(List.of(problemLits)))
                 .hasSize(numLits)
                 .allMatch(m -> m.positiveVariables().size() == 1);
     }

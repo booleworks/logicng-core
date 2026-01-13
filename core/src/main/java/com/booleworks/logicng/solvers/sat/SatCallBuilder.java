@@ -17,7 +17,6 @@ import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -58,33 +57,20 @@ public class SatCallBuilder {
     }
 
     /**
-     * Adds assumptions (i.e. additional formulas) to the SAT call. The
-     * assumptions are removed again after the SAT call.
-     * @param assumptions the assumptions
+     * Adds a formula to the SAT call. The formula is removed again after the
+     * SAT call.
+     * @param formula the additional formulas
      * @return this builder
      */
-    // TODO could be removed (when we're sure about the API)
-    @Deprecated
-    public SatCallBuilder assumptions(final Collection<? extends Literal> assumptions) {
-        return addFormulas(assumptions);
-    }
-
-    /**
-     * Adds assumptions (i.e. additional formulas) to the SAT call. The
-     * assumptions are removed again after the SAT call.
-     * @param assumptions the assumptions
-     * @return this builder
-     */
-    // TODO could be removed (when we're sure about the API)
-    @Deprecated
-    public SatCallBuilder assumptions(final Literal... assumptions) {
-        return addFormulas(assumptions);
+    public SatCallBuilder addFormula(final Formula formula) {
+        additionalPropositions.add(new StandardProposition(formula));
+        return this;
     }
 
     /**
      * Adds additional formulas to the SAT call. The formulas are removed again
      * after the SAT call.
-     * @param formulas the additional formulas
+     * @param formulas the additional formula
      * @return this builder
      */
     public SatCallBuilder addFormulas(final Collection<? extends Formula> formulas) {
@@ -95,14 +81,14 @@ public class SatCallBuilder {
     }
 
     /**
-     * Adds additional formulas to the SAT call. The formulas are removed again
+     * Adds a proposition to the SAT call. The propositions are removed again
      * after the SAT call.
-     * @param formulas the additional formulas
+     * @param proposition the additional proposition
      * @return this builder
      */
-    // TODO do we need the varargs variants?
-    public SatCallBuilder addFormulas(final Formula... formulas) {
-        return addFormulas(Arrays.asList(formulas));
+    public SatCallBuilder addProposition(final Proposition proposition) {
+        additionalPropositions.add(proposition);
+        return this;
     }
 
     /**
@@ -113,17 +99,6 @@ public class SatCallBuilder {
      */
     public SatCallBuilder addPropositions(final Collection<? extends Proposition> propositions) {
         additionalPropositions.addAll(propositions);
-        return this;
-    }
-
-    /**
-     * Adds additional propositions to the SAT call. The propositions are
-     * removed again after the SAT call.
-     * @param propositions the additional propositions
-     * @return this builder
-     */
-    public SatCallBuilder addPropositions(final Proposition... propositions) {
-        additionalPropositions.addAll(List.of(propositions));
         return this;
     }
 

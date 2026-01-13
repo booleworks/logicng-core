@@ -17,6 +17,8 @@ import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 public class CcAmkTest implements LogicNGTest {
 
     private final EncoderConfig[] configs;
@@ -96,7 +98,7 @@ public class CcAmkTest implements LogicNGTest {
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.cc(CType.LE, rhs, problemLits));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(List.of(problemLits)))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() <= rhs);
     }

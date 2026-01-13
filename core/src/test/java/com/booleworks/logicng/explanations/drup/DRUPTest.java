@@ -133,11 +133,11 @@ public class DRUPTest implements LogicNGTest {
         final StandardProposition p11 = new StandardProposition("P11", parse(f, "a & ~q"));
 
         final SatSolver solver = solverSupplier.get();
-        solver.addPropositions(p1, p2, p3, p4);
+        solver.addPropositions(List.of(p1, p2, p3, p4));
         final SolverState state1 = solver.saveState();
-        solver.addPropositions(p5, p6);
+        solver.addPropositions(List.of(p5, p6));
         final SolverState state2 = solver.saveState();
-        solver.addPropositions(p7, p8);
+        solver.addPropositions(List.of(p7, p8));
 
         assertThat(solver.sat()).isFalse();
         UnsatCore<Proposition> unsatCore = solver.satCall().unsatCore();
@@ -207,7 +207,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p4);
 
         // Assumption call
-        solver.satCall().addFormulas(f.variable("X")).sat();
+        solver.satCall().addFormula(f.variable("X")).sat();
 
         solver.add(p5);
         solver.add(p6);
@@ -225,7 +225,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(parse(f, "D => B | A"));
         solver.add(parse(f, "B => X"));
         solver.add(parse(f, "B => ~X"));
-        solver.satCall().addFormulas(f.literal("A", false)).sat();
+        solver.satCall().addFormula(f.literal("A", false)).sat();
 
         solver.add(parse(f, "~A"));
         solver.sat();
@@ -262,7 +262,7 @@ public class DRUPTest implements LogicNGTest {
     public void testCoreAndAssumptions4() {
         final SatSolver solver = solverSupplier.get();
         solver.add(parse(f, "~X1"));
-        solver.satCall().addFormulas(f.variable("X1")).sat(); // caused the bug
+        solver.satCall().addFormula(f.variable("X1")).sat(); // caused the bug
         solver.add(f.variable("A1"));
         solver.add(parse(f, "A1 => A2"));
         solver.add(parse(f, "R & A2 => A3"));
@@ -279,7 +279,10 @@ public class DRUPTest implements LogicNGTest {
         final SatSolver solver = solverSupplier.get();
         solver.add(parse(f, "A1 => A2"));
         solver.add(parse(f, "A2 => ~A1 | ~A3"));
-        try (final SatCall satCall = solver.satCall().addFormulas(f.variable("A3"), f.variable("A1")).solve()) {
+        try (
+                final SatCall satCall = solver.satCall().addFormulas(List.of(f.variable("A3"), f.variable("A1")))
+                        .solve()
+        ) {
             assertThat(satCall.getSatResult().getResult()).isFalse();
         }
     }
@@ -317,7 +320,7 @@ public class DRUPTest implements LogicNGTest {
         final StandardProposition p9 = new StandardProposition(parse(f, "j => (f + g + h = 1)"));
         final StandardProposition p10 = new StandardProposition(parse(f, "d => (l + m + e + f = 1)"));
         final StandardProposition p11 = new StandardProposition(parse(f, "~k"));
-        solver.addPropositions(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+        solver.addPropositions(List.of(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11));
         assertThat(solver.sat()).isTrue();
         solver.add(f.variable("a"));
         assertThat(solver.sat()).isFalse();
