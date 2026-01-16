@@ -27,6 +27,10 @@ import java.util.SortedSet;
  */
 public final class DnfSubsumption extends Subsumption {
 
+    /**
+     * Constructs a new instance of this transformation.
+     * @param f the formula factory
+     */
     public DnfSubsumption(final FormulaFactory f) {
         super(f);
     }

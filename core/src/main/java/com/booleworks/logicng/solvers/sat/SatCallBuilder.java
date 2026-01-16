@@ -149,7 +149,6 @@ public class SatCallBuilder {
      * {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.
-     * <p>
      * @return the unsat core or {@code null} if the SAT call was satisfiable
      */
     public UnsatCore<Proposition> unsatCore() {

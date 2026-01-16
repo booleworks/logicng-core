@@ -26,6 +26,12 @@ import java.util.Queue;
  */
 public final class BfsOrdering implements VariableOrderingProvider {
 
+    /**
+     * Constructor.
+     */
+    public BfsOrdering() {
+    }
+
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
         return new ArrayList<>(bfs(formula));

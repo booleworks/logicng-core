@@ -1132,6 +1132,7 @@ public class LngCoreSolver {
 
     /**
      * The main search procedure of the CDCL algorithm.
+     * @param handler the computation handler
      * @return a {@link Tristate} representing the result. {@code FALSE} if the
      * formula is UNSAT, {@code TRUE} if the formula is SAT, and
      * {@code UNDEF} if the state is not known yet (restart) or the
@@ -1713,8 +1714,8 @@ public class LngCoreSolver {
      * @param type      backbone type
      * @return the backbone projected to the relevant variables
      */
-    public LngResult<Backbone> computeBackbone(final Collection<Variable> variables, final BackboneType type) {
-        return computeBackbone(variables, type, NopHandler.get());
+    public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type) {
+        return computeBackbone(variables, type, NopHandler.get()).getResult();
     }
 
     /**
@@ -1793,6 +1794,8 @@ public class LngCoreSolver {
      * @param variables variables to test
      * @param type      the type of the backbone
      * @param handler   the handler
+     * @return {@code null} if the computation was successful or the
+     * cancellation cause if the computation was cancelled by the handler
      */
     protected LngEvent computeBackbone(final List<Integer> variables, final BackboneType type,
                                        final ComputationHandler handler) {

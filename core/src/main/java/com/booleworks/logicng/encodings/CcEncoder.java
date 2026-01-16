@@ -204,7 +204,7 @@ public class CcEncoder {
         }
     }
 
-    private static void amo(final EncodingResult result, final EncoderConfig config, final Variable... vars) {
+    protected static void amo(final EncodingResult result, final EncoderConfig config, final Variable... vars) {
         if (vars.length <= 1) {
             return;
         }

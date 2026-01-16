@@ -32,6 +32,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Caching implementation of a formula factory. Formulas in LogicNG can only be
+ * generated and managed by a formula factory.
+ * <p>
+ * The caching formula factory keeps track of all formulas it creates, and it
+ * guarantees that equivalent formulas (in terms of associativity and
+ * commutativity) are hold exactly once in memory.
+ * <p>
+ * This implementation is not thread-safe in general.
+ * {@link FormulaFactoryConfig} provides a threadSafe flag which, when set,
+ * makes the factory thread-safe, potentially at the cost of performance. This
+ * factory is also thread-safe when it is in READ-ONLY mode.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class CachingFormulaFactory extends FormulaFactory {
 
     Map<String, Variable> posLiterals;

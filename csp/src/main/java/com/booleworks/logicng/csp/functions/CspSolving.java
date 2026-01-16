@@ -52,7 +52,7 @@ public final class CspSolving {
      * @param context the encoding context
      * @param cf      the factory
      * @param handler handler for processing events
-     * @return whether the CSP is satisfiable or the event aborting the
+     * @return whether the CSP is satisfiable or the event cancelling the
      * computation
      */
     public static LngResult<Boolean> sat(final Csp csp, final CspEncodingContext context, final CspFactory cf, final
@@ -82,7 +82,7 @@ public final class CspSolving {
      * @param context      the encoding context
      * @param cf           the factory
      * @param handler      handler for processing events
-     * @return whether the CSP is satisfiable or the event aborting the
+     * @return whether the CSP is satisfiable or the event cancelling the
      * computation
      */
     public static LngResult<Boolean> sat(final Csp csp, final Map<IntegerVariable, Integer> restrictions,
@@ -135,7 +135,7 @@ public final class CspSolving {
      * @param cf      the factory
      * @param handler handler for processing events
      * @return a model of the CSP, empty optional if it is unsatisfiable, or the
-     * event aborting the computation.
+     * event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final Csp csp,
                                                            final CspEncodingContext context, final CspFactory cf,
@@ -152,7 +152,7 @@ public final class CspSolving {
      * @param cf           the factory
      * @param handler      handler for processing events
      * @return a model of the CSP, empty optional if it is unsatisfiable, or the
-     * event aborting the computation.
+     * event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final Csp csp,
                                                            final Map<IntegerVariable, Integer> restrictions,
@@ -208,7 +208,7 @@ public final class CspSolving {
      * @param cf      the factory
      * @param handler handler for processing events
      * @return a model of the CSP, empty optional if it is unsatisfiable, or
-     * the event aborting the computation.
+     * the event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver, final Csp csp,
                                                            final CspEncodingContext context,
@@ -227,7 +227,7 @@ public final class CspSolving {
      * @param cf           the factory
      * @param handler      handler for processing events
      * @return a model of the CSP, empty optional if it is unsatisfiable, or the
-     * event aborting the computation.
+     * event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver, final Csp csp,
                                                            final Map<IntegerVariable, Integer> restrictions,
@@ -295,7 +295,7 @@ public final class CspSolving {
      * @param cf               the factory
      * @param handler          handler for processing events
      * @return a model of the CSP, empty optional if it is unsatisfiable, or the
-     * event aborting the computation.
+     * event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver,
                                                            final Collection<IntegerVariable> integerVariables,

@@ -20,6 +20,7 @@ import java.util.Map;
  * from a non-caching formula factory can be given their own cache per
  * transformation. A cacheable and a cancelable formula transformation with a
  * provided cache or handler is not thread-safe.
+ * @param <H> type of the computation handler
  * @version 3.0.0
  * @since 3.0.0
  */

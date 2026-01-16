@@ -38,6 +38,7 @@ public final class IntegerVariablesFunction implements FormulaFunction<SortedSet
     /**
      * Constructs a new integer variable function, which collects all integer
      * variables from formulas. The variables are added to the passed set.
+     * @param variables destination for the variables
      * @return the integer variable function
      */
     public static IntegerVariablesFunction addToExistingSet(final SortedSet<IntegerVariable> variables) {

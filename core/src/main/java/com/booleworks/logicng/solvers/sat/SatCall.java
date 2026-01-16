@@ -121,7 +121,7 @@ public class SatCall implements AutoCloseable {
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call
-     *         was unsatisfiable
+     * was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Model model(final Collection<Variable> variables) {
@@ -155,7 +155,6 @@ public class SatCall implements AutoCloseable {
      * {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.
-     * <p>
      * @return the unsat core or {@code null} if the SAT call was satisfiable
      */
     public UnsatCore<Proposition> unsatCore() {

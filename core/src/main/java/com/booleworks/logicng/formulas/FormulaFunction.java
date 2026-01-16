@@ -20,7 +20,9 @@ public interface FormulaFunction<T> {
     /**
      * Applies this function to a given formula.
      * @param formula the input formula
-     * @return the result of the application
+     * @param handler the computation handler
+     * @return the result of the application or the canceling cause if the
+     * handler cancelled the computation.
      */
     LngResult<T> apply(Formula formula, ComputationHandler handler);
 

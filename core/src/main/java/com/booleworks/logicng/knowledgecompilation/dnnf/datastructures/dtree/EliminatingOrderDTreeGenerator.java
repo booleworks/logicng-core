@@ -27,10 +27,17 @@ import java.util.List;
 public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
 
     /**
+     * Constructor.
+     */
+    public EliminatingOrderDTreeGenerator() {
+    }
+
+    /**
      * Generates the DTree
      * @param f        the formula factory
      * @param cnf      the CNF input formula
      * @param ordering the variable ordering
+     * @param handler  the computation handler
      * @return the DTree
      */
     public final LngResult<DTree> generateWithEliminatingOrder(final FormulaFactory f, final Formula cnf,

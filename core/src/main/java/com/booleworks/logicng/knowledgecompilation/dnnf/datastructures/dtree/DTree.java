@@ -27,6 +27,12 @@ public abstract class DTree {
     protected DnnfSatSolver solver;
 
     /**
+     * Constructor.
+     */
+    public DTree() {
+    }
+
+    /**
      * Initializes the DTree.
      * @param solver a specializes DNNF SAT solver
      */

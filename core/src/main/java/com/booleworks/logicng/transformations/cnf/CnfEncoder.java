@@ -29,6 +29,10 @@ import java.util.List;
  */
 public class CnfEncoder {
 
+    private CnfEncoder() {
+        //intentionally left empty.
+    }
+
     /**
      * Encodes a formula to CNF.
      * @param f       the formula factory to generate new formulas

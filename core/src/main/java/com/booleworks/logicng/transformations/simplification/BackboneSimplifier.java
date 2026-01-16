@@ -25,6 +25,10 @@ import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
  */
 public final class BackboneSimplifier extends StatelessFormulaTransformation {
 
+    /**
+     * Constructs a new instance.
+     * @param f the formula factory
+     */
     public BackboneSimplifier(final FormulaFactory f) {
         super(f);
     }

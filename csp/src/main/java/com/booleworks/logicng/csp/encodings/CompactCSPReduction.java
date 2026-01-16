@@ -63,7 +63,8 @@ public final class CompactCSPReduction {
      * @param variables all variables used in {@code clauses}
      * @param handler   handler for processing encoding events
      * @return reduced clauses and relevant variables
-     * @throws CspHandlerException if the computation is aborted by the handler
+     * @throws CspHandlerException if the computation is cancelled by the
+     *                             handler
      */
     ReductionResult toCCSP(final Set<IntegerClause> clauses, final List<IntegerVariable> variables,
                            final ComputationHandler handler) throws CspHandlerException {

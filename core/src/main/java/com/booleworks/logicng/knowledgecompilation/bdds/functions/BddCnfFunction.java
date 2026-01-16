@@ -15,6 +15,10 @@ import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
  */
 public final class BddCnfFunction extends BddNormalFormFunction {
 
+    /**
+     * Constructs a new instance of a function that converts BDDs to CNF.
+     * @param f the formula factory
+     */
     public BddCnfFunction(final FormulaFactory f) {
         super(f);
     }

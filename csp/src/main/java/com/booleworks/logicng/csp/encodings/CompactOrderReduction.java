@@ -78,7 +78,8 @@ public final class CompactOrderReduction {
      * @param integerVariables the integer variables
      * @param handler          handler for processing encoding events
      * @return the reduced problem
-     * @throws CspHandlerException if the computation was aborted by the handler
+     * @throws CspHandlerException if the computation was cancelled by the
+     *                             handler
      */
     ReductionResult reduce(final Set<IntegerClause> clauses, final Set<IntegerVariable> integerVariables,
                            final ComputationHandler handler) throws CspHandlerException {

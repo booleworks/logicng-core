@@ -24,6 +24,12 @@ import java.util.List;
  */
 public final class DfsOrdering implements VariableOrderingProvider {
 
+    /**
+     * Constructor.
+     */
+    public DfsOrdering() {
+    }
+
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
         final LinkedHashSet<Variable> order = new LinkedHashSet<>(formula.variables(f).size());

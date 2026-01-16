@@ -83,6 +83,7 @@ public class DnnfCompiler {
 
     /**
      * Compiles the given formula to a DNNF instance.
+     * @param f       the formula factory
      * @param formula the formula
      * @return the compiled DNNF
      */

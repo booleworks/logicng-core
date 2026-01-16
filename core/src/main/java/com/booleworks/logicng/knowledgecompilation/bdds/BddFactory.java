@@ -101,6 +101,16 @@ public final class BddFactory {
                : LngResult.of(new Bdd(bddIndex, bddKernel));
     }
 
+    /**
+     * Builds an BDD for a set of literals. The set is interpreted as the
+     * conjunction of the literals.
+     * <p>
+     * The computation can not be interrupted, thus, the function does never
+     * return {@link BddKernel#BDD_ABORT}.
+     * @param literals a set of literals
+     * @param kernel   the bdd kernel
+     * @return the top node of the BDD
+     */
     public static Bdd build(final Collection<? extends Literal> literals, final BddKernel kernel) {
         final var construction = new BddConstruction(kernel);
         int bdd;

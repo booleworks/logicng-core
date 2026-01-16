@@ -49,12 +49,12 @@ public final class OrderEncoding {
      * Encodes a CSP problem using the order encoding.
      * <p>
      * Note: The destination of the encoding result may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param csp     the problem
      * @param result  destination for the result
      * @param handler handler for processing encoding events
      * @return the passed encoding result if the computation was successful
-     * otherwise returns the handler event that aborted the computation
+     * otherwise returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encode(final Csp csp, final EncodingResult result,
                                             final ComputationHandler handler) {
@@ -75,12 +75,12 @@ public final class OrderEncoding {
      * Encodes a single integer variable using the order encoding.
      * <p>
      * Note: The destination of the encoding result may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param v       the integer variable
      * @param result  destination for the result
      * @param handler handler for processing encoding events
      * @return the passed encoding result if the computation was successful
-     * otherwise returns the handler event that aborted the computation
+     * otherwise returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encodeVariable(final IntegerVariable v, final EncodingResult result,
                                                     final ComputationHandler handler) {
@@ -110,12 +110,12 @@ public final class OrderEncoding {
      * Encodes a set of arithmetic clauses using the order encoding.
      * <p>
      * Note: The destination of the encoding result may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param clauses the set of clauses
      * @param result  destination for the result
      * @param handler handler for processing encoding events
      * @return the passed encoding result if the computation was successful
-     * otherwise returns the handler event that aborted the computation
+     * otherwise returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encodeClauses(final Set<IntegerClause> clauses, final EncodingResult result,
                                                    final ComputationHandler handler) {
@@ -145,7 +145,8 @@ public final class OrderEncoding {
      * @param cl      the arithmetic clause
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @throws CspHandlerException if the computation was aborted by the handler
+     * @throws CspHandlerException if the computation was cancelled by the
+     *                             handler
      */
     void encodeClause(final IntegerClause cl, final EncodingResult result, final ComputationHandler handler)
             throws CspHandlerException {

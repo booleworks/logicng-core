@@ -87,7 +87,8 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @param f       the factory
      * @param handler for processing encoding events
      * @return new auxiliary variable
-     * @throws CspHandlerException if the computation was aborted by the handler
+     * @throws CspHandlerException if the computation was cancelled by the
+     *                             handler
      */
     Variable newSimplifyBooleanVariable(final FormulaFactory f, final ComputationHandler handler)
             throws CspHandlerException {
@@ -117,7 +118,8 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @param f       the formula factory
      * @param handler for processing encoding events
      * @return the boolean variable
-     * @throws CspHandlerException if the computation was aborted by the handler
+     * @throws CspHandlerException if the computation was cancelled by the
+     *                             handler
      */
     Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f, final
     ComputationHandler handler) throws CspHandlerException {

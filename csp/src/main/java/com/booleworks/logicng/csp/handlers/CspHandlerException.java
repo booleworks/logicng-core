@@ -6,8 +6,8 @@ package com.booleworks.logicng.csp.handlers;
 import com.booleworks.logicng.handlers.events.LngEvent;
 
 /**
- * Exception that is used inside CSP Encoding algorithms to handle an abortion
- * of the computation.
+ * Exception that is used inside CSP Encoding algorithms to handle a
+ * cancellation of the computation.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -15,8 +15,8 @@ public class CspHandlerException extends Exception {
     private final LngEvent reason;
 
     /**
-     * Constructs a new exception from an {@code LngEvent} as abortion reason.
-     * @param reason abortion reason
+     * Constructs a new exception from an {@code LngEvent} as cancel cause.
+     * @param reason cancel cause
      */
     public CspHandlerException(final LngEvent reason) {
         super("CSP computation interrupted at event:" + reason);
@@ -24,8 +24,8 @@ public class CspHandlerException extends Exception {
     }
 
     /**
-     * Return the abortion reason.
-     * @return abortion reason
+     * Return the cancel cause.
+     * @return cancel cause
      */
     public LngEvent getReason() {
         return reason;

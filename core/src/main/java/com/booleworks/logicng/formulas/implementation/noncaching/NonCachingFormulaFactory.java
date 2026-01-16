@@ -16,6 +16,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Non-caching implementation of a formula factory. Formulas in LogicNG can only
+ * be generated and managed by a formula factory.
+ * <p>
+ * The non-caching implementation does not keep track of the formulas it
+ * creates. This means, that the same formula can be represented by multiple
+ * {@link Formula} objects.
+ * <p>
+ * This implementation is thread-safe.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class NonCachingFormulaFactory extends FormulaFactory {
 
     Map<String, Variable> posLiterals;

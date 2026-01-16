@@ -17,6 +17,10 @@ import com.booleworks.logicng.transformations.CanonicalEnumeration;
  */
 public final class CanonicalDnfEnumeration extends CanonicalEnumeration {
 
+    /**
+     * Constructs a new instance of the canonical CNF transformation.
+     * @param f the formula factory
+     */
     public CanonicalDnfEnumeration(final FormulaFactory f) {
         super(f);
     }

@@ -57,7 +57,8 @@ public final class OrderReduction {
      * @param clauses the clauses
      * @param handler for processing encoding events
      * @return the reduced problem
-     * @throws CspHandlerException if the computation was aborted by the handler
+     * @throws CspHandlerException if the computation was cancelled by the
+     *                             handler
      */
     ReductionResult reduce(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {

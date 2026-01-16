@@ -24,6 +24,12 @@ import java.util.List;
  */
 public final class DeletionBasedMus extends MusAlgorithm {
 
+    /**
+     * Constructor.
+     */
+    public DeletionBasedMus() {
+    }
+
     @Override
     public <T extends Proposition> LngResult<UnsatCore<T>> computeMus(
             final FormulaFactory f, final List<T> propositions,

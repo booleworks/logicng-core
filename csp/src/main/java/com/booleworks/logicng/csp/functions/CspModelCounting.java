@@ -32,7 +32,7 @@ public final class CspModelCounting {
      * Counts the model of a CSP.
      * @param csp the csp
      * @param cf  the factory
-     * @return the model count or the abortion reason produced by the handler
+     * @return the model count or the cancel cause produced by the handler
      */
     public static BigInteger count(final Csp csp, final CspFactory cf) {
         return count(csp, cf, NopHandler.get()).getResult();
@@ -43,7 +43,7 @@ public final class CspModelCounting {
      * @param csp     the csp
      * @param cf      the factory
      * @param handler handler for processing events
-     * @return the model count or the abortion reason produced by the handler
+     * @return the model count or the cancel cause produced by the handler
      */
     public static LngResult<BigInteger> count(final Csp csp, final CspFactory cf, final ComputationHandler handler) {
         final OrderEncodingContext context = CspEncodingContext.order_model_count();

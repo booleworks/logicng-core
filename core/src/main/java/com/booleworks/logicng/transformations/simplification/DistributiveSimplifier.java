@@ -28,10 +28,22 @@ import java.util.Set;
  */
 public final class DistributiveSimplifier extends CacheableFormulaTransformation {
 
+    /**
+     * Constructs a new transformation. For a caching formula factory, the cache
+     * of the factory will be used, for a non-caching formula factory no cache
+     * will be used.
+     * @param f the formula factory to generate new formulas
+     */
     public DistributiveSimplifier(final FormulaFactory f) {
         super(f, TransformationCacheEntry.DISTRIBUTIVE_SIMPLIFICATION);
     }
 
+    /**
+     * Constructs a new transformation. For all factory type the provided cache
+     * will be used. If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
     public DistributiveSimplifier(final FormulaFactory f, final Map<Formula, Formula> cache) {
         super(f, cache);
     }

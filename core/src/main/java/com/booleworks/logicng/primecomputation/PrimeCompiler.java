@@ -107,8 +107,8 @@ public final class PrimeCompiler {
      * Computes prime implicants and prime implicates for a given formula. The
      * coverage type specifies if the implicants or the implicates will be
      * complete, the other one will still be a cover of the given formula.
-     * The given {@link ComputationHandler} can be used to abort the computation.
-     * {@link MaxSatSolver} call.
+     * The given {@link ComputationHandler} can be used to cancel the
+     * computation.
      * @param formula the formula
      * @param type    the coverage type
      * @param handler an optimization handler, can be {@code null}

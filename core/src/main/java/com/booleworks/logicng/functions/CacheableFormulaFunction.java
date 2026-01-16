@@ -19,6 +19,7 @@ import java.util.Map;
  * via the factory, formulas from a non-caching formula factory can be given
  * their own cache per function. A cacheable formula function with a provided
  * cache is not thread-safe.
+ * @param <T> type of the function's return value
  * @version 3.0.0
  * @since 3.0.0
  */

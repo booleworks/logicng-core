@@ -789,7 +789,8 @@ public class CspFactory {
      * @param csp     the CSP problem
      * @param context the encoding context
      * @param handler handler for precessing encoding events
-     * @return the encoded CNF or the handler event that aborted the computation
+     * @return the encoded CNF or the handler event that cancelled the
+     * computation
      */
     public LngResult<List<Formula>> encodeCsp(final Csp csp, final CspEncodingContext context,
                                               final ComputationHandler handler) {
@@ -811,13 +812,13 @@ public class CspFactory {
      * Encodes a CSP problem as a CNF.
      * <p>
      * Note: The destination of the {@code result} may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param csp     the CSP problem
      * @param context the encoding context
      * @param result  the destination for the encoding
      * @param handler handler for processing encoding events
      * @return the passed encoding result if the computation was successful
-     * otherwise returns the handler event that aborted the computation
+     * otherwise returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encodeCsp(final Csp csp, final CspEncodingContext context,
                                                final EncodingResult result, final ComputationHandler handler) {
@@ -851,7 +852,8 @@ public class CspFactory {
      * @param variable the integer variable
      * @param context  the encoding context
      * @param handler  handler for processing encoding event
-     * @return the encoded CNF or the handler event that aborted the computation
+     * @return the encoded CNF or the handler event that cancelled the
+     * computation
      */
     public LngResult<List<Formula>> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
                                                    final ComputationHandler handler) {
@@ -874,13 +876,13 @@ public class CspFactory {
      * Encodes an integer variable as a CNF.
      * <p>
      * Note: The destination of {@code result} may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param variable the integer variable
      * @param context  the encoding context
      * @param result   the destination for the encoding
      * @param handler  handler for processing encoding events
      * @return the passed encoding result if the computation was successful
-     * otherwise returns the handler event that aborted the computation
+     * otherwise returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
                                                     final EncodingResult result, final ComputationHandler handler) {
@@ -915,7 +917,7 @@ public class CspFactory {
      * @param context   the encoding context
      * @param handler   handler for processing encoding events
      * @return a result containing the encoded CNF or the handler event that
-     * aborted the computation
+     * cancelled the computation
      */
     public LngResult<List<Formula>> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                                      final ComputationHandler handler) {
@@ -938,13 +940,13 @@ public class CspFactory {
      * Encodes a CSP predicate as a CNF.
      * <p>
      * Note: The destination of the {@code result} may contain incomplete
-     * results, if the computation was aborted by the handler.
+     * results, if the computation was cancelled by the handler.
      * @param predicate the predicate
      * @param context   the encoding context
      * @param result    the destination for the encoding
      * @param handler   handler for processing encoding events
      * @return the {@code result} if the computation was successful otherwise
-     * returns the handler event that aborted the computation
+     * returns the handler event that cancelled the computation
      */
     public LngResult<EncodingResult> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                                       final EncodingResult result, final ComputationHandler handler) {

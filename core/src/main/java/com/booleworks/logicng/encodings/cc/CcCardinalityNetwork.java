@@ -24,6 +24,12 @@ public final class CcCardinalityNetwork {
         // only static methods
     }
 
+    /**
+     * Builds an at-most-k constraint.
+     * @param result the result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
+     */
     public static void amk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.getFactory();
         final LngVector<Literal> input = new LngVector<>();
@@ -47,6 +53,13 @@ public final class CcCardinalityNetwork {
         }
     }
 
+    /**
+     * Builds an at-most-k constraint incrementally.
+     * @param result the result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
+     * @return the incremental data for the encoded constraint
+     */
     public static <T extends EncodingResult> CcIncrementalData<T> amkForIncremental(final T result,
                                                                                     final Variable[] vars,
                                                                                     final int rhs) {
@@ -62,6 +75,12 @@ public final class CcCardinalityNetwork {
         return new CcIncrementalData<>(result, EncoderConfig.AmkEncoder.CARDINALITY_NETWORK, rhs, output);
     }
 
+    /**
+     * Builds an at-least-k constraint.
+     * @param result the result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
+     */
     public static void alk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.getFactory();
         final LngVector<Literal> input = new LngVector<>();
@@ -86,6 +105,13 @@ public final class CcCardinalityNetwork {
         }
     }
 
+    /**
+     * Builds an at-least-k constraint incrementally.
+     * @param result the result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
+     * @return the incremental data for the encoded constraint
+     */
     public static <T extends EncodingResult> CcIncrementalData<T> alkForIncremental(final T result,
                                                                                     final Variable[] vars,
                                                                                     final int rhs) {
@@ -102,6 +128,12 @@ public final class CcCardinalityNetwork {
         return new CcIncrementalData<>(result, EncoderConfig.AlkEncoder.CARDINALITY_NETWORK, rhs, vars.length, output);
     }
 
+    /**
+     * Builds an exactly-k constraint.
+     * @param result the result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
+     */
     public static void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.getFactory();
         final LngVector<Literal> input = new LngVector<>();

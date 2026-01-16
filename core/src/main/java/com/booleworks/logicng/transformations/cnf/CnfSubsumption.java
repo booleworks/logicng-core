@@ -27,6 +27,10 @@ import java.util.SortedSet;
  */
 public final class CnfSubsumption extends Subsumption {
 
+    /**
+     * Constructs a new simplification transformation using CNF subsumption.
+     * @param f the formula factory
+     */
     public CnfSubsumption(final FormulaFactory f) {
         super(f);
     }

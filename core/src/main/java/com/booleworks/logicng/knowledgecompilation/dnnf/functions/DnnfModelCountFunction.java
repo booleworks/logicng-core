@@ -26,6 +26,10 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
     private final FormulaFactory f;
     private final Map<Formula, BigInteger> cache;
 
+    /**
+     * Constructs a new instance of the function.
+     * @param f the formula factory
+     */
     public DnnfModelCountFunction(final FormulaFactory f) {
         this.f = f;
         cache = f instanceof CachingFormulaFactory
