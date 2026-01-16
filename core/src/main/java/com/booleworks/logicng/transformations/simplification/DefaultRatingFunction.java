@@ -17,19 +17,14 @@ import com.booleworks.logicng.handlers.LngResult;
  */
 public class DefaultRatingFunction implements RatingFunction<Integer> {
 
-    private final DefaultStringRepresentation formatter = new DefaultStringRepresentation();
-    private static final DefaultRatingFunction INSTANCE = new DefaultRatingFunction();
-
-    private DefaultRatingFunction() {
-        // Intentionally left empty
-    }
+    private final DefaultStringRepresentation formatter = DefaultStringRepresentation.get();
 
     /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
+     * Returns a new rating function which rates a formula by the length of its
+     * {@link DefaultStringRepresentation}.
      */
-    public static DefaultRatingFunction get() {
-        return INSTANCE;
+    public DefaultRatingFunction() {
+        // Intentionally left empty
     }
 
     @Override

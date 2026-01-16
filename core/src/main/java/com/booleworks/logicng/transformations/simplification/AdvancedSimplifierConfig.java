@@ -66,7 +66,7 @@ public class AdvancedSimplifierConfig extends Configuration {
         private boolean factorOut = true;
         private boolean simplifyNegations = true;
         private boolean useRatingFunction = true;
-        private RatingFunction<?> ratingFunction = DefaultRatingFunction.get();
+        private RatingFunction<?> ratingFunction = new DefaultRatingFunction();
         private MaxSatConfig maxSatConfig = MaxSatConfig.CONFIG_OLL;
 
         private Builder() {

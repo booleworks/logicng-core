@@ -17,21 +17,12 @@ import com.booleworks.logicng.formulas.Not;
  */
 public final class ContainsPbcPredicate implements FormulaPredicate {
 
-    private final static ContainsPbcPredicate INSTANCE = new ContainsPbcPredicate();
-
     /**
-     * Private empty constructor. Singleton class.
+     * Constructs a new predicate that tests if a formula contains any
+     * sub-formula that is a pseudo-Boolean constraint.
      */
-    private ContainsPbcPredicate() {
+    public ContainsPbcPredicate() {
         // Intentionally left empty
-    }
-
-    /**
-     * Returns the singleton of the predicate.
-     * @return the predicate instance
-     */
-    public static ContainsPbcPredicate get() {
-        return INSTANCE;
     }
 
     @Override

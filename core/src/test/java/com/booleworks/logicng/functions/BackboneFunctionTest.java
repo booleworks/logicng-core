@@ -46,28 +46,28 @@ public class BackboneFunctionTest {
         final Formula formula2 = f.or(x, z.negate(f));
         final Formula formula3 = f.and(formula1, formula2);
 
-        assertThat(formula1.apply(BackboneFunction.get(f, formula1.variables(f))).getCompleteBackbone(f))
+        assertThat(formula1.apply(new BackboneFunction(f, formula1.variables(f))).getCompleteBackbone(f))
                 .containsExactly(x.negate(f), y);
-        assertThat(formula1.apply(BackboneFunction.get(f, formula1.variables(f), BackboneType.ONLY_NEGATIVE))
+        assertThat(formula1.apply(new BackboneFunction(f, formula1.variables(f), BackboneType.ONLY_NEGATIVE))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f));
-        assertThat(formula1.apply(BackboneFunction.get(f, List.of(x, z)))
+        assertThat(formula1.apply(new BackboneFunction(f, List.of(x, z)))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f));
-        assertThat(formula1.apply(BackboneFunction.get(f, List.of(x, z), BackboneType.ONLY_NEGATIVE))
+        assertThat(formula1.apply(new BackboneFunction(f, List.of(x, z), BackboneType.ONLY_NEGATIVE))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f));
-        assertThat(formula3.apply(BackboneFunction.get(f, formula3.variables(f)))
+        assertThat(formula3.apply(new BackboneFunction(f, formula3.variables(f)))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f), y, z.negate(f));
-        assertThat(formula3.apply(BackboneFunction.get(f, formula3.variables(f), BackboneType.ONLY_NEGATIVE))
+        assertThat(formula3.apply(new BackboneFunction(f, formula3.variables(f), BackboneType.ONLY_NEGATIVE))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f), z.negate(f));
-        assertThat(formula3.apply(BackboneFunction.get(f, new ArrayList<>(Arrays.asList(x, y))))
+        assertThat(formula3.apply(new BackboneFunction(f, new ArrayList<>(Arrays.asList(x, y))))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f), y);
         assertThat(formula3.apply(
-                        BackboneFunction.get(f, new ArrayList<>(Arrays.asList(x, y)), BackboneType.ONLY_NEGATIVE))
+                        new BackboneFunction(f, new ArrayList<>(Arrays.asList(x, y)), BackboneType.ONLY_NEGATIVE))
                 .getCompleteBackbone(f))
                 .containsExactly(x.negate(f));
     }
@@ -309,7 +309,7 @@ public class BackboneFunctionTest {
         for (int numStarts = 0; numStarts < 10; numStarts++) {
             final ComputationHandler handler = new BoundedSatHandler(numStarts);
             final LngResult<Backbone> result =
-                    BackboneFunction.get(f, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE)
+                    new BackboneFunction(f, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE)
                             .apply(formula, handler);
             assertThat(result.isSuccess()).isFalse();
         }

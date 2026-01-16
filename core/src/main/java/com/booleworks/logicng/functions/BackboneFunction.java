@@ -28,10 +28,26 @@ public class BackboneFunction implements FormulaFunction<Backbone> {
     protected final Collection<Variable> variables;
     protected final BackboneType type;
 
-    protected BackboneFunction(final FormulaFactory f, final Collection<Variable> variables, final BackboneType type) {
+    /**
+     * Constructs a new function that computes the backbone of a formula.
+     * @param f         the factory
+     * @param variables the relevant variables
+     * @param type      the backbone type
+     */
+    public BackboneFunction(final FormulaFactory f, final Collection<Variable> variables, final BackboneType type) {
         this.f = f;
         this.variables = variables;
         this.type = type;
+    }
+
+    /**
+     * Constructs a new function that computes the backbone of a formula. The
+     * backbone includes positive and negative literals.
+     * @param f         the factory
+     * @param variables the relevant variables
+     */
+    public BackboneFunction(final FormulaFactory f, final Collection<Variable> variables) {
+        this(f, variables, BackboneType.POSITIVE_AND_NEGATIVE);
     }
 
     @Override
@@ -42,28 +58,5 @@ public class BackboneFunction implements FormulaFunction<Backbone> {
         final Collection<Variable> relevantVariables = variables == null ? formula.variables(f) : variables;
         final BackboneSolverFunction function = BackboneSolverFunction.builder(relevantVariables).type(type).build();
         return solver.execute(function, handler);
-    }
-
-    /**
-     * Get a new backbone function for a collection of variables with backbone
-     * type {@link BackboneType#POSITIVE_AND_NEGATIVE}.
-     * @param f         the formula factory
-     * @param variables the variables included in the backbone
-     * @return a new backbone function
-     */
-    public static BackboneFunction get(final FormulaFactory f, final Collection<Variable> variables) {
-        return new BackboneFunction(f, variables, BackboneType.POSITIVE_AND_NEGATIVE);
-    }
-
-    /**
-     * Get a new backbone function for a collection of variables with the given
-     * backbone type.
-     * @param f         the formula factory
-     * @param variables the variables included in the backbone
-     * @return a new backbone function
-     */
-    public static BackboneFunction get(final FormulaFactory f, final Collection<Variable> variables,
-                                       final BackboneType type) {
-        return new BackboneFunction(f, variables, type);
     }
 }

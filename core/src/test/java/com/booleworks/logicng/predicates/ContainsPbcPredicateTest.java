@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class ContainsPbcPredicateTest extends TestWithFormulaContext {
 
-    private final ContainsPbcPredicate predicate = ContainsPbcPredicate.get();
+    private final ContainsPbcPredicate predicate = new ContainsPbcPredicate();
 
     @ParameterizedTest
     @MethodSource("contexts")

@@ -8,11 +8,16 @@ import com.booleworks.logicng.formulas.CType;
 
 /**
  * The default string representation for formulas.
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class DefaultStringRepresentation extends FormulaStringRepresentation {
+
     private static final DefaultStringRepresentation INSTANCE = new DefaultStringRepresentation();
+
+    DefaultStringRepresentation() {
+        // Intentionally left empty
+    }
 
     /**
      * Returns the singleton instance.

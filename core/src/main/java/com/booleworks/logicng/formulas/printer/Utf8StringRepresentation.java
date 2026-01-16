@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 /**
  * The UTF8 string representation for formulas.
- * @version 1.1
+ * @version 3.0.0
  * @since 1.0
  */
 public final class Utf8StringRepresentation extends FormulaStringRepresentation {

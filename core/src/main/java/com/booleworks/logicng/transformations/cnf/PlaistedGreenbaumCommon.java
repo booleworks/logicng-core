@@ -74,8 +74,8 @@ public abstract class PlaistedGreenbaumCommon<T> {
      */
     public void addCnfToSolver(final Formula formula, final T addendum) {
         final Formula workingFormula = performNnf ? formula.transform(nnfTransformation) : formula;
-        final Formula withoutPbcs = !performNnf && workingFormula.holds(ContainsPbcPredicate.get())
-                ? workingFormula.nnf(f) : workingFormula;
+        final Formula withoutPbcs = !performNnf && workingFormula.holds(new ContainsPbcPredicate())
+                                    ? workingFormula.nnf(f) : workingFormula;
         if (withoutPbcs.isCnf(f)) {
             addCnf(withoutPbcs, addendum);
         } else {

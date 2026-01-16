@@ -88,7 +88,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
             final LngResult<Backbone> backboneResult =
-                    BackboneFunction.get(f, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE)
+                    new BackboneFunction(f, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE)
                             .apply(formula, handler);
             if (!backboneResult.isSuccess()) {
                 return LngResult.canceled(backboneResult.getCancelCause());

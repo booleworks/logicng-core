@@ -37,7 +37,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
      * @param f the formula factory to generate new formulas
      */
     public FactorOutSimplifier(final FormulaFactory f) {
-        this(f, DefaultRatingFunction.get());
+        this(f, new DefaultRatingFunction());
     }
 
     /**
