@@ -12,6 +12,7 @@ module logicng.csp {
     exports com.booleworks.logicng.csp.datastructures;
     exports com.booleworks.logicng.csp.datastructures.domains;
     exports com.booleworks.logicng.csp.functions;
+    exports com.booleworks.logicng.csp.handlers;
     exports com.booleworks.logicng.csp.io.parsers;
     exports com.booleworks.logicng.csp.io.readers;
 }

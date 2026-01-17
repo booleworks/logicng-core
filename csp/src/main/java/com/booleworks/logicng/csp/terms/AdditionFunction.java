@@ -16,7 +16,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class AdditionFunction extends NAryFunction {
+public class AdditionFunction extends NAryFunction {
     /**
      * Constructs a new addition function term.
      * <p>

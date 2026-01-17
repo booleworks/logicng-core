@@ -22,8 +22,8 @@ import java.util.Map;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class OrderValueHook {
-    private OrderValueHook() {
+public class OrderValueHook {
+    protected OrderValueHook() {
     }
 
     /**

@@ -68,29 +68,29 @@ public class CspFactory {
      */
     public static final String AUX_PREFIX = "@AUX_";
 
-    private final IntegerConstant zero;
-    private final IntegerConstant one;
-    private final FormulaFactory formulaFactory;
-    private final Map<Integer, IntegerConstant> integerConstants;
-    private final Map<String, IntegerVariable> integerVariables;
-    private final Map<Term, NegationFunction> unaryMinusTerms;
-    private final Map<LinkedHashSet<Term>, Term> addTerms;
-    private final Map<Pair<Term, Term>, SubtractionFunction> subTerms;
-    private final Map<LinkedHashSet<Term>, MultiplicationFunction> mulTerms;
-    private final Map<Term, AbsoluteFunction> absTerms;
-    private final Map<LinkedHashSet<Term>, MaxFunction> maxTerms;
-    private final Map<LinkedHashSet<Term>, MinFunction> minTerms;
-    private final Map<Pair<Term, Integer>, ModuloFunction> modTerms;
-    private final Map<Pair<Term, Integer>, DivisionFunction> divTerms;
-    private final Map<LinkedHashSet<Term>, ComparisonPredicate> eqPredicates;
-    private final Map<LinkedHashSet<Term>, ComparisonPredicate> nePredicates;
-    private final Map<Pair<Term, Term>, ComparisonPredicate> lePredicates;
-    private final Map<Pair<Term, Term>, ComparisonPredicate> ltPredicates;
-    private final Map<Pair<Term, Term>, ComparisonPredicate> gePredicates;
-    private final Map<Pair<Term, Term>, ComparisonPredicate> gtPredicates;
-    private final Map<LinkedHashSet<Term>, AllDifferentPredicate> allDifferentPredicates;
-    private final Map<String, Integer> auxVarCounters;
-    private final CspParser parser;
+    protected final IntegerConstant zero;
+    protected final IntegerConstant one;
+    protected final FormulaFactory formulaFactory;
+    protected final Map<Integer, IntegerConstant> integerConstants;
+    protected final Map<String, IntegerVariable> integerVariables;
+    protected final Map<Term, NegationFunction> unaryMinusTerms;
+    protected final Map<LinkedHashSet<Term>, Term> addTerms;
+    protected final Map<Pair<Term, Term>, SubtractionFunction> subTerms;
+    protected final Map<LinkedHashSet<Term>, MultiplicationFunction> mulTerms;
+    protected final Map<Term, AbsoluteFunction> absTerms;
+    protected final Map<LinkedHashSet<Term>, MaxFunction> maxTerms;
+    protected final Map<LinkedHashSet<Term>, MinFunction> minTerms;
+    protected final Map<Pair<Term, Integer>, ModuloFunction> modTerms;
+    protected final Map<Pair<Term, Integer>, DivisionFunction> divTerms;
+    protected final Map<LinkedHashSet<Term>, ComparisonPredicate> eqPredicates;
+    protected final Map<LinkedHashSet<Term>, ComparisonPredicate> nePredicates;
+    protected final Map<Pair<Term, Term>, ComparisonPredicate> lePredicates;
+    protected final Map<Pair<Term, Term>, ComparisonPredicate> ltPredicates;
+    protected final Map<Pair<Term, Term>, ComparisonPredicate> gePredicates;
+    protected final Map<Pair<Term, Term>, ComparisonPredicate> gtPredicates;
+    protected final Map<LinkedHashSet<Term>, AllDifferentPredicate> allDifferentPredicates;
+    protected final Map<String, Integer> auxVarCounters;
+    protected final CspParser parser;
 
     /**
      * Constructs a new factory for CSP related constructs. It uses a
@@ -230,7 +230,7 @@ public class CspFactory {
         return variableIntern(name, domain, false);
     }
 
-    private IntegerVariable variableIntern(final String name, final IntegerDomain domain, final boolean aux) {
+    protected IntegerVariable variableIntern(final String name, final IntegerDomain domain, final boolean aux) {
         if (domain.isEmpty()) {
             throw new IllegalArgumentException("Cannot create a variable with an empty domain");
         }
@@ -348,7 +348,7 @@ public class CspFactory {
         return constant(left.getValue() + right.getValue());
     }
 
-    private LinkedHashSet<Term> compactifyAddOperands(final Collection<Term> originalOperands) {
+    protected LinkedHashSet<Term> compactifyAddOperands(final Collection<Term> originalOperands) {
         final LinkedHashMap<Term, Integer> mergedTerms = new LinkedHashMap<>();
         final LinkedHashSet<Term> compactifiedTerms = new LinkedHashSet<>();
         int constValue = 0;
@@ -379,7 +379,7 @@ public class CspFactory {
         return compactifiedTerms;
     }
 
-    private void addOperand(final Term op, final Map<Term, Integer> compactifiedTerms) {
+    protected void addOperand(final Term op, final Map<Term, Integer> compactifiedTerms) {
         if (op instanceof MultiplicationFunction
                 && ((MultiplicationFunction) op).getLeft() instanceof IntegerConstant) {
             final IntegerConstant c = ((IntegerConstant) ((MultiplicationFunction) op).getLeft());
@@ -689,9 +689,9 @@ public class CspFactory {
         return processComparison(left, right, gePredicates, CspPredicate.Type.GE);
     }
 
-    private ComparisonPredicate processComparison(final Term left, final Term right,
-                                                  final Map<Pair<Term, Term>, ComparisonPredicate> cache,
-                                                  final CspPredicate.Type type) {
+    protected ComparisonPredicate processComparison(final Term left, final Term right,
+                                                    final Map<Pair<Term, Term>, ComparisonPredicate> cache,
+                                                    final CspPredicate.Type type) {
         final Pair<Term, Term> operands = new Pair<>(left, right);
         final ComparisonPredicate foundFormula = cache.get(operands);
         if (foundFormula != null) {

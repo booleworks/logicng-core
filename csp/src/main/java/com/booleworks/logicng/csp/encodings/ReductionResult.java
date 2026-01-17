@@ -17,7 +17,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-final class ReductionResult {
+public final class ReductionResult {
     private final Set<IntegerClause> clauses;
     private final List<IntegerVariable> frontierAuxiliaryVariables;
 
@@ -32,7 +32,7 @@ final class ReductionResult {
      *                                   Then the auxiliary variable should be
      *                                   encoded and not the original.
      */
-    ReductionResult(final Set<IntegerClause> clauses, final List<IntegerVariable> frontierAuxiliaryVariables) {
+    public ReductionResult(final Set<IntegerClause> clauses, final List<IntegerVariable> frontierAuxiliaryVariables) {
         this.clauses = clauses;
         this.frontierAuxiliaryVariables = frontierAuxiliaryVariables;
     }

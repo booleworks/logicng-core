@@ -23,7 +23,7 @@ import java.util.List;
  * @since 3.0.0
  */
 public class CspReader {
-    private CspReader() {
+    protected CspReader() {
     }
 
     /**

@@ -34,7 +34,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactOrderReduction {
+public class CompactOrderReduction {
 
     /**
      * Prefix for adjusted variables.
@@ -56,16 +56,16 @@ public final class CompactOrderReduction {
      */
     public static final String AUX_SIMPLE = "COE_SIMPLE";
 
-    private final CompactOrderEncodingContext context;
-    private final CspFactory cf;
-    private final CompactCSPReduction cspReduction;
+    protected final CompactOrderEncodingContext context;
+    protected final CspFactory cf;
+    protected final CompactCSPReduction cspReduction;
 
     /**
      * Constructs a new instance for compact order reduction
      * @param context the encoding context
      * @param cf      the factory
      */
-    CompactOrderReduction(final CompactOrderEncodingContext context, final CspFactory cf) {
+    protected CompactOrderReduction(final CompactOrderEncodingContext context, final CspFactory cf) {
         this.context = context;
         this.cf = cf;
         this.cspReduction = new CompactCSPReduction(context, cf);
@@ -81,14 +81,15 @@ public final class CompactOrderReduction {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    ReductionResult reduce(final Set<IntegerClause> clauses, final Set<IntegerVariable> integerVariables,
-                           final ComputationHandler handler) throws CspHandlerException {
+    protected ReductionResult reduce(final Set<IntegerClause> clauses, final Set<IntegerVariable> integerVariables,
+                                     final ComputationHandler handler) throws CspHandlerException {
         final ReductionResult resultVars = reduceVariables(integerVariables, handler);
         final ReductionResult resultClauses = reduceClauses(clauses, handler);
         return ReductionResult.merge(List.of(resultVars, resultClauses));
     }
 
-    ReductionResult reduceVariables(final Collection<IntegerVariable> variables, final ComputationHandler handler)
+    protected ReductionResult reduceVariables(final Collection<IntegerVariable> variables,
+                                              final ComputationHandler handler)
             throws CspHandlerException {
         final ReductionResult resultAdjust = new ReductionResult(new LinkedHashSet<>(), new ArrayList<>());
         for (final IntegerVariable v : variables) {
@@ -101,7 +102,7 @@ public final class CompactOrderReduction {
         return ReductionResult.merge(List.of(resultCcsp, resultClauses));
     }
 
-    ReductionResult reduceClauses(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected ReductionResult reduceClauses(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final ReductionResult adjustedResult = adjustClauses(clauses);
         final ReductionResult toTernaryResult = toTernary(adjustedResult.getClauses(), handler);
@@ -118,7 +119,7 @@ public final class CompactOrderReduction {
         return cspReduction.toCCSP(simplificationResult, currentVariables, handler);
     }
 
-    private ReductionResult adjustClauses(final Set<IntegerClause> clauses) {
+    protected ReductionResult adjustClauses(final Set<IntegerClause> clauses) {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final List<IntegerVariable> auxiliaryVariables = new ArrayList<>();
         for (final IntegerClause c : clauses) {
@@ -178,8 +179,8 @@ public final class CompactOrderReduction {
         return new ReductionResult(newClauses, auxiliaryVariables);
     }
 
-    private void adjustVariable(final IntegerVariable v, final ReductionResult destination,
-                                final ComputationHandler handler) throws CspHandlerException {
+    protected void adjustVariable(final IntegerVariable v, final ReductionResult destination,
+                                  final ComputationHandler handler) throws CspHandlerException {
         final IntegerVariable adjustedVar;
         if (context.hasAdjustedVariable(v)) {
             adjustedVar = context.getAdjustedVariable(v);
@@ -191,10 +192,10 @@ public final class CompactOrderReduction {
         destination.getFrontierAuxiliaryVariables().add(adjustedVar);
     }
 
-    private IntegerVariable createAdjustedVariable(final IntegerDomain d, final String prefix,
-                                                   final boolean useOffset,
-                                                   final Set<IntegerClause> additionalClauses,
-                                                   final ComputationHandler handler)
+    protected IntegerVariable createAdjustedVariable(final IntegerDomain d, final String prefix,
+                                                     final boolean useOffset,
+                                                     final Set<IntegerClause> additionalClauses,
+                                                     final ComputationHandler handler)
             throws CspHandlerException {
         final int offset = d.lb();
         final IntegerVariable newVar;
@@ -239,7 +240,7 @@ public final class CompactOrderReduction {
         return newVar;
     }
 
-    private ReductionResult toTernary(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected ReductionResult toTernary(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final List<IntegerVariable> auxiliaryVariables = new ArrayList<>();
@@ -265,10 +266,10 @@ public final class CompactOrderReduction {
         return new ReductionResult(newClauses, auxiliaryVariables);
     }
 
-    private LinearExpression.Builder simplifyToTernary(final LinearExpression.Builder exp,
-                                                       final Set<IntegerClause> clauses,
-                                                       final List<IntegerVariable> auxiliaryVariables,
-                                                       final ComputationHandler handler)
+    protected LinearExpression.Builder simplifyToTernary(final LinearExpression.Builder exp,
+                                                         final Set<IntegerClause> clauses,
+                                                         final List<IntegerVariable> auxiliaryVariables,
+                                                         final ComputationHandler handler)
             throws CspHandlerException {
         if (exp.size() <= 3) {
             return exp;
@@ -315,10 +316,10 @@ public final class CompactOrderReduction {
         return e;
     }
 
-    private LinearExpression.Builder simplifyToTernaryExpression(final LinearExpression.Builder exp,
-                                                                 final Set<IntegerClause> clauses,
-                                                                 final List<IntegerVariable> auxiliaryVariables,
-                                                                 final ComputationHandler handler)
+    protected LinearExpression.Builder simplifyToTernaryExpression(final LinearExpression.Builder exp,
+                                                                   final Set<IntegerClause> clauses,
+                                                                   final List<IntegerVariable> auxiliaryVariables,
+                                                                   final ComputationHandler handler)
             throws CspHandlerException {
         final int factor = exp.factor();
         final LinearExpression.Builder normalized = exp.normalize();
@@ -341,7 +342,7 @@ public final class CompactOrderReduction {
         return simplified;
     }
 
-    private ReductionResult toRcsp(final Set<IntegerClause> clauses) {
+    protected ReductionResult toRcsp(final Set<IntegerClause> clauses) {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final List<IntegerVariable> auxiliaryVariables = new ArrayList<>();
         for (final IntegerClause c : clauses) {
@@ -493,9 +494,9 @@ public final class CompactOrderReduction {
         return new ReductionResult(newClauses, auxiliaryVariables);
     }
 
-    private LinearExpression.Builder simplifyForRCSP(final LinearExpression.Builder e,
-                                                     final Set<IntegerClause> clauses, final int maxlen,
-                                                     final List<IntegerVariable> auxiliaryVariables) {
+    protected LinearExpression.Builder simplifyForRCSP(final LinearExpression.Builder e,
+                                                       final Set<IntegerClause> clauses, final int maxlen,
+                                                       final List<IntegerVariable> auxiliaryVariables) {
         final int esize = e.size() + (e.getB() == 0 ? 0 : 1);
         if (esize <= maxlen) {
             return e;
@@ -541,7 +542,7 @@ public final class CompactOrderReduction {
         }
     }
 
-    private List<IntegerHolder> getHolders(final LinearExpression.Builder e) {
+    protected List<IntegerHolder> getHolders(final LinearExpression.Builder e) {
         final List<IntegerHolder> ret = new ArrayList<>(e.getVariables());
         if (e.size() == 0 || e.getB() > 0) {
             ret.add(cf.constant(e.getB()));
@@ -549,7 +550,7 @@ public final class CompactOrderReduction {
         return ret;
     }
 
-    private Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final LinkedHashSet<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause clause : clauses) {

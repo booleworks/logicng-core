@@ -24,8 +24,8 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspModelCounting {
-    private CspModelCounting() {
+public class CspModelCounting {
+    protected CspModelCounting() {
     }
 
     /**

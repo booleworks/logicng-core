@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class AllDifferentPredicate extends CspPredicate {
 
-    final private List<Term> terms;
+    final protected List<Term> terms;
 
     /**
      * Constructs a new all-different predicate.

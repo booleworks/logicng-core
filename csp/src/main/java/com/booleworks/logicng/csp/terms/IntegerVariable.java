@@ -16,10 +16,10 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class IntegerVariable extends Term implements IntegerHolder {
-    private final String name;
-    private final IntegerDomain domain;
-    private final boolean aux;
+public class IntegerVariable extends Term implements IntegerHolder {
+    protected final String name;
+    protected final IntegerDomain domain;
+    protected final boolean aux;
 
     /**
      * Generates a new variable in a given domain.

@@ -20,8 +20,8 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspDecomposition {
-    private CspDecomposition() {
+public class CspDecomposition {
+    protected CspDecomposition() {
     }
 
     /**
@@ -37,8 +37,8 @@ public final class CspDecomposition {
         return CspPredicate.Decomposition.merge(decompositions);
     }
 
-    private static void decomposeRecursive(final Formula formula, final CspFactory cf,
-                                           final Set<CspPredicate.Decomposition> decompositions) {
+    protected static void decomposeRecursive(final Formula formula, final CspFactory cf,
+                                             final Set<CspPredicate.Decomposition> decompositions) {
         switch (formula.getType()) {
             case FALSE:
                 decompositions.add(CspPredicate.Decomposition.emptyClause());

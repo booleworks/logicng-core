@@ -22,9 +22,9 @@ import java.util.Collections;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class OrderDecoding {
-    private final OrderEncodingContext context;
-    private final CspFactory cf;
+public class OrderDecoding {
+    protected final OrderEncodingContext context;
+    protected final CspFactory cf;
 
     /**
      * Constructs a new order decoding instance.
@@ -123,7 +123,8 @@ public final class OrderDecoding {
      * @param context the context
      * @return the decoded value
      */
-    static int decodeIntVar(final IntegerVariable var, final Assignment model, final OrderEncodingContext context) {
+    protected static int decodeIntVar(final IntegerVariable var, final Assignment model,
+                                      final OrderEncodingContext context) {
         final IntegerDomain domain = var.getDomain();
         final int lb = domain.lb();
         final int ub = domain.ub();

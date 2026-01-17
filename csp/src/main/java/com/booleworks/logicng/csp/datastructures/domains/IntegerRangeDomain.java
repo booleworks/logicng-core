@@ -14,14 +14,14 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-final class IntegerRangeDomain extends IntegerDomain {
+public class IntegerRangeDomain extends IntegerDomain {
 
     /**
      * Constructs a new integer range domain with a lower and an upper bound.
      * @param lb the lower bound
      * @param ub the upper bound
      */
-    IntegerRangeDomain(final int lb, final int ub) {
+    protected IntegerRangeDomain(final int lb, final int ub) {
         super(lb, ub);
     }
 

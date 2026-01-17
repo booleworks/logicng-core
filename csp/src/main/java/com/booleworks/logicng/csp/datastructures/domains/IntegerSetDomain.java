@@ -15,14 +15,14 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-final class IntegerSetDomain extends IntegerDomain {
-    private final SortedSet<Integer> values;
+public class IntegerSetDomain extends IntegerDomain {
+    protected final SortedSet<Integer> values;
 
     /**
      * Constructs a new integer set domain with the given values.
      * @param values the values
      */
-    IntegerSetDomain(final SortedSet<Integer> values) {
+    protected IntegerSetDomain(final SortedSet<Integer> values) {
         super(values.first(), values.last());
         this.values = values;
     }

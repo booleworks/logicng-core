@@ -22,8 +22,8 @@ import java.util.Set;
  * @since 3.0.0
  */
 public class OpAdd implements RCSPLiteral {
-    private final IntegerHolder z, x, y;
-    private final Operator op;
+    protected final IntegerHolder z, x, y;
+    protected final Operator op;
 
     /**
      * Constructs new addition relation:

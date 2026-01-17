@@ -28,16 +28,16 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class OrderEncodingContext implements CspEncodingContext {
-    private final Map<IntegerVariable, Variable[]> variableMap;
-    private final List<Variable> simplifyBoolVariables;
-    private final List<IntegerVariable> simplifyIntVariables;
-    private final boolean preserve_model_count;
+public class OrderEncodingContext implements CspEncodingContext {
+    protected final Map<IntegerVariable, Variable[]> variableMap;
+    protected final List<Variable> simplifyBoolVariables;
+    protected final List<IntegerVariable> simplifyIntVariables;
+    protected final boolean preserve_model_count;
 
     /**
      * Constructs a new encoding context for order encoding.
      */
-    OrderEncodingContext(final boolean preserve_model_count) {
+    protected OrderEncodingContext(final boolean preserve_model_count) {
         this.variableMap = new LinkedHashMap<>();
         this.simplifyBoolVariables = new ArrayList<>();
         this.simplifyIntVariables = new ArrayList<>();
@@ -75,7 +75,7 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @param cf     the factory
      * @return new auxiliary variable
      */
-    IntegerVariable newSimplifyIntVariable(final IntegerDomain domain, final CspFactory cf) {
+    protected IntegerVariable newSimplifyIntVariable(final IntegerDomain domain, final CspFactory cf) {
         final IntegerVariable var = cf.auxVariable(OrderReduction.AUX_SIMPLE, domain);
         this.simplifyIntVariables.add(var);
         return var;
@@ -90,7 +90,7 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    Variable newSimplifyBooleanVariable(final FormulaFactory f, final ComputationHandler handler)
+    protected Variable newSimplifyBooleanVariable(final FormulaFactory f, final ComputationHandler handler)
             throws CspHandlerException {
         if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
             throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
@@ -100,7 +100,7 @@ public final class OrderEncodingContext implements CspEncodingContext {
         return var;
     }
 
-    boolean allocateVariable(final IntegerVariable group, final int size) {
+    protected boolean allocateVariable(final IntegerVariable group, final int size) {
         if (variableMap.containsKey(group)) {
             return false;
         } else {
@@ -121,8 +121,8 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f, final
-    ComputationHandler handler) throws CspHandlerException {
+    protected Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f,
+                                           final ComputationHandler handler) throws CspHandlerException {
         final Variable[] intMap = this.variableMap.get(group);
         assert index < intMap.length;
         if (intMap[index] == null) {
@@ -141,7 +141,7 @@ public final class OrderEncodingContext implements CspEncodingContext {
      * @param index the queried index
      * @return the boolean variable
      */
-    Variable getVariableInstance(final IntegerVariable group, final int index) {
+    protected Variable getVariableInstance(final IntegerVariable group, final int index) {
         final Variable[] intMap = this.variableMap.get(group);
         assert index < intMap.length;
         return intMap[index];

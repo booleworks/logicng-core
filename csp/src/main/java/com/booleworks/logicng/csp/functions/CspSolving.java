@@ -31,8 +31,8 @@ import java.util.Optional;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspSolving {
-    private CspSolving() {
+public class CspSolving {
+    protected CspSolving() {
     }
 
     /**
@@ -321,9 +321,10 @@ public final class CspSolving {
         }
     }
 
-    private static SatCallBuilder setupSatCall(final SatSolver solver, final Map<IntegerVariable, Integer> restrictions,
-                                               final ComputationHandler handler, final CspEncodingContext context,
-                                               final CspFactory cf) {
+    protected static SatCallBuilder setupSatCall(final SatSolver solver,
+                                                 final Map<IntegerVariable, Integer> restrictions,
+                                                 final ComputationHandler handler, final CspEncodingContext context,
+                                                 final CspFactory cf) {
         final SatCallBuilder scb = solver.satCall();
         if (handler != null) {
             scb.handler(handler);

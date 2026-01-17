@@ -17,15 +17,15 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class Csp {
-    private Set<IntegerVariable> visibleIntegerVariables;
-    private Set<IntegerVariable> internalIntegerVariables;
-    private Set<Variable> visibleBooleanVariables;
-    private Set<Variable> internalBooleanVariables;
-    private IntegerVariableSubstitution propagateSubstitutions;
-    private Set<IntegerClause> clauses;
+public class Csp {
+    protected Set<IntegerVariable> visibleIntegerVariables;
+    protected Set<IntegerVariable> internalIntegerVariables;
+    protected Set<Variable> visibleBooleanVariables;
+    protected Set<Variable> internalBooleanVariables;
+    protected IntegerVariableSubstitution propagateSubstitutions;
+    protected Set<IntegerClause> clauses;
 
-    private Csp() {
+    protected Csp() {
         this.internalIntegerVariables = new LinkedHashSet<>();
         this.visibleIntegerVariables = new LinkedHashSet<>();
         this.internalBooleanVariables = new LinkedHashSet<>();
@@ -34,7 +34,7 @@ public final class Csp {
         this.propagateSubstitutions = new IntegerVariableSubstitution();
     }
 
-    private Csp(final Csp other) {
+    protected Csp(final Csp other) {
         this.internalIntegerVariables = new LinkedHashSet<>(other.internalIntegerVariables);
         this.visibleIntegerVariables = new LinkedHashSet<>(other.visibleIntegerVariables);
         this.internalBooleanVariables = new LinkedHashSet<>(other.internalBooleanVariables);

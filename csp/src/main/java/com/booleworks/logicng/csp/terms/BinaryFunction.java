@@ -28,7 +28,7 @@ public abstract class BinaryFunction extends Function {
      * @param left  the left operand
      * @param right the right operand
      */
-    BinaryFunction(final Term.Type type, final Term left, final Term right) {
+    protected BinaryFunction(final Term.Type type, final Term left, final Term right) {
         super(type);
         this.left = left;
         this.right = right;

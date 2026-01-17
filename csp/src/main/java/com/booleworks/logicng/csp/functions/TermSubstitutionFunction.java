@@ -31,8 +31,8 @@ import java.util.Map;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class TermSubstitutionFunction {
-    private TermSubstitutionFunction() {
+public class TermSubstitutionFunction {
+    protected TermSubstitutionFunction() {
     }
 
     /**

@@ -18,8 +18,8 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspUtil {
-    private CspUtil() {
+public class CspUtil {
+    protected CspUtil() {
     }
 
     /**

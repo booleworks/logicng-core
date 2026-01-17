@@ -28,27 +28,27 @@ import java.util.stream.Stream;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactOrderEncodingContext implements CspEncodingContext {
-    private final OrderEncodingContext orderContext;
-    private final int base;
-    private final Map<IntegerVariable, List<IntegerVariable>> digits;
-    private final Map<IntegerConstant, List<Integer>> constDigits;
-    private final List<IntegerVariable> auxiliaryDigitVariables;
-    private final Map<IntegerVariable, Integer> offsets;
-    private final IntegerVariableSubstitution adjustedVariablesSubstitution;
-    private final List<IntegerVariable> adjustedVariables;
-    private final List<Variable> adjustedBoolVariables;
-    private final List<IntegerVariable> ternarySimplificationVariables;
-    private final List<IntegerVariable> rcspVariables;
-    private final List<IntegerVariable> ccspVariables;
-    private final List<Variable> ccspBoolVariables;
+public class CompactOrderEncodingContext implements CspEncodingContext {
+    protected final OrderEncodingContext orderContext;
+    protected final int base;
+    protected final Map<IntegerVariable, List<IntegerVariable>> digits;
+    protected final Map<IntegerConstant, List<Integer>> constDigits;
+    protected final List<IntegerVariable> auxiliaryDigitVariables;
+    protected final Map<IntegerVariable, Integer> offsets;
+    protected final IntegerVariableSubstitution adjustedVariablesSubstitution;
+    protected final List<IntegerVariable> adjustedVariables;
+    protected final List<Variable> adjustedBoolVariables;
+    protected final List<IntegerVariable> ternarySimplificationVariables;
+    protected final List<IntegerVariable> rcspVariables;
+    protected final List<IntegerVariable> ccspVariables;
+    protected final List<Variable> ccspBoolVariables;
 
     /**
      * Constructs a new encoding context for compact order encoding for a given
      * base.
      * @param base the base of the context
      */
-    CompactOrderEncodingContext(final int base) {
+    protected CompactOrderEncodingContext(final int base) {
         this.base = base;
         this.orderContext = CspEncodingContext.order();
         this.digits = new HashMap<>();
@@ -108,7 +108,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param cf the factory
      * @return the integer variable representing a digit.
      */
-    IntegerVariable newAuxiliaryDigitVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newAuxiliaryDigitVariable(final IntegerDomain d, final CspFactory cf) {
         final IntegerVariable v = cf.auxVariable(CompactCSPReduction.AUX_DIGIT, d);
         auxiliaryDigitVariables.add(v);
         return v;
@@ -212,7 +212,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param cf     the factory
      * @return the new variable
      */
-    IntegerVariable newAdjustedVariable(final String prefix, final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newAdjustedVariable(final String prefix, final IntegerDomain d, final CspFactory cf) {
         final IntegerVariable v = cf.auxVariable(prefix, d);
         adjustedVariables.add(v);
         return v;
@@ -231,11 +231,11 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param original   the original variable
      * @param substitute the adjusted variable
      */
-    void addAdjustedVariable(final IntegerVariable original, final IntegerVariable substitute) {
+    protected void addAdjustedVariable(final IntegerVariable original, final IntegerVariable substitute) {
         adjustedVariablesSubstitution.add(original, substitute);
     }
 
-    boolean hasAdjustedVariable(final IntegerVariable original) {
+    protected boolean hasAdjustedVariable(final IntegerVariable original) {
         return adjustedVariablesSubstitution.containsKey(original);
     }
 
@@ -284,7 +284,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    Variable newAdjustedBoolVariable(final FormulaFactory f, final ComputationHandler handler)
+    protected Variable newAdjustedBoolVariable(final FormulaFactory f, final ComputationHandler handler)
             throws CspHandlerException {
         if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
             throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
@@ -309,7 +309,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param cf the factory
      * @return the auxiliary variable
      */
-    IntegerVariable newTernarySimplificationVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newTernarySimplificationVariable(final IntegerDomain d, final CspFactory cf) {
         final IntegerVariable v = cf.auxVariable(CompactOrderReduction.AUX_TERNARY, d);
         ternarySimplificationVariables.add(v);
         return v;
@@ -332,7 +332,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param cf the factory
      * @return the auxiliary variable
      */
-    IntegerVariable newRCSPVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newRCSPVariable(final IntegerDomain d, final CspFactory cf) {
         final IntegerVariable v = cf.auxVariable(CompactOrderReduction.AUX_RCSP, d);
         rcspVariables.add(v);
         return v;
@@ -352,7 +352,7 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @param cf the factory
      * @return new auxiliary variable
      */
-    IntegerVariable newCCSPVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newCCSPVariable(final IntegerDomain d, final CspFactory cf) {
         final IntegerVariable v = cf.auxVariable(CompactCSPReduction.AUX_CCSP, d);
         ccspVariables.add(v);
         return v;
@@ -374,7 +374,8 @@ public final class CompactOrderEncodingContext implements CspEncodingContext {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    Variable newCCSPBoolVariable(final FormulaFactory f, final ComputationHandler handler) throws CspHandlerException {
+    protected Variable newCCSPBoolVariable(final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
         if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
             throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
         }

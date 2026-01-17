@@ -33,16 +33,16 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspBackboneGeneration {
-    private final BackboneType type;
-    private final Collection<IntegerVariable> integerVariables;
-    private final Collection<Variable> booleanVariables;
-    private final CspFactory cf;
+public class CspBackboneGeneration {
+    protected final BackboneType type;
+    protected final Collection<IntegerVariable> integerVariables;
+    protected final Collection<Variable> booleanVariables;
+    protected final CspFactory cf;
 
-    private CspBackboneGeneration(final BackboneType type,
-                                  final Collection<IntegerVariable> integerVariables,
-                                  final Collection<Variable> booleanVariables,
-                                  final CspFactory cf) {
+    protected CspBackboneGeneration(final BackboneType type,
+                                    final Collection<IntegerVariable> integerVariables,
+                                    final Collection<Variable> booleanVariables,
+                                    final CspFactory cf) {
         this.type = type;
         this.integerVariables = integerVariables;
         this.booleanVariables = booleanVariables;
@@ -201,7 +201,7 @@ public final class CspBackboneGeneration {
         return LngResult.of(CspBackbone.satBackbone(mandatoryMap, forbiddenMap, filteredBackbone));
     }
 
-    private static Backbone filterBackbone(final Backbone backbone, final Collection<Variable> relevantVariables) {
+    protected static Backbone filterBackbone(final Backbone backbone, final Collection<Variable> relevantVariables) {
         return Backbone.satBackbone(
                 backbone.getPositiveBackbone().stream().filter(relevantVariables::contains)
                         .collect(Collectors.toCollection(TreeSet::new)),

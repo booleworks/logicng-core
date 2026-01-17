@@ -27,7 +27,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class OrderReduction {
+public class OrderReduction {
     /**
      * Maximum domain size for linear expressions before they get simplified.
      */
@@ -43,10 +43,10 @@ public final class OrderReduction {
      */
     public static final String AUX_SIMPLE = "OE_SIMPLE";
 
-    private final CspFactory cf;
-    private final OrderEncodingContext context;
+    protected final CspFactory cf;
+    protected final OrderEncodingContext context;
 
-    OrderReduction(final OrderEncodingContext context, final CspFactory cf) {
+    protected OrderReduction(final OrderEncodingContext context, final CspFactory cf) {
         this.context = context;
         this.cf = cf;
     }
@@ -60,14 +60,15 @@ public final class OrderReduction {
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    ReductionResult reduce(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected ReductionResult reduce(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final List<IntegerVariable> auxVars = new ArrayList<>();
         final Set<IntegerClause> newClauses = toLinearLe(simplify(split(clauses, auxVars), handler), handler);
         return new ReductionResult(newClauses, auxVars);
     }
 
-    private Set<IntegerClause> split(final Set<IntegerClause> clauses, final List<IntegerVariable> newFrontierAuxVars) {
+    protected Set<IntegerClause> split(final Set<IntegerClause> clauses,
+                                       final List<IntegerVariable> newFrontierAuxVars) {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause c : clauses) {
             final Set<ArithmeticLiteral> newArithLits = new LinkedHashSet<>();
@@ -87,7 +88,7 @@ public final class OrderReduction {
         return newClauses;
     }
 
-    private Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause clause : clauses) {
@@ -102,7 +103,7 @@ public final class OrderReduction {
         return newClauses;
     }
 
-    private Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final ComputationHandler handler)
+    protected Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final ComputationHandler handler)
             throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause c : clauses) {
@@ -135,10 +136,10 @@ public final class OrderReduction {
         return newClauses;
     }
 
-    private Set<IntegerClause> reduceLinearLiteralToLinearLE(final LinearLiteral literal,
-                                                             final Set<ArithmeticLiteral> simpleLiterals,
-                                                             final Set<Literal> boolLiterals,
-                                                             final ComputationHandler handler)
+    protected Set<IntegerClause> reduceLinearLiteralToLinearLE(final LinearLiteral literal,
+                                                               final Set<ArithmeticLiteral> simpleLiterals,
+                                                               final Set<Literal> boolLiterals,
+                                                               final ComputationHandler handler)
             throws CspHandlerException {
         switch (literal.getOperator()) {
             case LE:
@@ -173,9 +174,9 @@ public final class OrderReduction {
         }
     }
 
-    private Set<IntegerClause> reduceProductLiteralToLinearLE(final ProductLiteral literal,
-                                                              final Set<ArithmeticLiteral> simpleLiterals,
-                                                              final Set<Literal> boolLiterals) {
+    protected Set<IntegerClause> reduceProductLiteralToLinearLE(final ProductLiteral literal,
+                                                                final Set<ArithmeticLiteral> simpleLiterals,
+                                                                final Set<Literal> boolLiterals) {
         final Set<IntegerClause> ret = new LinkedHashSet<>();
         final IntegerVariable v = literal.getV();
         final IntegerVariable v1 = literal.getV1();
@@ -210,8 +211,8 @@ public final class OrderReduction {
         return ret;
     }
 
-    private Set<IntegerClause> simplifyClause(final IntegerClause clause, final Set<Literal> initBoolLiterals,
-                                              final ComputationHandler handler) throws CspHandlerException {
+    protected Set<IntegerClause> simplifyClause(final IntegerClause clause, final Set<Literal> initBoolLiterals,
+                                                final ComputationHandler handler) throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final Set<ArithmeticLiteral> newArithLiterals = new LinkedHashSet<>();
         final Set<Literal> newBoolLiterals = new LinkedHashSet<>(initBoolLiterals);
@@ -238,10 +239,10 @@ public final class OrderReduction {
         return newClauses;
     }
 
-    private LinearExpression.Builder simplifyLinearExpression(final LinearExpression.Builder exp,
-                                                              final boolean first,
-                                                              final Set<IntegerClause> clauses,
-                                                              final List<IntegerVariable> newFrontierAuxVars) {
+    protected LinearExpression.Builder simplifyLinearExpression(final LinearExpression.Builder exp,
+                                                                final boolean first,
+                                                                final Set<IntegerClause> clauses,
+                                                                final List<IntegerVariable> newFrontierAuxVars) {
         if (exp.size() <= 1 || !exp.isDomainLargerThan(MAX_LINEAR_EXPRESSION_SIZE)) {
             return exp;
         }
@@ -278,7 +279,7 @@ public final class OrderReduction {
      * @param m   the number of new linear expressions
      * @return an array with the new linear expressions
      */
-    static LinearExpression.Builder[] split(final LinearExpression exp, final int m) {
+    protected static LinearExpression.Builder[] split(final LinearExpression exp, final int m) {
         final LinearExpression.Builder[] es = new LinearExpression.Builder[m];
         for (int i = 0; i < m; ++i) {
             es[i] = LinearExpression.builder(0);

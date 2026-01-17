@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspValueHookEncoding {
-    private CspValueHookEncoding() {
+public class CspValueHookEncoding {
+    protected CspValueHookEncoding() {
     }
 
     /**

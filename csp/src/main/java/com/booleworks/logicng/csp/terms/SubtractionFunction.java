@@ -16,7 +16,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class SubtractionFunction extends BinaryFunction {
+public class SubtractionFunction extends BinaryFunction {
     /**
      * Constructs a new subtraction function term.
      * <p>

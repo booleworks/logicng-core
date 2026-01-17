@@ -24,8 +24,9 @@ import java.util.Map;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactOrderValueHook {
-    private CompactOrderValueHook() {
+public class CompactOrderValueHook {
+
+    protected CompactOrderValueHook() {
     }
 
     /**

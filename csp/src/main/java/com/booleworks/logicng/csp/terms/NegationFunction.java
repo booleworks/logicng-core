@@ -11,7 +11,7 @@ import com.booleworks.logicng.csp.datastructures.LinearExpression;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class NegationFunction extends UnaryFunction {
+public class NegationFunction extends UnaryFunction {
 
     /**
      * Constructs a new negation function term.

@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspPropagation {
+public class CspPropagation {
     /**
      * Prefix for auxiliary variables introduced by the propagation.
      */
     public static String BOUNDED_AUX_VAR = "PROPAGATION";
 
-    private CspPropagation() {
+    protected CspPropagation() {
     }
 
     /**
@@ -68,8 +68,8 @@ public final class CspPropagation {
         }
     }
 
-    private static boolean calculateNewBounds(final IntegerClause clause,
-                                              final IntegerVariableSubstitution restrictions, final CspFactory cf) {
+    protected static boolean calculateNewBounds(final IntegerClause clause,
+                                                final IntegerVariableSubstitution restrictions, final CspFactory cf) {
         boolean changed = false;
         for (final IntegerVariable v : clause.getCommonVariables()) {
             assert clause.getBoolLiterals().isEmpty();
@@ -104,8 +104,8 @@ public final class CspPropagation {
         return changed;
     }
 
-    private static IntegerClause rebuildClause(final IntegerClause clause,
-                                               final IntegerVariableSubstitution assignment) {
+    protected static IntegerClause rebuildClause(final IntegerClause clause,
+                                                 final IntegerVariableSubstitution assignment) {
         final LinkedHashSet<ArithmeticLiteral> newLits = clause.getArithmeticLiterals().stream()
                 .map(l -> l.substitute(assignment))
                 .filter(Objects::nonNull)
@@ -118,8 +118,8 @@ public final class CspPropagation {
         }
     }
 
-    private static IntegerVariable boundVariable(final IntegerVariable variable, final int lb, final int ub,
-                                                 final CspFactory cf) {
+    protected static IntegerVariable boundVariable(final IntegerVariable variable, final int lb, final int ub,
+                                                   final CspFactory cf) {
         final IntegerDomain d = variable.getDomain().bound(lb, ub);
         if (d == variable.getDomain()) {
             return variable;
@@ -127,8 +127,8 @@ public final class CspPropagation {
         return cf.auxVariable(BOUNDED_AUX_VAR, variable.getName(), d);
     }
 
-    private static int[] getBound(final ArithmeticLiteral literal, final IntegerVariable v,
-                                  final IntegerVariableSubstitution restrictions) {
+    protected static int[] getBound(final ArithmeticLiteral literal, final IntegerVariable v,
+                                    final IntegerVariableSubstitution restrictions) {
         if (literal instanceof LinearLiteral) {
             final LinearLiteral l = (LinearLiteral) literal;
             final int a = l.getSum().getA(v);
@@ -167,7 +167,7 @@ public final class CspPropagation {
     /**
      * ceil(b/a)
      */
-    private static int divceil(final int b, final int a) {
+    protected static int divceil(final int b, final int a) {
         if ((a >= 0 && b >= 0) ||
                 (a < 0 && b < 0)) {
             return b / a;
@@ -181,7 +181,7 @@ public final class CspPropagation {
     /**
      * floor(b/a)
      */
-    private static int divfloor(final int b, final int a) {
+    protected static int divfloor(final int b, final int a) {
         if (a >= 0 && b >= 0) {
             return b / a;
         } else if (a < 0 && b < 0) {

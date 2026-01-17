@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CspModelEnumeration {
-    private CspModelEnumeration() {
+public class CspModelEnumeration {
+    protected CspModelEnumeration() {
     }
 
     /**
@@ -133,8 +133,8 @@ public final class CspModelEnumeration {
         }
     }
 
-    private static List<CspAssignment> enumerateAdditionalVariables(final List<CspAssignment> decodedModels,
-                                                                    final List<IntegerVariable> integerVariables) {
+    protected static List<CspAssignment> enumerateAdditionalVariables(final List<CspAssignment> decodedModels,
+                                                                      final List<IntegerVariable> integerVariables) {
         final List<Iterator<Integer>> iterators =
                 integerVariables.stream().map(v -> v.getDomain().iterator()).collect(Collectors.toList());
         final List<Integer> values =

@@ -32,7 +32,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactCSPReduction {
+public class CompactCSPReduction {
     /**
      * Prefix for CCSP auxiliary variables.
      */
@@ -43,8 +43,8 @@ public final class CompactCSPReduction {
      */
     public static final String AUX_DIGIT = "COE_DIGIT";
 
-    private final CompactOrderEncodingContext context;
-    private final CspFactory cf;
+    protected final CompactOrderEncodingContext context;
+    protected final CspFactory cf;
 
     /**
      * Constructs a new instance for compact order reduction.

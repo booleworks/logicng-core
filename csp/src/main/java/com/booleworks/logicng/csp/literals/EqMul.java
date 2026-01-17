@@ -23,8 +23,8 @@ import java.util.Set;
  * @since 3.0.0
  */
 public class EqMul implements RCSPLiteral {
-    private final IntegerHolder z, x;
-    private final IntegerVariable y;
+    protected final IntegerHolder z, x;
+    protected final IntegerVariable y;
 
     /**
      * Construct new EQ-MUL literal: {@code z = x * y}

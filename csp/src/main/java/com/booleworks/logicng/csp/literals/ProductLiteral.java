@@ -18,9 +18,9 @@ import java.util.Set;
  * @since 3.0.0
  */
 public class ProductLiteral implements ArithmeticLiteral {
-    private final IntegerVariable v;
-    private final IntegerVariable v1;
-    private final IntegerVariable v2;
+    protected final IntegerVariable v;
+    protected final IntegerVariable v1;
+    protected final IntegerVariable v2;
 
     /**
      * Construct new product literal: {@code v = v1 * v2}

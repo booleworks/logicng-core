@@ -15,8 +15,8 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class IntegerConstant extends Term implements IntegerHolder {
-    private final int value;
+public class IntegerConstant extends Term implements IntegerHolder {
+    protected final int value;
 
     /**
      * Constructs a new integer constant.

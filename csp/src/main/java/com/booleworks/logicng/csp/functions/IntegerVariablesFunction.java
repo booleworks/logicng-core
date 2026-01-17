@@ -19,10 +19,10 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class IntegerVariablesFunction implements FormulaFunction<SortedSet<IntegerVariable>> {
-    private final SortedSet<IntegerVariable> variables;
+public class IntegerVariablesFunction implements FormulaFunction<SortedSet<IntegerVariable>> {
+    protected final SortedSet<IntegerVariable> variables;
 
-    private IntegerVariablesFunction(final SortedSet<IntegerVariable> variables) {
+    protected IntegerVariablesFunction(final SortedSet<IntegerVariable> variables) {
         this.variables = variables;
     }
 

@@ -18,8 +18,8 @@ import java.util.Set;
  * @since 3.0.0
  */
 public class LinearLiteral implements ArithmeticLiteral {
-    private final LinearExpression sum;
-    private final Operator op;
+    protected final LinearExpression sum;
+    protected final Operator op;
 
     /**
      * Construct new linear literal: {@code c_1 * a_1 + ... c_n * a_n <= 0}

@@ -19,7 +19,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class MultiplicationFunction extends BinaryFunction {
+public class MultiplicationFunction extends BinaryFunction {
     /**
      * Prefix for auxiliary variables introduced by the decomposition.
      */
@@ -63,11 +63,11 @@ public final class MultiplicationFunction extends BinaryFunction {
         }
     }
 
-    private Decomposition decomposeNonConstantMultiplication(final Term left, final Term right,
-                                                             final Set<IntegerClause> additionalClauses,
-                                                             final Set<IntegerVariable> additionalIntegerVariables,
-                                                             final Set<Variable> additionalBooleanVariables,
-                                                             final CspFactory cf) {
+    protected Decomposition decomposeNonConstantMultiplication(final Term left, final Term right,
+                                                               final Set<IntegerClause> additionalClauses,
+                                                               final Set<IntegerVariable> additionalIntegerVariables,
+                                                               final Set<Variable> additionalBooleanVariables,
+                                                               final CspFactory cf) {
         final Decomposition resultLeft = left.decompose(cf);
         final Decomposition resultRight = right.decompose(cf);
         final IntegerDomain domainLeft = resultLeft.getLinearExpression().getDomain();
@@ -93,11 +93,11 @@ public final class MultiplicationFunction extends BinaryFunction {
                 additionalBooleanVariables);
     }
 
-    private IntegerVariable simplifyTerm(final Term term,
-                                         final Set<IntegerClause> additionalClauses,
-                                         final Set<IntegerVariable> additionalIntegerVariables,
-                                         final Set<Variable> additionalBooleanVariables,
-                                         final CspFactory cf) {
+    protected IntegerVariable simplifyTerm(final Term term,
+                                           final Set<IntegerClause> additionalClauses,
+                                           final Set<IntegerVariable> additionalIntegerVariables,
+                                           final Set<Variable> additionalBooleanVariables,
+                                           final CspFactory cf) {
         final Decomposition decomp = term.decompose(cf);
         final IntegerDomain domain = decomp.getLinearExpression().getDomain();
         final IntegerVariable atom;

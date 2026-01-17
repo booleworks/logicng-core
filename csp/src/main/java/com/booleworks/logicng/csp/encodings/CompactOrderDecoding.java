@@ -26,9 +26,9 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactOrderDecoding {
-    private final CspFactory cf;
-    private final CompactOrderEncodingContext context;
+public class CompactOrderDecoding {
+    protected final CspFactory cf;
+    protected final CompactOrderEncodingContext context;
 
     /**
      * Constructs a new instance for compact order decoding.

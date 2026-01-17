@@ -26,11 +26,11 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class CompactOrderEncoding {
+public class CompactOrderEncoding {
 
-    private final CompactOrderEncodingContext context;
-    private final CompactOrderReduction reductionObject;
-    private final OrderEncoding orderEncodingObject;
+    protected final CompactOrderEncodingContext context;
+    protected final CompactOrderReduction reductionObject;
+    protected final OrderEncoding orderEncodingObject;
 
     /**
      * Constructs a new instance for compact order encoding.
