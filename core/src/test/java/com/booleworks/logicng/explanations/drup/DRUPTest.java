@@ -15,7 +15,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.propositions.ExtendedProposition;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.propositions.PropositionBackpack;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -292,8 +291,8 @@ public class DRUPTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().proofGeneration(true)
                 .cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
-        final ExtendedProposition<StringBackpack> p1 =
-                new ExtendedProposition<>(new StringBackpack("CC"), parse(f, "A + B + C <= 1"));
+        final ExtendedProposition<String> p1 =
+                new ExtendedProposition<>("CC", parse(f, "A + B + C <= 1"));
         final StandardProposition p2 = new StandardProposition(parse(f, "A"));
         final StandardProposition p3 = new StandardProposition(parse(f, "B"));
         final StandardProposition p4 = new StandardProposition(parse(f, "X & Y"));
@@ -345,13 +344,5 @@ public class DRUPTest implements LogicNGTest {
         verifier.add(core);
         softly.assertThat(verifier.sat()).as("Core is unsatisfiable").isFalse();
         softly.assertAll();
-    }
-
-    private static final class StringBackpack implements PropositionBackpack {
-        private final String string;
-
-        private StringBackpack(final String string) {
-            this.string = string;
-        }
     }
 }

@@ -61,7 +61,7 @@ public class ExtendedPropositionTest {
         assertThat(prop2.toString()).isEqualTo("ExtendedProposition{formula=a & b & ~c, backpack=prop2}");
     }
 
-    private static final class Backpack implements PropositionBackpack {
+    private static final class Backpack {
         private final String description;
 
         private Backpack(final String description) {

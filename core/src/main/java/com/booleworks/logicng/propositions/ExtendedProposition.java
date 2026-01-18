@@ -10,13 +10,12 @@ import java.util.Objects;
 
 /**
  * An extended proposition in LogicNG. An extended proposition is a formula with
- * additional information like a user-provided {@link PropositionBackpack}
- * object.
+ * additional information of a user-provided type.
  * @param <T> the type of the backpack
  * @version 3.0.0
  * @since 1.0
  */
-public class ExtendedProposition<T extends PropositionBackpack> extends Proposition {
+public class ExtendedProposition<T> extends Proposition {
 
     private final Formula formula;
     private final T backpack;

@@ -13,7 +13,6 @@ import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.propositions.ExtendedProposition;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.propositions.PropositionBackpack;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
@@ -265,7 +264,7 @@ public class SatSolversTest {
         assertThat(model2).isEqualTo(model1);
     }
 
-    private static class CustomBackpack implements PropositionBackpack {
+    private static class CustomBackpack {
         private final int i;
 
         private CustomBackpack(final int i) {
