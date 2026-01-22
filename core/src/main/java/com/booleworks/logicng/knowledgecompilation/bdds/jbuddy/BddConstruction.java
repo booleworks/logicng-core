@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+
 /**
  * This class provides abstractions for the construction of BDDs.
  * @version 2.0.0
@@ -91,40 +93,44 @@ public class BddConstruction {
      * Returns the conjunction of two BDDs.
      * @param l the first BDD
      * @param r the second BDD
-     * @return the conjunction of the two BDDs
+     * @return the conjunction of the two BDDs or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int and(final int l, final int r) {
-        return k.apply(l, r, BddKernel.Operand.AND);
+    public int and(final int l, final int r, final ComputationHandler handler) {
+        return k.apply(l, r, BddKernel.Operand.AND, handler);
     }
 
     /**
      * Returns the disjunction of two BDDs.
      * @param l the first BDD
      * @param r the second BDD
-     * @return the disjunction of the two BDDs
+     * @return the disjunction of the two BDDs or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int or(final int l, final int r) {
-        return k.apply(l, r, BddKernel.Operand.OR);
+    public int or(final int l, final int r, final ComputationHandler handler) {
+        return k.apply(l, r, BddKernel.Operand.OR, handler);
     }
 
     /**
      * Returns the implication of two BDDs.
      * @param l the first BDD
      * @param r the second BDD
-     * @return the implication of the two BDDs
+     * @return the implication of the two BDDs or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int implication(final int l, final int r) {
-        return k.apply(l, r, BddKernel.Operand.IMP);
+    public int implication(final int l, final int r, final ComputationHandler handler) {
+        return k.apply(l, r, BddKernel.Operand.IMP, handler);
     }
 
     /**
      * Returns the equivalence of two BDDs.
      * @param l the first BDD
      * @param r the second BDD
-     * @return the equivalence of the two BDDs
+     * @return the equivalence of the two BDDs or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int equivalence(final int l, final int r) {
-        return k.apply(l, r, BddKernel.Operand.EQUIV);
+    public int equivalence(final int l, final int r, final ComputationHandler handler) {
+        return k.apply(l, r, BddKernel.Operand.EQUIV, handler);
     }
 
     /**
@@ -203,32 +209,34 @@ public class BddConstruction {
      * Existential quantifier elimination for the variables in {@code var}.
      * @param r   the BDD root node
      * @param var the variables to eliminate
-     * @return the BDD with the eliminated variables
+     * @return the BDD with the eliminated variables or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int exists(final int r, final int var) {
+    public int exists(final int r, final int var, final ComputationHandler handler) {
         if (var < 2) {
             return r;
         }
         varset2vartable(var);
-        return k.doWithPotentialReordering(() -> quantRec(r, BddKernel.Operand.OR, var << 3));
+        return k.doWithPotentialReordering(() -> quantRec(r, BddKernel.Operand.OR, var << 3, handler));
     }
 
     /**
      * Universal quantifier elimination for the variables in {@code var}.
      * @param r   the BDD root node
      * @param var the variables to eliminate
-     * @return the BDD with the eliminated variables
+     * @return the BDD with the eliminated variables or
+     * {@link BddKernel#BDD_ABORT_NEW_NODE} if canceled by the handler
      */
-    public int forAll(final int r, final int var) {
+    public int forAll(final int r, final int var, final ComputationHandler handler) {
         if (var < 2) {
             return r;
         }
         varset2vartable(var);
         return k.doWithPotentialReordering(
-                () -> quantRec(r, BddKernel.Operand.AND, (var << 3) | BddKernel.CACHEID_FORALL));
+                () -> quantRec(r, BddKernel.Operand.AND, (var << 3) | BddKernel.CACHEID_FORALL, handler));
     }
 
-    protected int quantRec(final int r, final BddKernel.Operand op, final int quantid)
+    protected int quantRec(final int r, final BddKernel.Operand op, final int quantid, final ComputationHandler handler)
             throws BddKernel.BddReorderRequest {
         final int res;
         if (r < 2 || k.level(r) > k.quantlast) {
@@ -238,14 +246,26 @@ public class BddConstruction {
         if (entry.a == r && entry.c == quantid) {
             return entry.res;
         }
-        k.pushRef(quantRec(k.low(r), op, quantid));
-        k.pushRef(quantRec(k.high(r), op, quantid));
+        final int low = quantRec(k.low(r), op, quantid, handler);
+        if (BddKernel.isAborted(low)) {
+            return low;
+        }
+        k.pushRef(low);
+        final int high = quantRec(k.high(r), op, quantid, handler);
+        if (BddKernel.isAborted(high)) {
+            k.popref(1);
+            return high;
+        }
+        k.pushRef(high);
         if (invarset(k.level(r))) {
-            res = k.applyRec(k.readRef(2), k.readRef(1), op);
+            res = k.applyRec(k.readRef(2), k.readRef(1), op, handler);
         } else {
             res = k.makeNode(k.level(r), k.readRef(2), k.readRef(1));
         }
         k.popref(2);
+        if (BddKernel.isAborted(res)) {
+            return res;
+        }
         entry.a = r;
         entry.c = quantid;
         entry.res = res;

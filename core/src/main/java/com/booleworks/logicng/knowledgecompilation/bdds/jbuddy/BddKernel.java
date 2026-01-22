@@ -23,7 +23,8 @@ import java.util.TreeMap;
  */
 public class BddKernel {
 
-    public static final int BDD_ABORT = -1;
+    public static final int BDD_ABORT_NEW_REF = -1;
+    public static final int BDD_ABORT_NEW_NODE = -2;
     public static final int BDD_TRUE = 1;
     public static final int BDD_FALSE = 0;
 
@@ -295,11 +296,12 @@ public class BddKernel {
         }
     }
 
-    protected int apply(final int l, final int r, final Operand op) {
-        return doWithPotentialReordering(() -> applyRec(l, r, op));
+    protected int apply(final int l, final int r, final Operand op, final ComputationHandler handler) {
+        return doWithPotentialReordering(() -> applyRec(l, r, op, handler));
     }
 
-    protected int applyRec(final int l, final int r, final Operand op) throws BddReorderRequest {
+    protected int applyRec(final int l, final int r, final Operand op, final ComputationHandler handler)
+            throws BddReorderRequest {
         final int res;
         switch (op) {
             case AND:
@@ -349,17 +351,47 @@ public class BddKernel {
             if (entry.a == l && entry.b == r && entry.c == op.v) {
                 return entry.res;
             }
+            if (!handler.shouldResume(SimpleEvent.BDD_MAKE_NEW_NODE)) {
+                return BDD_ABORT_NEW_NODE;
+            }
             if (level(l) == level(r)) {
-                pushRef(applyRec(low(l), low(r), op));
-                pushRef(applyRec(high(l), high(r), op));
+                final int low = applyRec(low(l), low(r), op, handler);
+                if (BddKernel.isAborted(low)) {
+                    return low;
+                }
+                pushRef(low);
+                final int high = applyRec(high(l), high(r), op, handler);
+                if (BddKernel.isAborted(high)) {
+                    popref(1);
+                    return high;
+                }
+                pushRef(high);
                 res = makeNode(level(l), readRef(2), readRef(1));
             } else if (level(l) < level(r)) {
-                pushRef(applyRec(low(l), r, op));
-                pushRef(applyRec(high(l), r, op));
+                final int low = applyRec(low(l), r, op, handler);
+                if (BddKernel.isAborted(low)) {
+                    return low;
+                }
+                pushRef(low);
+                final int high = applyRec(high(l), r, op, handler);
+                if (BddKernel.isAborted(high)) {
+                    popref(1);
+                    return high;
+                }
+                pushRef(high);
                 res = makeNode(level(l), readRef(2), readRef(1));
             } else {
-                pushRef(applyRec(l, low(r), op));
-                pushRef(applyRec(l, high(r), op));
+                final int low = applyRec(l, low(r), op, handler);
+                if (BddKernel.isAborted(low)) {
+                    return low;
+                }
+                pushRef(low);
+                final int high = applyRec(l, high(r), op, handler);
+                if (BddKernel.isAborted(high)) {
+                    popref(1);
+                    return high;
+                }
+                pushRef(high);
                 res = makeNode(level(r), readRef(2), readRef(1));
             }
             popref(2);
@@ -378,9 +410,8 @@ public class BddKernel {
      * the node in the next garbage collection. If a BDD handler is given,
      * {@link ComputationHandler#shouldResume} is called with the event
      * {@link SimpleEvent#BDD_NEW_REF_ADDED}. If the generation gets canceled
-     * due to the handler, the method will return {@link BddKernel#BDD_ABORT}
-     * as result. If {@code null} is passed as handler, the generation will
-     * continue without interruption.
+     * due to the handler, the method will return
+     * {@link BddKernel#BDD_ABORT_NEW_REF} as result.
      * @param root    the node
      * @param handler the BDD handler
      * @return return the node
@@ -388,7 +419,7 @@ public class BddKernel {
      */
     public int addRef(final int root, final ComputationHandler handler) {
         if (!handler.shouldResume(BDD_NEW_REF_ADDED)) {
-            return BDD_ABORT;
+            return BDD_ABORT_NEW_REF;
         }
         if (root < 2) {
             return root;
@@ -825,5 +856,9 @@ public class BddKernel {
 
     public BddPrime getPrime() {
         return prime;
+    }
+
+    public static boolean isAborted(final int index) {
+        return index < 0;
     }
 }

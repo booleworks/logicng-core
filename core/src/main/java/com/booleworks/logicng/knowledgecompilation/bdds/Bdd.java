@@ -159,7 +159,8 @@ public class Bdd {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new Bdd(kernel.addRef(construction.implication(index, other.index), NopHandler.get()), kernel);
+        return new Bdd(kernel.addRef(construction.implication(index, other.index, NopHandler.get()), NopHandler.get()),
+                kernel);
     }
 
     /**
@@ -174,7 +175,8 @@ public class Bdd {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new Bdd(kernel.addRef(construction.implication(other.index, index), NopHandler.get()), kernel);
+        return new Bdd(kernel.addRef(construction.implication(other.index, index, NopHandler.get()), NopHandler.get()),
+                kernel);
     }
 
     /**
@@ -189,7 +191,8 @@ public class Bdd {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new Bdd(kernel.addRef(construction.equivalence(index, other.index), NopHandler.get()), kernel);
+        return new Bdd(kernel.addRef(construction.equivalence(index, other.index, NopHandler.get()), NopHandler.get()),
+                kernel);
     }
 
     /**
@@ -204,7 +207,7 @@ public class Bdd {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new Bdd(kernel.addRef(construction.and(index, other.index), NopHandler.get()), kernel);
+        return new Bdd(kernel.addRef(construction.and(index, other.index, NopHandler.get()), NopHandler.get()), kernel);
     }
 
     /**
@@ -219,7 +222,7 @@ public class Bdd {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new Bdd(kernel.addRef(construction.or(index, other.index), NopHandler.get()), kernel);
+        return new Bdd(kernel.addRef(construction.or(index, other.index, NopHandler.get()), NopHandler.get()), kernel);
     }
 
     /**
@@ -371,7 +374,7 @@ public class Bdd {
      */
     public Bdd exists(final Collection<Variable> variables) {
         final Bdd resBdd = BddFactory.build(variables, kernel);
-        return new Bdd(construction.exists(index, resBdd.index), kernel);
+        return new Bdd(construction.exists(index, resBdd.index, NopHandler.get()), kernel);
     }
 
     /**
@@ -390,7 +393,7 @@ public class Bdd {
      */
     public Bdd forall(final Collection<Variable> variables) {
         final Bdd resBdd = BddFactory.build(variables, kernel);
-        return new Bdd(construction.forAll(index, resBdd.index), kernel);
+        return new Bdd(construction.forAll(index, resBdd.index, NopHandler.get()), kernel);
     }
 
     /**

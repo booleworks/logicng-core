@@ -5,6 +5,7 @@
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_MAKE_NEW_NODE;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 
 import com.booleworks.logicng.formulas.And;
@@ -61,8 +62,7 @@ public final class BddFactory {
      * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
-     * @return the top node of the BDD or {@link BddKernel#BDD_ABORT} if the
-     * computation was canceled
+     * @return the top node of the BDD
      */
     public static Bdd build(final FormulaFactory f, final Formula formula, final BddKernel kernel) {
         return build(f, formula, kernel, NopHandler.get()).getResult();
@@ -76,16 +76,11 @@ public final class BddFactory {
      * constraint. Therefore, the caller first has to transform any
      * pseudo-Boolean constraints in their respective CNF representation before
      * converting them to a BDD.
-     * <p>
-     * If a BDD handler is given and the BDD generation is canceled due to the
-     * handler, the method will return {@link BddKernel#BDD_ABORT} as result. If
-     * {@code null} is passed as handler, the generation will continue without
-     * interruption.
      * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @param handler the handler
-     * @return the top node of the BDD or {@link BddKernel#BDD_ABORT} if the
+     * @return the top node of the BDD or the canceling reason if the
      * computation was canceled
      */
     public static LngResult<Bdd> build(final FormulaFactory f, final Formula formula, final BddKernel kernel,
@@ -96,17 +91,18 @@ public final class BddFactory {
         final int varNum = formula.variables(f).size();
         final BddKernel bddKernel = kernel == null ? new BddKernel(f, varNum, varNum * 30, varNum * 20) : kernel;
         final int bddIndex = buildRec(f, formula, bddKernel, new BddConstruction(bddKernel), handler);
-        return bddIndex == BddKernel.BDD_ABORT
-               ? LngResult.canceled(BDD_NEW_REF_ADDED)
-               : LngResult.of(new Bdd(bddIndex, bddKernel));
+        if (bddIndex == BddKernel.BDD_ABORT_NEW_NODE) {
+            return LngResult.canceled(BDD_MAKE_NEW_NODE);
+        } else if (bddIndex == BddKernel.BDD_ABORT_NEW_REF) {
+            return LngResult.canceled(BDD_NEW_REF_ADDED);
+        } else {
+            return LngResult.of(new Bdd(bddIndex, bddKernel));
+        }
     }
 
     /**
      * Builds an BDD for a set of literals. The set is interpreted as the
      * conjunction of the literals.
-     * <p>
-     * The computation can not be interrupted, thus, the function does never
-     * return {@link BddKernel#BDD_ABORT}.
      * @param literals a set of literals
      * @param kernel   the bdd kernel
      * @return the top node of the BDD
@@ -130,7 +126,7 @@ public final class BddFactory {
                 idx = kernel.getOrAddVarIndex(lit.variable());
                 final int operand = lit.getPhase() ? construction.ithVar(idx) : construction.nithVar(idx);
                 final int previous = bdd;
-                bdd = kernel.addRef(construction.and(bdd, operand), NopHandler.get());
+                bdd = kernel.addRef(construction.and(bdd, operand, NopHandler.get()), NopHandler.get());
                 kernel.delRef(previous);
                 kernel.delRef(operand);
             }
@@ -140,17 +136,11 @@ public final class BddFactory {
 
     /**
      * Recursive build procedure for the BDD.
-     * <p>
-     * If a BDD handler is given and the BDD generation is canceled due to the
-     * handler, the method will return {@link BddKernel#BDD_ABORT} as result. If
-     * {@code null} is passed as handler, the generation will continue without
-     * interruption.
      * @param formula      the formula
      * @param kernel       the BDD kernel
      * @param construction the BDD construction instance
      * @param handler      the handler
-     * @return the BDD index or {@link BddKernel#BDD_ABORT} if the computation
-     * was canceled
+     * @return the BDD index or canceling cause if the computation was canceled
      */
     private static int buildRec(final FormulaFactory f, final Formula formula, final BddKernel kernel,
                                 final BddConstruction construction, final ComputationHandler handler) {
@@ -166,46 +156,59 @@ public final class BddFactory {
             case NOT: {
                 final Not not = (Not) formula;
                 final int operand = buildRec(f, not.getOperand(), kernel, construction, handler);
-                if (operand == BddKernel.BDD_ABORT) {
-                    return BddKernel.BDD_ABORT;
+                if (BddKernel.isAborted(operand)) {
+                    return operand;
                 }
                 final int res = kernel.addRef(construction.not(operand), handler);
                 kernel.delRef(operand);
                 return res;
             }
             case IMPL:
-            case EQUIV:
+            case EQUIV: {
                 final BinaryOperator binary = (BinaryOperator) formula;
                 final int left = buildRec(f, binary.getLeft(), kernel, construction, handler);
-                if (left == BddKernel.BDD_ABORT) {
-                    return BddKernel.BDD_ABORT;
+                if (BddKernel.isAborted(left)) {
+                    return left;
                 }
                 final int right = buildRec(f, binary.getRight(), kernel, construction, handler);
-                if (right == BddKernel.BDD_ABORT) {
-                    return BddKernel.BDD_ABORT;
+                if (BddKernel.isAborted(right)) {
+                    return right;
                 }
-                int res = kernel.addRef(binary instanceof Implication ? construction.implication(left, right)
-                                                                      : construction.equivalence(left, right), handler);
+                final int constructedNode =
+                        binary instanceof Implication ? construction.implication(left, right, handler)
+                                                      : construction.equivalence(left, right, handler);
+                if (BddKernel.isAborted(constructedNode)) {
+                    return constructedNode;
+                }
+                final int res = kernel.addRef(constructedNode, handler);
+                if (BddKernel.isAborted(res)) {
+                    return res;
+                }
                 kernel.delRef(left);
                 kernel.delRef(right);
                 return res;
+            }
             case AND:
             case OR: {
                 final Iterator<Formula> it = formula.iterator();
-                res = buildRec(f, it.next(), kernel, construction, handler);
-                if (res == BddKernel.BDD_ABORT) {
-                    return BddKernel.BDD_ABORT;
+                int res = buildRec(f, it.next(), kernel, construction, handler);
+                if (BddKernel.isAborted(res)) {
+                    return res;
                 }
                 while (it.hasNext()) {
                     final int operand = buildRec(f, it.next(), kernel, construction, handler);
-                    if (operand == BddKernel.BDD_ABORT) {
-                        return BddKernel.BDD_ABORT;
+                    if (BddKernel.isAborted(operand)) {
+                        return operand;
                     }
                     final int previous = res;
-                    res = formula instanceof And ? kernel.addRef(construction.and(res, operand), handler)
-                                                 : kernel.addRef(construction.or(res, operand), handler);
-                    if (res == BddKernel.BDD_ABORT) {
-                        return BddKernel.BDD_ABORT;
+                    final int constructedNode = formula instanceof And ? construction.and(res, operand, handler)
+                                                                       : construction.or(res, operand, handler);
+                    if (BddKernel.isAborted(constructedNode)) {
+                        return constructedNode;
+                    }
+                    res = kernel.addRef(constructedNode, handler);
+                    if (BddKernel.isAborted(res)) {
+                        return res;
                     }
                     kernel.delRef(previous);
                     kernel.delRef(operand);

@@ -6,6 +6,7 @@ package com.booleworks.logicng.handlers;
 
 import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_MAKE_NEW_NODE;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,6 +74,7 @@ class TimeoutBddHandlerTest {
         final ComputationHandler handler = Mockito.mock(ComputationHandler.class);
         final AtomicInteger count = new AtomicInteger(0);
         when(handler.shouldResume(eq(BDD_COMPUTATION_STARTED))).thenReturn(true);
+        when(handler.shouldResume(eq(BDD_MAKE_NEW_NODE))).thenReturn(true);
         when(handler.shouldResume(eq(BDD_NEW_REF_ADDED))).thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
 
         final LngResult<Bdd> result = BddFactory.build(f, formula, kernel, handler);
@@ -80,6 +82,25 @@ class TimeoutBddHandlerTest {
         verify(handler, times(1)).shouldResume(eq(BDD_COMPUTATION_STARTED));
         verify(handler, times(5)).shouldResume(eq(BDD_NEW_REF_ADDED));
     }
+
+    @Test
+
+    public void testThatMakeNewNodeHandledProperly() {
+        final Formula formula = parse(f, "(A => ~B) & ((A & C) | ~(D & ~C)) & (A | Y | X)");
+        final VariableOrderingProvider provider = new BfsOrdering();
+        final BddKernel kernel = new BddKernel(f, provider.getOrder(f, formula), 100, 100);
+        final ComputationHandler handler = Mockito.mock(ComputationHandler.class);
+        final AtomicInteger count = new AtomicInteger(0);
+        when(handler.shouldResume(eq(BDD_COMPUTATION_STARTED))).thenReturn(true);
+        when(handler.shouldResume(eq(BDD_MAKE_NEW_NODE))).thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
+        when(handler.shouldResume(eq(BDD_NEW_REF_ADDED))).thenReturn(true);
+
+        final LngResult<Bdd> result = BddFactory.build(f, formula, kernel, handler);
+        assertThat(result.isSuccess()).isFalse();
+        verify(handler, times(1)).shouldResume(eq(BDD_COMPUTATION_STARTED));
+        verify(handler, times(5)).shouldResume(eq(BDD_MAKE_NEW_NODE));
+    }
+
 
     @Test
     public void testTimeoutHandlerSingleTimeout() {

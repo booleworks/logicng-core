@@ -14,6 +14,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
@@ -131,8 +132,8 @@ public class BddOperationsTest {
     public void testExistentialQuantification() throws ParserException {
         final Variable a = f.variable("A");
         final List<Variable> resAB = Arrays.asList(f.variable("A"), f.variable("B"));
-        assertThat(bddPosLit.construction.exists(0, 1)).isEqualTo(0);
-        assertThat(bddPosLit.construction.exists(1, 1)).isEqualTo(1);
+        assertThat(bddPosLit.construction.exists(0, 1, NopHandler.get())).isEqualTo(0);
+        assertThat(bddPosLit.construction.exists(1, 1, NopHandler.get())).isEqualTo(1);
         assertThat(bddVerum.exists(a)).isEqualTo(bddVerum);
         assertThat(bddVerum.exists(resAB)).isEqualTo(bddVerum);
         assertThat(bddFalsum.exists(a)).isEqualTo(bddFalsum);
@@ -155,8 +156,8 @@ public class BddOperationsTest {
     public void testUniversalQuantification() throws ParserException {
         final Variable a = f.variable("A");
         final List<Variable> resAB = Arrays.asList(f.variable("A"), f.variable("B"));
-        assertThat(bddPosLit.construction.forAll(0, 1)).isEqualTo(0);
-        assertThat(bddPosLit.construction.forAll(1, 1)).isEqualTo(1);
+        assertThat(bddPosLit.construction.forAll(0, 1, NopHandler.get())).isEqualTo(0);
+        assertThat(bddPosLit.construction.forAll(1, 1, NopHandler.get())).isEqualTo(1);
         assertThat(bddVerum.forall(a)).isEqualTo(bddVerum);
         assertThat(bddVerum.forall(resAB)).isEqualTo(bddVerum);
         assertThat(bddFalsum.forall(a)).isEqualTo(bddFalsum);
