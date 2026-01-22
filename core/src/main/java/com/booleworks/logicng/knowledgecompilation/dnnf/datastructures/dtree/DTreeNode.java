@@ -21,31 +21,31 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public class DTreeNode extends DTree {
+public final class DTreeNode extends DTree {
 
-    protected final DTree left;
-    protected final DTree right;
-    protected final int size;
+    private final DTree left;
+    private final DTree right;
+    private final int size;
 
-    protected final SortedSet<Variable> staticVariableSet;
-    protected final BitSet staticSeparatorBitSet;
-    protected final int depth;
-    protected int widestSeparator;
+    private final SortedSet<Variable> staticVariableSet;
+    private final BitSet staticSeparatorBitSet;
+    private final int depth;
+    private int widestSeparator;
 
-    protected final DTreeLeaf[] leafs; // all leafs
-    protected final DTreeLeaf[] leftLeafs;
-    protected final DTreeLeaf[] rightLeafs;
+    private final DTreeLeaf[] leafs; // all leafs
+    private final DTreeLeaf[] leftLeafs;
+    private final DTreeLeaf[] rightLeafs;
 
     // content of all clauses under this node
     // example: clause {1,3} with id 0, clause {2,6,8} with id 1,
     // and clause {4,6} with id 6
     // --> [1,3,-1,2,6,-2,4,6,-7]
-    protected int[] clauseContents;
-    protected int[] leftClauseContents;
-    protected int[] rightClauseContents;
+    private int[] clauseContents;
+    private int[] leftClauseContents;
+    private int[] rightClauseContents;
 
-    protected BitSet localLeftVarSet;
-    protected BitSet localRightVarSet;
+    private BitSet localLeftVarSet;
+    private BitSet localRightVarSet;
 
     /**
      * Constructs a new DTree node with the given left and right DTree.
@@ -152,7 +152,7 @@ public class DTreeNode extends DTree {
         return localLeftVarSet;
     }
 
-    protected void varSet(final int[] clausesContents, final BitSet localVarSet) {
+    private void varSet(final int[] clausesContents, final BitSet localVarSet) {
         int i = 0;
         while (i < clausesContents.length) {
             int j = i;
@@ -231,7 +231,7 @@ public class DTreeNode extends DTree {
         return String.format("DTreeNode: [%s, %s]", left, right);
     }
 
-    protected void excludeUnitLeafs(final List<DTreeLeaf> leafs) {
+    private void excludeUnitLeafs(final List<DTreeLeaf> leafs) {
         leafs.removeIf(dTreeLeaf -> dTreeLeaf.clauseSize() == 1);
     }
 

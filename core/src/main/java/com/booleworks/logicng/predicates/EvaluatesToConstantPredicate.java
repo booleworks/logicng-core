@@ -49,11 +49,11 @@ import java.util.Map;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class EvaluatesToConstantPredicate implements FormulaPredicate {
+public class EvaluatesToConstantPredicate implements FormulaPredicate {
 
-    private final FormulaFactory f;
-    private final boolean evaluatesToTrue;
-    private final Map<Variable, Boolean> mapping;
+    protected final FormulaFactory f;
+    protected final boolean evaluatesToTrue;
+    protected final Map<Variable, Boolean> mapping;
 
     /**
      * Constructs a new evaluation predicate.
@@ -97,7 +97,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * the specified constant, otherwise the restricted and simplified
      * formula
      */
-    private Formula innerTest(final Formula formula, final boolean topLevel) {
+    protected Formula innerTest(final Formula formula, final boolean topLevel) {
         switch (formula.getType()) {
             case TRUE:
             case FALSE:
@@ -126,7 +126,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         }
     }
 
-    private Formula handleNot(final Not formula, final boolean topLevel) {
+    protected Formula handleNot(final Not formula, final boolean topLevel) {
         final Formula opResult = innerTest(formula.getOperand(), false);
         if (topLevel && !opResult.isConstantFormula()) {
             return f.constant(!evaluatesToTrue);
@@ -134,7 +134,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return opResult.isConstantFormula() ? f.constant(isFalsum(opResult)) : f.not(opResult);
     }
 
-    private Formula handleImplication(final Implication formula, final boolean topLevel) {
+    protected Formula handleImplication(final Implication formula, final boolean topLevel) {
         final Formula left = formula.getLeft();
         final Formula right = formula.getRight();
         final Formula leftResult = innerTest(left, false);
@@ -155,7 +155,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return f.implication(leftResult, rightResult);
     }
 
-    private Formula handleEquivalence(final Equivalence formula, final boolean topLevel) {
+    protected Formula handleEquivalence(final Equivalence formula, final boolean topLevel) {
         final Formula left = formula.getLeft();
         final Formula right = formula.getRight();
         final Formula leftResult = innerTest(left, false);
@@ -172,7 +172,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return f.equivalence(leftResult, rightResult);
     }
 
-    private Formula handleOr(final Or formula, final boolean topLevel) {
+    protected Formula handleOr(final Or formula, final boolean topLevel) {
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
             final Formula opResult = innerTest(op, !evaluatesToTrue && topLevel);
@@ -189,7 +189,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return f.or(nops);
     }
 
-    private Formula handleAnd(final And formula, final boolean topLevel) {
+    protected Formula handleAnd(final And formula, final boolean topLevel) {
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
             final Formula opResult = innerTest(op, evaluatesToTrue && topLevel);
@@ -206,7 +206,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return f.and(nops);
     }
 
-    private Formula handlePbc(final PbConstraint formula) {
+    protected Formula handlePbc(final PbConstraint formula) {
         final Assignment assignment = new Assignment();
         for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
             assignment.addLiteral(f.literal(entry.getKey().getName(), entry.getValue()));
@@ -214,15 +214,15 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return formula.restrict(f, assignment);
     }
 
-    private static FType getConstantType(final boolean constant) {
+    protected static FType getConstantType(final boolean constant) {
         return constant ? FType.TRUE : FType.FALSE;
     }
 
-    private static boolean isFalsum(final Formula formula) {
+    protected static boolean isFalsum(final Formula formula) {
         return formula.getType() == FType.FALSE;
     }
 
-    private static boolean isVerum(final Formula formula) {
+    protected static boolean isVerum(final Formula formula) {
         return formula.getType() == FType.TRUE;
     }
 }

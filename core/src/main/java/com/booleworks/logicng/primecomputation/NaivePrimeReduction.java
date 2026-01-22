@@ -31,10 +31,10 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class NaivePrimeReduction {
+public class NaivePrimeReduction {
 
-    private final SatSolver implicantSolver;
-    private final SatSolver implicateSolver;
+    protected final SatSolver implicantSolver;
+    protected final SatSolver implicateSolver;
 
     /**
      * Creates a new prime implicant computation for a given formula.

@@ -21,9 +21,9 @@ import com.booleworks.logicng.handlers.events.SimpleEvent;
  */
 public class NumberOfModelsHandler implements ComputationHandler {
 
-    private final int bound;
-    private int countCommitted;
-    private int countUncommitted;
+    protected final int bound;
+    protected int countCommitted;
+    protected int countUncommitted;
 
     /**
      * Constructs a new model handler with an upper bound for the number of

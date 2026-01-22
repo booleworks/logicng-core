@@ -27,9 +27,9 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class BddModelEnumerationFunction extends BddFunction<List<Model>> {
+public class BddModelEnumerationFunction extends BddFunction<List<Model>> {
 
-    private final Collection<Variable> variables;
+    protected final Collection<Variable> variables;
 
     /**
      * Constructs a new model enumeration function. The models are projected to
@@ -71,8 +71,8 @@ public final class BddModelEnumerationFunction extends BddFunction<List<Model>> 
         return new ArrayList<>(res);
     }
 
-    private void generateAllModels(final BddKernel kernel, final List<Model> assignments, final byte[] model,
-                                   final int[] relevantIndices, final int position) {
+    protected void generateAllModels(final BddKernel kernel, final List<Model> assignments, final byte[] model,
+                                     final int[] relevantIndices, final int position) {
         if (position == relevantIndices.length) {
             final List<Literal> lits = new ArrayList<>();
             for (final int i : relevantIndices) {

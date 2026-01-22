@@ -26,17 +26,17 @@ import java.util.Map;
 
 /**
  * A solver function for computing the unsatisfiable core on the current solver.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposition>> {
+public class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposition>> {
 
     private final static UnsatCoreFunction INSTANCE = new UnsatCoreFunction();
 
     /**
      * Private empty constructor. Singleton class.
      */
-    private UnsatCoreFunction() {
+    protected UnsatCoreFunction() {
         // Intentionally left empty
     }
 
@@ -83,7 +83,7 @@ public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposi
         return LngResult.of(new UnsatCore<>(new ArrayList<>(propositions), false));
     }
 
-    private UnsatCore<Proposition> handleTrivialCase(final SatSolver solver) {
+    protected UnsatCore<Proposition> handleTrivialCase(final SatSolver solver) {
         final LngVector<LngCoreSolver.ProofInformation> clauses = solver.getUnderlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
@@ -93,9 +93,11 @@ public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposi
                     final Proposition pi = clauses.get(i).getProposition();
                     final Proposition pj = clauses.get(j).getProposition();
                     propositions.add(pi != null ? pi
-                            : new StandardProposition(getFormulaForVector(solver, clauses.get(i).getClause())));
+                                                : new StandardProposition(
+                                                        getFormulaForVector(solver, clauses.get(i).getClause())));
                     propositions.add(pj != null ? pj
-                            : new StandardProposition(getFormulaForVector(solver, clauses.get(j).getClause())));
+                                                : new StandardProposition(
+                                                        getFormulaForVector(solver, clauses.get(j).getClause())));
                     return new UnsatCore<>(new ArrayList<>(propositions), false);
                 }
             }
@@ -103,7 +105,7 @@ public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposi
         throw new IllegalStateException("Should be a trivial unsat core, but did not found one.");
     }
 
-    private boolean containsEmptyClause(final LngVector<LngIntVector> clauses) {
+    protected boolean containsEmptyClause(final LngVector<LngIntVector> clauses) {
         for (final LngIntVector clause : clauses) {
             if (clause.isEmpty()) {
                 return true;
@@ -112,7 +114,7 @@ public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposi
         return false;
     }
 
-    private Formula getFormulaForVector(final SatSolver solver, final LngIntVector vector) {
+    protected Formula getFormulaForVector(final SatSolver solver, final LngIntVector vector) {
         final List<Literal> literals = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             final int lit = vector.get(i);

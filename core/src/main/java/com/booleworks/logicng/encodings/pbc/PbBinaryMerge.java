@@ -19,7 +19,7 @@ import com.booleworks.logicng.formulas.Literal;
  * @version 3.0.0
  * @since 1.1
  */
-public final class PbBinaryMerge {
+public class PbBinaryMerge {
 
     public static void encode(final EncodingResult result, final LngVector<Literal> lts, final LngIntVector cffs,
                               final int rhs, final boolean useGac, final boolean noSuppoertSingleBit,
@@ -84,7 +84,7 @@ public final class PbBinaryMerge {
         }
     }
 
-    private static int maxWeight(final LngIntVector weights) {
+    protected static int maxWeight(final LngIntVector weights) {
         int maxweight = Integer.MIN_VALUE;
         for (int i = 0; i < weights.size(); i++) {
             if (weights.get(i) > maxweight) {
@@ -94,10 +94,9 @@ public final class PbBinaryMerge {
         return maxweight;
     }
 
-    private static void binaryMerge(final EncodingResult result, final LngVector<Literal> literals,
-                                    final LngIntVector coefficients, final int leq,
-                                    final int maxWeight, final int n, final Literal gac_lit,
-                                    final boolean useWatchDog) {
+    protected static void binaryMerge(final EncodingResult result, final LngVector<Literal> literals,
+                                      final LngIntVector coefficients, final int leq, final int maxWeight,
+                                      final int n, final Literal gac_lit, final boolean useWatchDog) {
         final FormulaFactory f = result.getFactory();
         final int lessThen = leq + 1;
         final int p = (int) Math.floor(Math.log(maxWeight) / Math.log(2));
@@ -184,8 +183,8 @@ public final class PbBinaryMerge {
         }
     }
 
-    private static void totalizer(final EncodingResult result, final LngVector<Literal> x,
-                                  final LngVector<Literal> u_x) {
+    protected static void totalizer(final EncodingResult result, final LngVector<Literal> x,
+                                    final LngVector<Literal> u_x) {
         u_x.clear();
         if (x.isEmpty()) {
             return;
@@ -213,8 +212,8 @@ public final class PbBinaryMerge {
         }
     }
 
-    private static void unary_adder(final EncodingResult result, final LngVector<Literal> u, final LngVector<Literal> v,
-                                    final LngVector<Literal> w) {
+    protected static void unary_adder(final EncodingResult result, final LngVector<Literal> u,
+                                      final LngVector<Literal> v, final LngVector<Literal> w) {
         final FormulaFactory f = result.getFactory();
         w.clear();
         if (u.isEmpty()) {

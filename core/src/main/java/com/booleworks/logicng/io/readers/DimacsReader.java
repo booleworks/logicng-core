@@ -24,15 +24,12 @@ import java.util.List;
  * and ends with '0'. Comments are only allowed if the lines start with 'c'. No
  * C style comments are supported (yes, we have actually seen these in DIMACS
  * files).
- * @version 1.3
+ * @version 3.0.0
  * @since 1.2
  */
-public final class DimacsReader {
+public class DimacsReader {
 
-    /**
-     * Private constructor.
-     */
-    private DimacsReader() {
+    protected DimacsReader() {
         // Intentionally left empty.
     }
 

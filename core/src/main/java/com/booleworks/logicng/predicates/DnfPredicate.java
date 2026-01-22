@@ -17,7 +17,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class DnfPredicate extends CacheableFormulaPredicate {
+public class DnfPredicate extends CacheableFormulaPredicate {
 
     /**
      * Constructs a new predicate. For a caching formula factory, the cache of

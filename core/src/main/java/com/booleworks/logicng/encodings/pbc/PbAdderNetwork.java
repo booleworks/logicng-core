@@ -20,7 +20,7 @@ import java.util.List;
  * @version 3.0.0
  * @since 1.1
  */
-public final class PbAdderNetwork {
+public class PbAdderNetwork {
 
     public static void encode(final EncodingResult result, final LngVector<Literal> lits, final LngIntVector coeffs,
                               final int rhs) {
@@ -41,8 +41,8 @@ public final class PbAdderNetwork {
         lessThanOrEqual(result, literals, kBits);
     }
 
-    private static void adderTree(final EncodingResult result, final LngVector<LinkedList<Literal>> buckets,
-                                  final LngVector<Literal> literals) {
+    protected static void adderTree(final EncodingResult result, final LngVector<LinkedList<Literal>> buckets,
+                                    final LngVector<Literal> literals) {
         Literal x;
         Literal y;
         Literal z;
@@ -75,7 +75,7 @@ public final class PbAdderNetwork {
         }
     }
 
-    private static LngBooleanVector numToBits(final int n, final int num) {
+    protected static LngBooleanVector numToBits(final int n, final int num) {
         int number = num;
         final LngBooleanVector bits = new LngBooleanVector();
         for (int i = n - 1; i >= 0; i--) {
@@ -91,8 +91,8 @@ public final class PbAdderNetwork {
         return bits;
     }
 
-    private static void lessThanOrEqual(final EncodingResult result, final LngVector<Literal> xs,
-                                        final LngBooleanVector ys) {
+    protected static void lessThanOrEqual(final EncodingResult result, final LngVector<Literal> xs,
+                                          final LngBooleanVector ys) {
         assert xs.size() == ys.size();
         final FormulaFactory f = result.getFactory();
         final List<Literal> clause = new ArrayList<>();
@@ -125,8 +125,8 @@ public final class PbAdderNetwork {
         }
     }
 
-    private static void faExtra(final EncodingResult result, final Literal xc, final Literal xs, final Literal a,
-                                final Literal b, final Literal c) {
+    protected static void faExtra(final EncodingResult result, final Literal xc, final Literal xs, final Literal a,
+                                  final Literal b, final Literal c) {
         final FormulaFactory f = result.getFactory();
         result.addClause(xc.negate(f), xs.negate(f), a);
         result.addClause(xc.negate(f), xs.negate(f), b);
@@ -136,7 +136,7 @@ public final class PbAdderNetwork {
         result.addClause(xc, xs, c.negate(f));
     }
 
-    private static Literal faCarry(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
+    protected static Literal faCarry(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
         final FormulaFactory f = result.getFactory();
         final Literal x = f.newPbVariable();
         result.addClause(b, c, x.negate(f));
@@ -148,7 +148,7 @@ public final class PbAdderNetwork {
         return x;
     }
 
-    private static Literal faSum(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
+    protected static Literal faSum(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
         final FormulaFactory f = result.getFactory();
         final Literal x = f.newPbVariable();
         result.addClause(a, b, c, x.negate(f));
@@ -162,7 +162,7 @@ public final class PbAdderNetwork {
         return x;
     }
 
-    private static Literal haCarry(final EncodingResult result, final Literal a, final Literal b) {
+    protected static Literal haCarry(final EncodingResult result, final Literal a, final Literal b) {
         final FormulaFactory f = result.getFactory();
         final Literal x = f.newPbVariable();
         result.addClause(a, x.negate(f));
@@ -171,7 +171,7 @@ public final class PbAdderNetwork {
         return x;
     }
 
-    private static Literal haSum(final EncodingResult result, final Literal a, final Literal b) {
+    protected static Literal haSum(final EncodingResult result, final Literal a, final Literal b) {
         final FormulaFactory f = result.getFactory();
         final Literal x = f.newPbVariable();
         result.addClause(a.negate(f), b.negate(f), x.negate(f));
@@ -181,7 +181,7 @@ public final class PbAdderNetwork {
         return x;
     }
 
-    private static int ldInt(final int x) {
+    protected static int ldInt(final int x) {
         int ldretutn = 0;
         for (int i = 0; i < 31; i++) {
             if ((x & (1 << i)) > 0) {

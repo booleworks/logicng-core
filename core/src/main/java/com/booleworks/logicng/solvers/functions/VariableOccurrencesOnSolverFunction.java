@@ -72,7 +72,7 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
                 .collect(Collectors.toMap(v -> f.variable(v.getKey()), Map.Entry::getValue)));
     }
 
-    private Map<String, Integer> initResultMap(final LngCoreSolver underlyingSolver) {
+    protected Map<String, Integer> initResultMap(final LngCoreSolver underlyingSolver) {
         // start with Strings to prevent repeated variable lookups in
         // FormulaFactory
         final Map<String, Integer> counts = new HashMap<>();

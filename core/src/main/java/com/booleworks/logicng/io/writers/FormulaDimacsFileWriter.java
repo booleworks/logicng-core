@@ -28,18 +28,15 @@ import java.util.TreeSet;
 /**
  * A dimacs file writer for a formula. Writes the internal data structure of the
  * formula to a dimacs file.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 1.2
  */
-public final class FormulaDimacsFileWriter {
+public class FormulaDimacsFileWriter {
 
-    private static final String CNF_EXTENSION = ".cnf";
-    private static final String MAP_EXTENSION = ".map";
+    protected static final String CNF_EXTENSION = ".cnf";
+    protected static final String MAP_EXTENSION = ".map";
 
-    /**
-     * Private constructor.
-     */
-    private FormulaDimacsFileWriter() {
+    protected FormulaDimacsFileWriter() {
         // Intentionally left empty.
     }
 
@@ -102,14 +99,16 @@ public final class FormulaDimacsFileWriter {
         }
     }
 
-    private static void writeMapping(final File mappingFile, final SortedMap<Variable, Long> var2id)
+    protected static void writeMapping(final File mappingFile, final SortedMap<Variable, Long> var2id)
             throws IOException {
         final StringBuilder sb = new StringBuilder();
         for (final Map.Entry<Variable, Long> entry : var2id.entrySet()) {
             sb.append(entry.getKey()).append(";").append(entry.getValue()).append(System.lineSeparator());
         }
-        try (final BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))) {
+        try (
+                final BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))
+        ) {
             writer.append(sb);
             writer.flush();
         }

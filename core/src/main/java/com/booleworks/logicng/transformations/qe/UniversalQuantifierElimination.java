@@ -25,9 +25,9 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 1.0
  */
-public final class UniversalQuantifierElimination extends StatelessFormulaTransformation {
+public class UniversalQuantifierElimination extends StatelessFormulaTransformation {
 
-    private final Variable[] elimination;
+    protected final Variable[] elimination;
 
     /**
      * Constructs a new universal quantifier elimination for the given

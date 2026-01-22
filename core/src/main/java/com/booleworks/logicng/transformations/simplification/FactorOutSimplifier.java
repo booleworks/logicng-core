@@ -27,9 +27,9 @@ import java.util.Map;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class FactorOutSimplifier extends StatelessFormulaTransformation {
+public class FactorOutSimplifier extends StatelessFormulaTransformation {
 
-    private final RatingFunction<? extends Number> ratingFunction;
+    protected final RatingFunction<? extends Number> ratingFunction;
 
     /**
      * Constructs a new factor out simplification with the default rating
@@ -62,7 +62,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
         return LngResult.of(simplified);
     }
 
-    private Formula applyRec(final Formula formula) {
+    protected Formula applyRec(final Formula formula) {
         switch (formula.getType()) {
             case OR:
             case AND:
@@ -87,14 +87,15 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
         }
     }
 
-    private Formula simplify(final NAryOperator formula) {
+    protected Formula simplify(final NAryOperator formula) {
         final Formula simplified = factorOut(formula);
         return simplified == null ||
-                ratingFunction.apply(formula).doubleValue() <= ratingFunction.apply(simplified).doubleValue() ? formula
-                : simplified;
+                       ratingFunction.apply(formula).doubleValue() <= ratingFunction.apply(simplified).doubleValue()
+               ? formula
+               : simplified;
     }
 
-    private Formula factorOut(final NAryOperator formula) {
+    protected Formula factorOut(final NAryOperator formula) {
         final Formula factorOutFormula = computeMaxOccurringSubformula(formula);
         if (factorOutFormula == null) {
             return null;
@@ -128,7 +129,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
                 f.naryOperator(FType.dual(type), factorOutFormula, f.naryOperator(type, formulasWithRemoved)));
     }
 
-    private static Formula computeMaxOccurringSubformula(final NAryOperator formula) {
+    protected static Formula computeMaxOccurringSubformula(final NAryOperator formula) {
         final Map<Formula, Integer> formulaCounts = new HashMap<>();
         for (final Formula operand : formula) {
             if (operand.getType() == FType.LITERAL) {

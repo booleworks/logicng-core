@@ -25,9 +25,9 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 1.0
  */
-public final class ExistentialQuantifierElimination extends StatelessFormulaTransformation {
+public class ExistentialQuantifierElimination extends StatelessFormulaTransformation {
 
-    private final Variable[] elimination;
+    protected final Variable[] elimination;
 
     /**
      * Constructs a new existential quantifier elimination for the given

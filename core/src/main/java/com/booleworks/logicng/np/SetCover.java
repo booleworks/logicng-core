@@ -27,12 +27,9 @@ import java.util.Set;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class SetCover {
+public class SetCover {
 
-    /**
-     * Private empty constructor. Class only contains static utility methods.
-     */
-    private SetCover() {
+    protected SetCover() {
         // Intentionally left empty
     }
 

@@ -14,14 +14,14 @@ import java.util.Objects;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatState {
-    protected final int stateId;
-    protected final int nbVars;
-    protected final int nbHard;
-    protected final int nbSoft;
-    protected final int ubCost;
-    protected final int currentWeight;
-    protected final int[] softWeights;
+public final class MaxSatState {
+    private final int stateId;
+    private final int nbVars;
+    private final int nbHard;
+    private final int nbSoft;
+    private final int ubCost;
+    private final int currentWeight;
+    private final int[] softWeights;
 
     /**
      * Creates a new MaxSAT state with the given parameters.
@@ -34,8 +34,8 @@ public class MaxSatState {
      * @param softWeights   the weights in each soft clause,
      *                      must have length {@code nbSoft}
      */
-    public MaxSatState(final int stateId, final int nbVars, final int nbHard, final int nbSoft, final int ubCost, final int currentWeight,
-                       final int[] softWeights) {
+    public MaxSatState(final int stateId, final int nbVars, final int nbHard, final int nbSoft, final int ubCost,
+                       final int currentWeight, final int[] softWeights) {
         this.stateId = stateId;
         this.nbVars = nbVars;
         this.nbHard = nbHard;

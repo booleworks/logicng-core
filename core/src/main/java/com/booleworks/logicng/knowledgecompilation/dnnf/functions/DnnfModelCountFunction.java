@@ -21,10 +21,10 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
+public class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
 
-    private final FormulaFactory f;
-    private final Map<Formula, BigInteger> cache;
+    protected final FormulaFactory f;
+    protected final Map<Formula, BigInteger> cache;
 
     /**
      * Constructs a new instance of the function.
@@ -52,7 +52,7 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
         return result.multiply(factor);
     }
 
-    private BigInteger count(final Formula dnnf) {
+    protected BigInteger count(final Formula dnnf) {
         BigInteger c = cache.get(dnnf);
         if (c == null) {
             switch (dnnf.getType()) {

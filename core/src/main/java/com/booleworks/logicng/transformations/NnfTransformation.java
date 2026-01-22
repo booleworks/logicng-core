@@ -52,7 +52,7 @@ public class NnfTransformation extends CacheableFormulaTransformation {
         return LngResult.of(applyRec(formula, true));
     }
 
-    private Formula applyRec(final Formula formula, final boolean polarity) {
+    protected Formula applyRec(final Formula formula, final boolean polarity) {
         Formula nnf;
         if (polarity) {
             nnf = lookupCache(formula);
@@ -111,8 +111,8 @@ public class NnfTransformation extends CacheableFormulaTransformation {
         return nnf;
     }
 
-    private Formula applyRec(final FormulaFactory f, final Iterator<Formula> formulas, final FType type,
-                             final boolean polarity) {
+    protected Formula applyRec(final FormulaFactory f, final Iterator<Formula> formulas, final FType type,
+                               final boolean polarity) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         while (formulas.hasNext()) {
             final Formula formula = formulas.next();

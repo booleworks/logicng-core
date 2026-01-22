@@ -25,7 +25,7 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 1.5.0
  */
-public final class CnfSubsumption extends Subsumption {
+public class CnfSubsumption extends Subsumption {
 
     /**
      * Constructs a new simplification transformation using CNF subsumption.

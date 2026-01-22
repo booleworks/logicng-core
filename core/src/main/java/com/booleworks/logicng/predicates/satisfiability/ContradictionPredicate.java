@@ -13,9 +13,9 @@ import com.booleworks.logicng.formulas.FormulaPredicate;
  * @version 3.0.0
  * @since 1.0
  */
-public final class ContradictionPredicate implements FormulaPredicate {
+public class ContradictionPredicate implements FormulaPredicate {
 
-    private final FormulaFactory f;
+    protected final FormulaFactory f;
 
     /**
      * Constructs a new contradiction predicate with a given formula factory

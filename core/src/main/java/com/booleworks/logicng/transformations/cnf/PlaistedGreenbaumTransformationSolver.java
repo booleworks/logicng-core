@@ -18,12 +18,12 @@ import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 /**
  * A Plaisted-Greenbaum CNF conversion which is performed directly on the
  * internal SAT solver, not on a formula factory.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.6.0
  */
-public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenbaumCommon<Proposition> {
+public class PlaistedGreenbaumTransformationSolver extends PlaistedGreenbaumCommon<Proposition> {
 
-    private final LngCoreSolver solver;
+    protected final LngCoreSolver solver;
 
     /**
      * Constructs a new transformation for a given SAT solver.
@@ -67,12 +67,12 @@ public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenba
     }
 
     @Override
-    void addToSolver(final LngIntVector clause, final Proposition addendum) {
+    protected void addToSolver(final LngIntVector clause, final Proposition addendum) {
         solver.addClause(clause, addendum);
     }
 
     @Override
-    int getLitFromSolver(final Literal lit) {
+    protected int getLitFromSolver(final Literal lit) {
         return solverLiteral(lit, solver);
     }
 }

@@ -24,15 +24,12 @@ import java.util.TreeMap;
 /**
  * This class implements an algorithm to compute the connected components of a
  * graph.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.2
  */
-public final class ConnectedComponentsComputation {
+public class ConnectedComponentsComputation {
 
-    /**
-     * Private constructor.
-     */
-    private ConnectedComponentsComputation() {
+    protected ConnectedComponentsComputation() {
         // Intentionally left empty.
     }
 
@@ -88,8 +85,8 @@ public final class ConnectedComponentsComputation {
         return Collections.unmodifiableList(new ArrayList<>(map.values()));
     }
 
-    private static <T> void deepFirstSearch(final Node<T> v, final Set<Node<T>> component,
-                                            final Set<Node<T>> unmarkedNodes) {
+    protected static <T> void deepFirstSearch(final Node<T> v, final Set<Node<T>> component,
+                                              final Set<Node<T>> unmarkedNodes) {
         component.add(v);
         unmarkedNodes.remove(v);
         for (final Node<T> neigh : v.getNeighbours()) {

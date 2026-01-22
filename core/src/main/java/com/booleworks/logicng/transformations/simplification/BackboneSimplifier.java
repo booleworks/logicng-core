@@ -23,7 +23,7 @@ import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
  * @version 3.0.0
  * @since 1.5.0
  */
-public final class BackboneSimplifier extends StatelessFormulaTransformation {
+public class BackboneSimplifier extends StatelessFormulaTransformation {
 
     /**
      * Constructs a new instance.

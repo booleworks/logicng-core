@@ -28,7 +28,7 @@ import java.util.List;
  * @version 3.0.0
  * @since 1.3.1
  */
-public final class FormulaFactoryImporter extends StatelessFormulaTransformation {
+public class FormulaFactoryImporter extends StatelessFormulaTransformation {
 
     /**
      * Constructs a new formula factory importer with a given formula factory.
@@ -44,7 +44,7 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
         return LngResult.of(applyRec(formula));
     }
 
-    private Formula applyRec(final Formula formula) {
+    protected Formula applyRec(final Formula formula) {
         if (formula.getFactory() == f) {
             return formula;
         }
@@ -91,7 +91,7 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
      * @param operator the n-ary operator
      * @return the applied operands of the given operator
      */
-    private LinkedHashSet<Formula> gatherAppliedOperands(final NAryOperator operator) {
+    protected LinkedHashSet<Formula> gatherAppliedOperands(final NAryOperator operator) {
         final LinkedHashSet<Formula> applied = new LinkedHashSet<>();
         for (final Formula operand : operator) {
             applied.add(apply(operand));

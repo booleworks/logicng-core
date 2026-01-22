@@ -17,7 +17,7 @@ import java.util.Objects;
  * @since 3.0.0
  */
 // TODO rename or redefine or fix documentation of 'optimum'
-public class MaxSatResult {
+public final class MaxSatResult {
 
     private final boolean satisfiable;
     private final int optimum;

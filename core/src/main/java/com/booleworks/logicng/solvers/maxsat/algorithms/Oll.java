@@ -52,7 +52,7 @@ public class Oll extends MaxSat {
         }
     }
 
-    private LngCoreSolver rebuildSolver() {
+    protected LngCoreSolver rebuildSolver() {
         final LngCoreSolver s = newSatSolver();
         for (int i = 0; i < nVars(); i++) {
             newSatVariable(s);
@@ -73,7 +73,7 @@ public class Oll extends MaxSat {
         return s;
     }
 
-    private LngResult<MaxSatResult> unweighted(final ComputationHandler handler) {
+    protected LngResult<MaxSatResult> unweighted(final ComputationHandler handler) {
         final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
         final SortedMap<Integer, IntTriple> boundMapping = new TreeMap<>();
         nbInitialVariables = nVars();
@@ -202,7 +202,7 @@ public class Oll extends MaxSat {
         }
     }
 
-    private LngResult<MaxSatResult> weighted(final ComputationHandler handler) {
+    protected LngResult<MaxSatResult> weighted(final ComputationHandler handler) {
         final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
         final SortedMap<Integer, IntTriple> boundMapping = new TreeMap<>();
         nbInitialVariables = nVars();
@@ -454,7 +454,7 @@ public class Oll extends MaxSat {
         }
     }
 
-    private void initRelaxation() {
+    protected void initRelaxation() {
         for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);
@@ -462,7 +462,8 @@ public class Oll extends MaxSat {
         }
     }
 
-    private int findNextWeightDiversity(final int weight, final Set<Integer> cardinalityAssumptions, final SortedMap<Integer, IntTriple> boundMapping) {
+    protected int findNextWeightDiversity(final int weight, final Set<Integer> cardinalityAssumptions,
+                                          final SortedMap<Integer, IntTriple> boundMapping) {
         assert (nbSatisfiable > 0);
         int nextWeight = weight;
         int nbClauses;
@@ -489,7 +490,8 @@ public class Oll extends MaxSat {
                     nbWeights.add(softId.weight);
                 }
             }
-            if ((float) nbClauses / nbWeights.size() > alpha || nbClauses == softClauses.size() + cardinalityAssumptions.size()) {
+            if ((float) nbClauses / nbWeights.size() > alpha
+                    || nbClauses == softClauses.size() + cardinalityAssumptions.size()) {
                 break;
             }
             if (nbSatisfiable == 1 && !findNext) {
@@ -499,7 +501,8 @@ public class Oll extends MaxSat {
         return nextWeight;
     }
 
-    int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions, final SortedMap<Integer, IntTriple> boundMapping) {
+    protected int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions,
+                                 final SortedMap<Integer, IntTriple> boundMapping) {
         int nextWeight = 1;
         for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() > nextWeight && softClauses.get(i).weight() < weight) {
@@ -516,10 +519,10 @@ public class Oll extends MaxSat {
         return nextWeight;
     }
 
-    private static class IntTriple {
-        private final int id;
-        private final int bound;
-        private final int weight;
+    protected static class IntTriple {
+        public final int id;
+        public final int bound;
+        public final int weight;
 
         public IntTriple(final int id, final int bound, final int weight) {
             this.id = id;

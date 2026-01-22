@@ -25,7 +25,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CnfFactorization extends CacheableFormulaTransformation {
+public class CnfFactorization extends CacheableFormulaTransformation {
 
     /**
      * Constructor for a CNF Factorization.
@@ -53,7 +53,7 @@ public final class CnfFactorization extends CacheableFormulaTransformation {
         return applyRec(formula, handler);
     }
 
-    private LngResult<Formula> applyRec(final Formula formula, final ComputationHandler handler) {
+    protected LngResult<Formula> applyRec(final Formula formula, final ComputationHandler handler) {
         if (formula.getType().getPrecedence() >= FType.LITERAL.getPrecedence()) {
             return LngResult.of(formula);
         }
@@ -124,7 +124,7 @@ public final class CnfFactorization extends CacheableFormulaTransformation {
      * @param handler the computation handler
      * @return the distribution of the two formulas
      */
-    private LngResult<Formula> distribute(final Formula f1, final Formula f2, final ComputationHandler handler) {
+    protected LngResult<Formula> distribute(final Formula f1, final Formula f2, final ComputationHandler handler) {
         if (!handler.shouldResume(DISTRIBUTION_PERFORMED)) {
             return LngResult.canceled(DISTRIBUTION_PERFORMED);
         }

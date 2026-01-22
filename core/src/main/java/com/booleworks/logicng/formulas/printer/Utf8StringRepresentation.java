@@ -17,9 +17,9 @@ import java.util.regex.Pattern;
  * @version 3.0.0
  * @since 1.0
  */
-public final class Utf8StringRepresentation extends FormulaStringRepresentation {
+public class Utf8StringRepresentation extends FormulaStringRepresentation {
 
-    private static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
+    protected static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
 
     private static final Utf8StringRepresentation INSTANCE = new Utf8StringRepresentation();
 
@@ -36,7 +36,7 @@ public final class Utf8StringRepresentation extends FormulaStringRepresentation 
      * @param name the name
      * @return the matching UTF8 symbol
      */
-    private static String utf8Name(final String name) {
+    protected static String utf8Name(final String name) {
         final Matcher matcher = pattern.matcher(name);
         if (!matcher.matches()) {
             return name;
@@ -47,7 +47,7 @@ public final class Utf8StringRepresentation extends FormulaStringRepresentation 
         return matcher.group(1) + getSubscript(matcher.group(2));
     }
 
-    private static String getSubscript(final String number) {
+    protected static String getSubscript(final String number) {
         final StringBuilder sb = new StringBuilder();
         for (final char c : number.toCharArray()) {
             switch (c) {

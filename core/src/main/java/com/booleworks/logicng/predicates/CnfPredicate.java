@@ -17,7 +17,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CnfPredicate extends CacheableFormulaPredicate {
+public class CnfPredicate extends CacheableFormulaPredicate {
 
     /**
      * Constructs a new predicate. For a caching formula factory, the cache of
@@ -69,7 +69,7 @@ public final class CnfPredicate extends CacheableFormulaPredicate {
         }
     }
 
-    private boolean isClause(final Formula formula) {
+    protected boolean isClause(final Formula formula) {
         return formula.getType() == FType.LITERAL ||
                 formula.getType() == FType.OR && ((Or) formula).isCnfClause();
     }

@@ -40,17 +40,17 @@ import java.util.Set;
  * <p>
  * Also note that formulas are not added to the solver as soon as the solver is
  * known be unsatisfiable.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula>> {
+public class FormulaOnSolverFunction implements SolverFunction<Set<Formula>> {
 
     private final static FormulaOnSolverFunction INSTANCE = new FormulaOnSolverFunction();
 
     /**
      * Private empty constructor. Singleton class.
      */
-    private FormulaOnSolverFunction() {
+    protected FormulaOnSolverFunction() {
         // Intentionally left empty
     }
 

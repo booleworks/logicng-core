@@ -187,7 +187,7 @@ public final class SatSolverLowLevelConfig {
                 factorK, factorR, sizeLbdQueue, sizeTrailQueue, reduceOnSize, reduceOnSizeSize, maxVarDecay);
     }
 
-    public static class Builder {
+    public static final class Builder {
         private double varDecay = 0.95;
         private double varInc = 1.0;
         private int restartFirst = 100;

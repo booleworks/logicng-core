@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class OptimizationFoundBetterBoundEvent implements LngEvent {
+public final class OptimizationFoundBetterBoundEvent implements LngEvent {
 
     private final Supplier<Model> model;
 

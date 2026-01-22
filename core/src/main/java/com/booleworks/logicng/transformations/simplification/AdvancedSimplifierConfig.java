@@ -14,7 +14,7 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
  * @since 2.3.0
  */
 
-public class AdvancedSimplifierConfig extends Configuration {
+public final class AdvancedSimplifierConfig extends Configuration {
 
     final boolean restrictBackbone;
     final boolean factorOut;
@@ -60,7 +60,7 @@ public class AdvancedSimplifierConfig extends Configuration {
     /**
      * The builder for the advanced simplifier configuration.
      */
-    public static class Builder {
+    public static final class Builder {
 
         private boolean restrictBackbone = true;
         private boolean factorOut = true;

@@ -14,7 +14,7 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.M
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ModelEnumerationConfig extends Configuration {
+public final class ModelEnumerationConfig extends Configuration {
 
     final ModelEnumerationStrategy strategy;
 
@@ -40,7 +40,7 @@ public class ModelEnumerationConfig extends Configuration {
      * @version 3.0.0
      * @since 3.0.0
      */
-    public static class Builder {
+    public final static class Builder {
         private ModelEnumerationStrategy strategy = DefaultModelEnumerationStrategy.builder().build();
 
         private Builder() {

@@ -42,8 +42,9 @@ import java.util.stream.Collectors;
  */
 public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<List<Model>> {
 
-    ModelEnumerationFunction(final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables,
-                             final ModelEnumerationConfig config) {
+    protected ModelEnumerationFunction(final SortedSet<Variable> variables,
+                                       final SortedSet<Variable> additionalVariables,
+                                       final ModelEnumerationConfig config) {
         super(variables, additionalVariables, configuration(variables, config));
     }
 
@@ -78,7 +79,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     /**
      * The builder for a model enumeration function.
      */
-    public static class Builder {
+    public static final class Builder {
         private final SortedSet<Variable> variables;
         private SortedSet<Variable> additionalVariables;
         private ModelEnumerationConfig configuration;
@@ -88,7 +89,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
          * variables.
          * @param variables the variables for the enumeration
          */
-        Builder(final Collection<Variable> variables) {
+        private Builder(final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
         }
 
@@ -134,7 +135,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
     }
 
-    static class ModelEnumerationCollector implements EnumerationCollector<List<Model>> {
+    static final class ModelEnumerationCollector implements EnumerationCollector<List<Model>> {
         private final List<Model> committedModels = new ArrayList<>();
         private final List<List<Literal>> uncommittedModels = new ArrayList<>();
         private final List<List<Literal>> baseModels;

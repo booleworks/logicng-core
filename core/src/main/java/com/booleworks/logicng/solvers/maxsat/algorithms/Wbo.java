@@ -116,7 +116,7 @@ public class Wbo extends MaxSat {
         return s;
     }
 
-    LngCoreSolver rebuildSolver() {
+    protected LngCoreSolver rebuildSolver() {
         assert weightStrategy == WeightStrategy.NONE;
         final LngCoreSolver s = newSatSolver();
         for (int i = 0; i < nVars(); i++) {
@@ -151,7 +151,7 @@ public class Wbo extends MaxSat {
         return s;
     }
 
-    void updateCurrentWeight(final WeightStrategy strategy) {
+    protected void updateCurrentWeight(final WeightStrategy strategy) {
         switch (strategy) {
             case NORMAL:
                 currentWeight = findNextWeight(currentWeight);
@@ -295,7 +295,7 @@ public class Wbo extends MaxSat {
         sumSizeCores += conflict.size();
     }
 
-    int computeCostCore(final LngIntVector conflict) {
+    protected int computeCostCore(final LngIntVector conflict) {
         assert !conflict.isEmpty();
         if (problemType == ProblemType.UNWEIGHTED) {
             return 1;
@@ -310,14 +310,14 @@ public class Wbo extends MaxSat {
         return coreCost;
     }
 
-    void initSymmetry() {
+    protected void initSymmetry() {
         for (int i = 0; i < softClauses.size(); i++) {
             softMapping.push(new LngIntVector());
             relaxationMapping.push(new LngIntVector());
         }
     }
 
-    void symmetryLog(final int p) {
+    protected void symmetryLog(final int p) {
         if (nbSymmetryClauses < symmetryBreakingLimit) {
             while (softMapping.size() <= p) {
                 softMapping.push(new LngIntVector());
@@ -400,7 +400,7 @@ public class Wbo extends MaxSat {
         indexSoftCore.clear();
     }
 
-    LngResult<Boolean> unsatSearch(final ComputationHandler handler) {
+    protected LngResult<Boolean> unsatSearch(final ComputationHandler handler) {
         assert assumptions.isEmpty();
         solver = rebuildHardSolver();
         final LngResult<Boolean> res = searchSatSolver(solver, handler, assumptions);
@@ -540,7 +540,7 @@ public class Wbo extends MaxSat {
         }
     }
 
-    void initAssumptions() {
+    protected void initAssumptions() {
         for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).setAssumptionVar(l);

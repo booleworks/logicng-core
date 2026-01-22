@@ -29,7 +29,7 @@ import java.util.List;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class PureExpansionTransformation extends StatelessFormulaTransformation {
+public class PureExpansionTransformation extends StatelessFormulaTransformation {
 
     public PureExpansionTransformation(final FormulaFactory f) {
         super(f);
@@ -40,7 +40,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
         return LngResult.of(expand(formula));
     }
 
-    private Formula expand(final Formula formula) {
+    protected Formula expand(final Formula formula) {
         switch (formula.getType()) {
             case FALSE:
             case TRUE:

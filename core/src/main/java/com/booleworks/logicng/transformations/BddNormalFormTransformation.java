@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public abstract class BddNormalFormTransformation extends CacheableAndStatefulFormulaTransformation<BddKernel> {
 
-    private final boolean cnf;
+    protected final boolean cnf;
 
     /**
      * Constructs a new BDD-based normal form transformation with an optional
@@ -99,7 +99,7 @@ public abstract class BddNormalFormTransformation extends CacheableAndStatefulFo
         return simplifiedNormalForm;
     }
 
-    private boolean hasNormalForm(final Formula formula, final boolean cnf) {
+    protected boolean hasNormalForm(final Formula formula, final boolean cnf) {
         return cnf ? formula.isCnf(f) : formula.isDnf(f);
     }
 }

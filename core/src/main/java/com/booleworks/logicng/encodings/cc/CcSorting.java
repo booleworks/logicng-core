@@ -19,9 +19,9 @@ import com.booleworks.logicng.formulas.Variable;
  * @version 3.0.0
  * @since 1.1
  */
-public final class CcSorting {
+public class CcSorting {
 
-    private CcSorting() {
+    protected CcSorting() {
         // Only static methods
     }
 
@@ -34,11 +34,11 @@ public final class CcSorting {
         BOTH
     }
 
-    private static int counterSorterValue(final int m, final int n) {
+    protected static int counterSorterValue(final int m, final int n) {
         return 2 * n + (m - 1) * (2 * (n - 1) - 1) - (m - 2) - 2 * ((m - 1) * (m - 2) / 2);
     }
 
-    private static int directSorterValue(final int n) {
+    protected static int directSorterValue(final int n) {
         if (n > 30) {
             return Integer.MAX_VALUE;
         }
@@ -104,9 +104,8 @@ public final class CcSorting {
         }
     }
 
-    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y,
-                                   final EncodingResult result,
-                                   final ImplicationDirection direction) {
+    protected static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y,
+                                     final EncodingResult result, final ImplicationDirection direction) {
         assert !x1.equals(x2);
         if (direction == INPUT_TO_OUTPUT || direction == BOTH) {
             result.addClause(x1.negate(f), y);
@@ -117,9 +116,9 @@ public final class CcSorting {
         }
     }
 
-    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y1,
-                                   final Literal y2, final EncodingResult result,
-                                   final ImplicationDirection direction) {
+    protected static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y1,
+                                     final Literal y2, final EncodingResult result,
+                                     final ImplicationDirection direction) {
         assert !x1.equals(x2);
         assert !y1.equals(y2);
         if (direction == INPUT_TO_OUTPUT || direction == BOTH) {
@@ -134,9 +133,9 @@ public final class CcSorting {
         }
     }
 
-    private static void recursiveSorter(final FormulaFactory f, final int m, final int l,
-                                        final LngVector<Literal> input, final EncodingResult result,
-                                        final LngVector<Literal> output, final ImplicationDirection direction) {
+    protected static void recursiveSorter(final FormulaFactory f, final int m, final int l,
+                                          final LngVector<Literal> input, final EncodingResult result,
+                                          final LngVector<Literal> output, final ImplicationDirection direction) {
         final int n = input.size();
         assert output.isEmpty();
         assert n > 1;
@@ -164,9 +163,9 @@ public final class CcSorting {
         assert output.size() == m;
     }
 
-    private static void recursiveSorter(final FormulaFactory f, final int m, final LngVector<Literal> input,
-                                        final EncodingResult result,
-                                        final LngVector<Literal> output, final ImplicationDirection direction) {
+    protected static void recursiveSorter(final FormulaFactory f, final int m, final LngVector<Literal> input,
+                                          final EncodingResult result, final LngVector<Literal> output,
+                                          final ImplicationDirection direction) {
         assert m > 0;
         assert !input.isEmpty();
         output.clear();
@@ -176,8 +175,8 @@ public final class CcSorting {
         recursiveSorter(f, m, l, input, result, output, direction);
     }
 
-    private static void counterSorter(final int k, final LngVector<Literal> x, final EncodingResult result,
-                                      final LngVector<Literal> output, final ImplicationDirection direction) {
+    protected static void counterSorter(final int k, final LngVector<Literal> x, final EncodingResult result,
+                                        final LngVector<Literal> output, final ImplicationDirection direction) {
         final FormulaFactory f = result.getFactory();
         final LngVector<LngVector<Literal>> auxVars = new LngVector<>();
         final int n = x.size();
@@ -214,8 +213,8 @@ public final class CcSorting {
         }
     }
 
-    private static void directSorter(final int m, final LngVector<Literal> input, final EncodingResult result,
-                                     final LngVector<Literal> output, final ImplicationDirection direction) {
+    protected static void directSorter(final int m, final LngVector<Literal> input, final EncodingResult result,
+                                       final LngVector<Literal> output, final ImplicationDirection direction) {
         assert direction == INPUT_TO_OUTPUT;
         final int n = input.size();
         assert n < 20;
@@ -286,10 +285,10 @@ public final class CcSorting {
         directMerger(f, m2, inputA, inputB, formula, output, direction);
     }
 
-    private static void recursiveMerger(final FormulaFactory f, final int c, final LngVector<Literal> inputA,
-                                        final int a, final LngVector<Literal> inputB, final int b,
-                                        final EncodingResult formula, final LngVector<Literal> output,
-                                        final ImplicationDirection direction) {
+    protected static void recursiveMerger(final FormulaFactory f, final int c, final LngVector<Literal> inputA,
+                                          final int a, final LngVector<Literal> inputB, final int b,
+                                          final EncodingResult formula, final LngVector<Literal> output,
+                                          final ImplicationDirection direction) {
         assert !inputA.isEmpty();
         assert !inputB.isEmpty();
         assert c > 0;
@@ -380,9 +379,9 @@ public final class CcSorting {
         assert output.size() == a2 + b2 || output.size() == c;
     }
 
-    private static void directMerger(final FormulaFactory f, final int m, final LngVector<Literal> inputA,
-                                     final LngVector<Literal> inputB, final EncodingResult formula,
-                                     final LngVector<Literal> output, final ImplicationDirection direction) {
+    protected static void directMerger(final FormulaFactory f, final int m, final LngVector<Literal> inputA,
+                                       final LngVector<Literal> inputB, final EncodingResult formula,
+                                       final LngVector<Literal> output, final ImplicationDirection direction) {
         assert direction == INPUT_TO_OUTPUT;
         final int a = inputA.size();
         final int b = inputB.size();

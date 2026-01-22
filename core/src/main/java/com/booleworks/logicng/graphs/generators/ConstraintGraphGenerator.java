@@ -17,12 +17,9 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class ConstraintGraphGenerator {
+public class ConstraintGraphGenerator {
 
-    /**
-     * Private constructor.
-     */
-    private ConstraintGraphGenerator() {
+    protected ConstraintGraphGenerator() {
         // Intentionally left empty.
     }
 
@@ -54,7 +51,7 @@ public final class ConstraintGraphGenerator {
         return constraintGraph;
     }
 
-    private static void addClause(final FormulaFactory f, final Formula clause, final Graph<Variable> graph) {
+    protected static void addClause(final FormulaFactory f, final Formula clause, final Graph<Variable> graph) {
         final Variable[] variables = clause.variables(f).toArray(new Variable[0]);
         if (variables.length == 1) {
             graph.node(variables[0]);

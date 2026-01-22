@@ -22,13 +22,13 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public class DTreeLeaf extends DTree {
+public final class DTreeLeaf extends DTree {
 
-    protected final int id;
-    protected final Formula clause;
-    protected final int clauseSize;
-    protected int[] literals;
-    protected final BitSet separatorBitSet = new BitSet();
+    private final int id;
+    private final Formula clause;
+    private final int clauseSize;
+    private int[] literals;
+    private final BitSet separatorBitSet = new BitSet();
 
     /**
      * Constructs a new leaf with the given id and clause.
@@ -78,7 +78,7 @@ public class DTreeLeaf extends DTree {
         return separatorBitSet;
     }
 
-    protected boolean isSubsumed() {
+    private boolean isSubsumed() {
         for (final int literal : literals) {
             if (solver.valueOf(literal) == Tristate.TRUE) {
                 return true;

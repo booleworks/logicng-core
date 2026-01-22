@@ -29,7 +29,7 @@ import java.util.TreeMap;
  * @version 3.0.0
  * @since 1.0
  */
-public final class VariableProfileFunction extends CacheableFormulaFunction<Map<Variable, Integer>> {
+public class VariableProfileFunction extends CacheableFormulaFunction<Map<Variable, Integer>> {
 
     /**
      * Constructs a new function. For a caching formula factory, the cache of
@@ -63,7 +63,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param formula the formula
      * @return the variable profile
      */
-    private Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
+    protected Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
         final SortedMap<Variable, Integer> map = new TreeMap<>();
         nonCachingRecursion(formula, map);
         return map;
@@ -74,7 +74,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param formula the formula
      * @param map     the variable profile
      */
-    private void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
+    protected void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
         if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit.variable(), 1, Integer::sum);
@@ -95,7 +95,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param formula the formula
      * @return the variable profile
      */
-    private Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
+    protected Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
         final Map<Variable, Integer> cached = lookupCache(formula);
         if (cached != null) {
             return cached;

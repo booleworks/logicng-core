@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.Not;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class ContainsPbcPredicate implements FormulaPredicate {
+public class ContainsPbcPredicate implements FormulaPredicate {
 
     /**
      * Constructs a new predicate that tests if a formula contains any

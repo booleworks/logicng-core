@@ -50,14 +50,14 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class PrimeCompiler {
+public class PrimeCompiler {
 
-    private static final String POS = "_POS";
-    private static final String NEG = "_NEG";
+    protected static final String POS = "_POS";
+    protected static final String NEG = "_NEG";
 
-    private final FormulaFactory f;
-    private final MaxSatConfig config;
-    private final boolean maximization;
+    protected final FormulaFactory f;
+    protected final MaxSatConfig config;
+    protected final boolean maximization;
 
     /**
      * Constructs a new prime compiler with the default MaxSAT config (OLL)
@@ -134,7 +134,7 @@ public final class PrimeCompiler {
                 completeImplicants ? result.getSecond() : negateAll(f, result.getFirst()), type));
     }
 
-    private LngResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> computeGeneric(
+    protected LngResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> computeGeneric(
             final FormulaFactory f,
             final Formula formula,
             final ComputationHandler handler) {
@@ -165,7 +165,8 @@ public final class PrimeCompiler {
                 }
                 if (!fCall.getSatResult().getResult()) {
                     final LngResult<SortedSet<Literal>> primeImplicantResult =
-                            maximization ? primeReduction.reduceImplicant(fModel.getLiterals(), handler) : LngResult.of(new TreeSet<>(fModel.getLiterals()));
+                            maximization ? primeReduction.reduceImplicant(fModel.getLiterals(), handler)
+                                         : LngResult.of(new TreeSet<>(fModel.getLiterals()));
                     if (!primeImplicantResult.isSuccess()) {
                         return LngResult.canceled(primeImplicantResult.getCancelCause());
                     }
@@ -178,10 +179,12 @@ public final class PrimeCompiler {
                     hSolver.addHardFormula(f.or(blockingClause));
                 } else {
                     final SortedSet<Literal> implicate = new TreeSet<>();
-                    for (final Literal lit : (maximization ? fModel : fCall.model(formula.variables(f))).getLiterals()) {
+                    for (final Literal lit : (maximization ? fModel
+                                                           : fCall.model(formula.variables(f))).getLiterals()) {
                         implicate.add(lit.negate(f));
                     }
-                    final LngResult<SortedSet<Literal>> primeImplicateResult = primeReduction.reduceImplicate(f, implicate, handler);
+                    final LngResult<SortedSet<Literal>> primeImplicateResult =
+                            primeReduction.reduceImplicate(f, implicate, handler);
                     if (!primeImplicateResult.isSuccess()) {
                         return LngResult.canceled(primeImplicateResult.getCancelCause());
                     }
@@ -193,7 +196,7 @@ public final class PrimeCompiler {
         }
     }
 
-    private SubstitutionResult createSubstitution(final FormulaFactory f, final Formula formula) {
+    protected SubstitutionResult createSubstitution(final FormulaFactory f, final Formula formula) {
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
         final List<Formula> constraintOps = new ArrayList<>();
@@ -210,7 +213,7 @@ public final class PrimeCompiler {
         return new SubstitutionResult(newVar2oldLit, substTransformation, f.and(constraintOps));
     }
 
-    private Model transformModel(final Model model, final Map<Variable, Literal> mapping) {
+    protected Model transformModel(final Model model, final Map<Variable, Literal> mapping) {
         final List<Literal> mapped = new ArrayList<>();
         for (final Variable var : model.positiveVariables()) {
             mapped.add(mapping.get(var));
@@ -218,7 +221,8 @@ public final class PrimeCompiler {
         return new Model(mapped);
     }
 
-    private List<SortedSet<Literal>> negateAll(final FormulaFactory f, final Collection<SortedSet<Literal>> literalSets) {
+    protected List<SortedSet<Literal>> negateAll(final FormulaFactory f,
+                                                 final Collection<SortedSet<Literal>> literalSets) {
         final List<SortedSet<Literal>> result = new ArrayList<>();
         for (final SortedSet<Literal> literals : literalSets) {
             result.add(FormulaHelper.negateLiterals(f, literals, TreeSet::new));
@@ -226,12 +230,13 @@ public final class PrimeCompiler {
         return result;
     }
 
-    private static class SubstitutionResult {
+    private final static class SubstitutionResult {
         private final Map<Variable, Literal> newVar2oldLit;
         private final LiteralSubstitution substitution;
         private final Formula constraintFormula;
 
-        private SubstitutionResult(final Map<Variable, Literal> newVar2oldLit, final LiteralSubstitution substitution, final Formula constraintFormula) {
+        private SubstitutionResult(final Map<Variable, Literal> newVar2oldLit, final LiteralSubstitution substitution,
+                                   final Formula constraintFormula) {
             this.newVar2oldLit = newVar2oldLit;
             this.substitution = substitution;
             this.constraintFormula = constraintFormula;

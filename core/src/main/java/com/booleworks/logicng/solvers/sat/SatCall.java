@@ -50,7 +50,7 @@ import java.util.List;
  * is enabled)</li>
  * </ul>
  */
-public class SatCall implements AutoCloseable {
+public final class SatCall implements AutoCloseable {
 
     private final SatSolver solverWrapper;
     private final LngCoreSolver solver;
@@ -182,7 +182,7 @@ public class SatCall implements AutoCloseable {
         solver.finishSatCall();
     }
 
-    private static class Additionals {
+    private static final class Additionals {
         private final List<Literal> additionalLiterals;
         private final List<Proposition> propositionsForLiterals;
         private final List<Proposition> additionalFormulas;

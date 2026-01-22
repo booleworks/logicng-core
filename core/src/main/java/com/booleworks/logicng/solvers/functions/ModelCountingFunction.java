@@ -40,7 +40,7 @@ import java.util.TreeSet;
  */
 public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigInteger> {
 
-    ModelCountingFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
+    protected ModelCountingFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
         super(variables, Collections.emptySortedSet(), configuration(variables, config));
     }
 
@@ -73,7 +73,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
     /**
      * The builder for a model counting function.
      */
-    public static class Builder {
+    public static final class Builder {
         private final SortedSet<Variable> variables;
         private ModelEnumerationConfig configuration;
 
@@ -82,7 +82,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
          * variables.
          * @param variables the variables for the enumeration
          */
-        Builder(final Collection<Variable> variables) {
+        private Builder(final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
         }
 
@@ -107,7 +107,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
     }
 
-    static class ModelCountCollector implements EnumerationCollector<BigInteger> {
+    static final class ModelCountCollector implements EnumerationCollector<BigInteger> {
         private BigInteger committedCount = BigInteger.ZERO;
         private final List<LngBooleanVector> uncommittedModels = new ArrayList<>(100);
         private final List<LngIntVector> uncommittedIndices = new ArrayList<>(100);

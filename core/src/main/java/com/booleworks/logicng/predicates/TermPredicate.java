@@ -15,17 +15,17 @@ import com.booleworks.logicng.formulas.NAryOperator;
  * @version 3.0.0
  * @since 2.2.0
  */
-public final class TermPredicate implements FormulaPredicate {
+public class TermPredicate implements FormulaPredicate {
 
     private final static TermPredicate MINTERM_PREDICATE = new TermPredicate(true);
     private final static TermPredicate MAXTERM_PREDICATE = new TermPredicate(false);
 
-    private final boolean mintermPredicate;
+    protected final boolean mintermPredicate;
 
     /**
      * Private empty constructor. Singleton class.
      */
-    private TermPredicate(final boolean mintermPredicate) {
+    protected TermPredicate(final boolean mintermPredicate) {
         this.mintermPredicate = mintermPredicate;
     }
 
@@ -73,7 +73,7 @@ public final class TermPredicate implements FormulaPredicate {
         }
     }
 
-    private boolean onlyLiteralOperands(final NAryOperator nary) {
+    protected boolean onlyLiteralOperands(final NAryOperator nary) {
         for (final Formula op : nary) {
             if (op.getType() != FType.LITERAL) {
                 return false;

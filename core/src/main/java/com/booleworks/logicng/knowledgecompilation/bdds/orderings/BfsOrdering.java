@@ -24,7 +24,7 @@ import java.util.Queue;
  * @version 2.0.0
  * @since 1.4.0
  */
-public final class BfsOrdering implements VariableOrderingProvider {
+public class BfsOrdering implements VariableOrderingProvider {
 
     /**
      * Constructor.
@@ -37,7 +37,7 @@ public final class BfsOrdering implements VariableOrderingProvider {
         return new ArrayList<>(bfs(formula));
     }
 
-    private LinkedHashSet<Variable> bfs(final Formula formula) {
+    protected LinkedHashSet<Variable> bfs(final Formula formula) {
         final LinkedHashSet<Variable> variables = new LinkedHashSet<>();
         final Queue<Formula> queue = new LinkedList<>();
         queue.add(formula);

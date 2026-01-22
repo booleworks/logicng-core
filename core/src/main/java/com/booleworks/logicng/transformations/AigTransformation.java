@@ -24,7 +24,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class AigTransformation extends CacheableFormulaTransformation {
+public class AigTransformation extends CacheableFormulaTransformation {
 
     /**
      * Constructs a new transformation. For a caching formula factory, the cache
@@ -51,7 +51,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         return LngResult.of(transform(formula));
     }
 
-    private Formula transform(final Formula formula) {
+    protected Formula transform(final Formula formula) {
         switch (formula.getType()) {
             case FALSE:
             case TRUE:
@@ -75,7 +75,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         }
     }
 
-    private Formula transformNot(final Not not) {
+    protected Formula transformNot(final Not not) {
         Formula aig = lookupCache(not);
         if (aig == null) {
             aig = f.not(apply(not.getOperand()));
@@ -84,7 +84,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         return aig;
     }
 
-    private Formula transformImplication(final Implication impl) {
+    protected Formula transformImplication(final Implication impl) {
         Formula aig = lookupCache(impl);
         if (aig == null) {
             aig = f.not(f.and(apply(impl.getLeft()), f.not(apply(impl.getRight()))));
@@ -93,7 +93,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         return aig;
     }
 
-    private Formula transformEquivalence(final Equivalence equiv) {
+    protected Formula transformEquivalence(final Equivalence equiv) {
         Formula aig = lookupCache(equiv);
         if (aig == null) {
             aig = f.and(f.not(f.and(apply(equiv.getLeft()), f.not(apply(equiv.getRight())))),
@@ -103,7 +103,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         return aig;
     }
 
-    private Formula transformAnd(final And and) {
+    protected Formula transformAnd(final And and) {
         Formula aig = lookupCache(and);
         if (aig == null) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>(and.numberOfOperands());
@@ -116,7 +116,7 @@ public final class AigTransformation extends CacheableFormulaTransformation {
         return aig;
     }
 
-    private Formula transformOr(final Or or) {
+    protected Formula transformOr(final Or or) {
         Formula aig = lookupCache(or);
         if (aig == null) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>(or.numberOfOperands());

@@ -18,7 +18,7 @@ import java.util.TreeMap;
 
 /**
  * The jBuddy kernel.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public class BddKernel {
@@ -766,13 +766,13 @@ public class BddKernel {
     /**
      * A class for BDD statistics.
      */
-    public static class BddStatistics {
-        protected long produced;
-        protected int nodesize;
-        protected int freenum;
-        protected int varnum;
-        protected int cachesize;
-        protected int gbcollectnum;
+    public final static class BddStatistics {
+        private long produced;
+        private int nodesize;
+        private int freenum;
+        private int varnum;
+        private int cachesize;
+        private int gbcollectnum;
 
         /**
          * Returns the number of produced nodes.

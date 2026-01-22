@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
  * @version 2.0.0
  * @since 1.4.0
  */
-public final class ForceOrdering implements VariableOrderingProvider {
+public class ForceOrdering implements VariableOrderingProvider {
 
-    private static final Comparator<? super Map.Entry<HypergraphNode<Variable>, Double>> COMPARATOR =
+    protected static final Comparator<? super Map.Entry<HypergraphNode<Variable>, Double>> COMPARATOR =
             Map.Entry.comparingByValue();
 
-    private final DfsOrdering dfsOrdering = new DfsOrdering();
+    protected final DfsOrdering dfsOrdering = new DfsOrdering();
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
@@ -53,8 +53,8 @@ public final class ForceOrdering implements VariableOrderingProvider {
         return ordering;
     }
 
-    private List<Variable> force(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
-                                 final Map<Variable, HypergraphNode<Variable>> nodes) {
+    protected List<Variable> force(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
+                                   final Map<Variable, HypergraphNode<Variable>> nodes) {
         final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering =
                 createInitialOrdering(f, formula, nodes);
         LinkedHashMap<HypergraphNode<Variable>, Integer> lastOrdering;
@@ -80,7 +80,7 @@ public final class ForceOrdering implements VariableOrderingProvider {
      * @param nodes   the variable to hyper-graph node mapping
      * @return the initial variable ordering
      */
-    private LinkedHashMap<HypergraphNode<Variable>, Integer>
+    protected LinkedHashMap<HypergraphNode<Variable>, Integer>
     createInitialOrdering(final FormulaFactory f, final Formula formula,
                           final Map<Variable, HypergraphNode<Variable>> nodes) {
         final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering = new LinkedHashMap<>();
@@ -97,7 +97,7 @@ public final class ForceOrdering implements VariableOrderingProvider {
      * @param newLocations the tentative new locations
      * @return the new integer ordering
      */
-    private LinkedHashMap<HypergraphNode<Variable>, Integer>
+    protected LinkedHashMap<HypergraphNode<Variable>, Integer>
     orderingFromTentativeNewLocations(final LinkedHashMap<HypergraphNode<Variable>, Double> newLocations) {
         final LinkedHashMap<HypergraphNode<Variable>, Integer> ordering = new LinkedHashMap<>();
         final List<Map.Entry<HypergraphNode<Variable>, Double>> list = new ArrayList<>(newLocations.entrySet());
@@ -116,8 +116,8 @@ public final class ForceOrdering implements VariableOrderingProvider {
      * @return {@code true} if the algorithm should proceed, {@code false} if it
      * should stop
      */
-    private boolean shouldProceed(final Map<HypergraphNode<Variable>, Integer> lastOrdering,
-                                  final Map<HypergraphNode<Variable>, Integer> currentOrdering) {
+    protected boolean shouldProceed(final Map<HypergraphNode<Variable>, Integer> lastOrdering,
+                                    final Map<HypergraphNode<Variable>, Integer> currentOrdering) {
         return !lastOrdering.equals(currentOrdering);
     }
 }

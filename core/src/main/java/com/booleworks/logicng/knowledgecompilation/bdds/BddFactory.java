@@ -29,9 +29,9 @@ import java.util.Iterator;
  * @version 3.0.0
  * @since 1.4.0
  */
-public final class BddFactory {
+public class BddFactory {
 
-    private BddFactory() {
+    protected BddFactory() {
         // not to be instantiated
     }
 
@@ -142,8 +142,8 @@ public final class BddFactory {
      * @param handler      the handler
      * @return the BDD index or canceling cause if the computation was canceled
      */
-    private static int buildRec(final FormulaFactory f, final Formula formula, final BddKernel kernel,
-                                final BddConstruction construction, final ComputationHandler handler) {
+    protected static int buildRec(final FormulaFactory f, final Formula formula, final BddKernel kernel,
+                                  final BddConstruction construction, final ComputationHandler handler) {
         switch (formula.getType()) {
             case FALSE:
                 return BddKernel.BDD_FALSE;

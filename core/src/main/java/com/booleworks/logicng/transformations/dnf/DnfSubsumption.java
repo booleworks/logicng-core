@@ -25,7 +25,7 @@ import java.util.SortedSet;
  * @version 3.0.0
  * @since 1.5.0
  */
-public final class DnfSubsumption extends Subsumption {
+public class DnfSubsumption extends Subsumption {
 
     /**
      * Constructs a new instance of this transformation.

@@ -221,7 +221,7 @@ public final class Smus {
     /**
      * The builder for an SMUS computation.
      */
-    public static class Builder {
+    public final static class Builder {
         private final FormulaFactory f;
         private final List<Formula> additionalConstraints = new ArrayList<>();
         private MaxSatConfig maxSatConfig = MaxSatConfig.CONFIG_OLL;

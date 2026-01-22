@@ -16,7 +16,7 @@ import com.booleworks.logicng.transformations.CanonicalEnumeration;
  * @version 3.0.0
  * @since 2.3.0
  */
-public final class CanonicalCnfEnumeration extends CanonicalEnumeration {
+public class CanonicalCnfEnumeration extends CanonicalEnumeration {
 
     /**
      * Constructs a new instance of the canonical CNF transformation.

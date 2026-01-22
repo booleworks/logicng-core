@@ -28,12 +28,12 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class TseitinTransformation extends StatefulFormulaTransformation<TseitinTransformation.TseitinState> {
+public class TseitinTransformation extends StatefulFormulaTransformation<TseitinTransformation.TseitinState> {
 
     public static final int DEFAULT_BOUNDARY = 12;
 
-    private final int boundaryForFactorization;
-    private final CnfFactorization factorization;
+    protected final int boundaryForFactorization;
+    protected final CnfFactorization factorization;
 
     /**
      * Constructor for a Tseitin transformation with the default factorization
@@ -116,7 +116,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
      * the formula cache.
      * @param formula the formula
      */
-    private void computeTseitin(final Formula formula) {
+    protected void computeTseitin(final Formula formula) {
         if (state.formula(formula) != null) {
             return;
         }
@@ -155,8 +155,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         }
     }
 
-    private void handleNary(final Formula formula, final List<Formula> nops, final List<Formula> operands,
-                            final List<Formula> negOperands) {
+    protected void handleNary(final Formula formula, final List<Formula> nops, final List<Formula> operands,
+                              final List<Formula> negOperands) {
         for (final Formula op : formula) {
             if (op.getType() != FType.LITERAL) {
                 computeTseitin(op);
