@@ -62,7 +62,7 @@ public abstract class SplitVariableProviderWithTakeRate implements SplitVariable
                 mostCommon ? Map.Entry.comparingByValue(Comparator.reverseOrder()) : Map.Entry.comparingByValue();
         final Set<Variable> vars = variables == null ? null : new HashSet<>(variables);
         final Map<Variable, Integer> variableOccurrences =
-                solver.execute(new VariableOccurrencesOnSolverFunction(vars));
+                solver.execute(VariableOccurrencesOnSolverFunction.builder().relevantVariables(vars).build());
         return variableOccurrences.entrySet().stream()
                 .sorted(comparator)
                 .limit(numberOfVariablesToChoose(vars != null ? vars : variableOccurrences.keySet()))

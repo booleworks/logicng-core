@@ -34,9 +34,12 @@ public class VariableOccurrencesOnSolverFunctionTest {
     @Test
     public void testWithEmptySolver() {
         final SatSolver solver = SatSolver.newSolver(f);
-        assertThat(solver.execute(new VariableOccurrencesOnSolverFunction())).isEmpty();
+        assertThat(solver.execute(VariableOccurrencesOnSolverFunction.builder().build())).isEmpty();
         final Map<Variable, Integer> countWithRelevantVariables = solver.execute(
-                new VariableOccurrencesOnSolverFunction(new HashSet<>(Arrays.asList(A, B, C))));
+                VariableOccurrencesOnSolverFunction.builder()
+                        .relevantVariables(new HashSet<>(Arrays.asList(A, B, C)))
+                        .build()
+        );
         assertThat(countWithRelevantVariables).hasSize(3);
         assertThat(countWithRelevantVariables).containsKeys(A, B, C);
         assertThat(countWithRelevantVariables.values()).containsOnly(0);
@@ -46,7 +49,7 @@ public class VariableOccurrencesOnSolverFunctionTest {
     public void testWithAllVariables() {
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(parse(f, "(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
-        final Map<Variable, Integer> counts = solver.execute(new VariableOccurrencesOnSolverFunction());
+        final Map<Variable, Integer> counts = solver.execute(VariableOccurrencesOnSolverFunction.builder().build());
         assertThat(counts).hasSize(10);
         assertThat(counts).containsEntry(A, 3);
         assertThat(counts).containsEntry(B, 3);
@@ -64,8 +67,8 @@ public class VariableOccurrencesOnSolverFunctionTest {
     public void testWithRelevantVariables() {
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(parse(f, "(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
-        final Map<Variable, Integer> counts = solver.execute(
-                new VariableOccurrencesOnSolverFunction(new HashSet<>(Arrays.asList(A, C, X, J))));
+        final Map<Variable, Integer> counts = solver.execute(VariableOccurrencesOnSolverFunction.builder()
+                .relevantVariables(new HashSet<>(Arrays.asList(A, C, X, J))).build());
         assertThat(counts).hasSize(4);
         assertThat(counts).containsEntry(A, 3);
         assertThat(counts).containsEntry(C, 2);

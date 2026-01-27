@@ -35,26 +35,10 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
 
     private final Set<String> relevantVariables;
 
-    /**
-     * Creates a new function which counts all variables which are present on
-     * the solver.
-     */
-    public VariableOccurrencesOnSolverFunction() {
-        this(null);
-    }
-
-    /**
-     * Creates a new function which counts the occurrences of all the given
-     * relevant variables.
-     * <p>
-     * If a variable is not present on the solver, the respective count will be
-     * 0.
-     * @param relevantVariables the relevant variables, in case of {@code null}
-     *                          all variables on the solver are counted
-     */
-    public VariableOccurrencesOnSolverFunction(final Set<Variable> relevantVariables) {
-        this.relevantVariables = relevantVariables == null ? null
-                : relevantVariables.stream().map(Variable::getName).collect(Collectors.toSet());
+    protected VariableOccurrencesOnSolverFunction(final Builder builder) {
+        this.relevantVariables = builder.relevantVariables == null ? null
+                                                                   : builder.relevantVariables.stream()
+                                         .map(Variable::getName).collect(Collectors.toSet());
     }
 
     @Override
@@ -86,5 +70,45 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
         }
         nullSafe(relevantVariables).forEach(v -> counts.putIfAbsent(v, 0));
         return counts;
+    }
+
+    /**
+     * Returns the builder for this function.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * The builder for this function.
+     */
+    public static final class Builder {
+        private Set<Variable> relevantVariables = null;
+
+        private Builder() {
+        }
+
+        /**
+         * Sets the set of relevant variable for the function. If a variable is
+         * not present on the solver, the respective count will be 0.
+         * <p>
+         * If no set of relevant variables is set or {@code relevantVariables}
+         * is {@code null}, the result will contain all variables on the solver.
+         * @param relevantVariables the relevant variables, in case of {@code null}
+         *                          all variables on the solver are counted
+         */
+        public Builder relevantVariables(final Set<Variable> relevantVariables) {
+            this.relevantVariables = relevantVariables;
+            return this;
+        }
+
+        /**
+         * Builds the function with the current builder's configuration.
+         * @return the function
+         */
+        public VariableOccurrencesOnSolverFunction build() {
+            return new VariableOccurrencesOnSolverFunction(this);
+        }
     }
 }
