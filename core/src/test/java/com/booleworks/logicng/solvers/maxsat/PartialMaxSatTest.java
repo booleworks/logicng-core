@@ -18,7 +18,6 @@ import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.MaxSatSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
@@ -88,7 +87,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -100,7 +99,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
             readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(results[i]);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
         }
     }
 
@@ -119,7 +118,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -149,7 +148,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -179,7 +178,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -208,7 +207,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -363,11 +362,11 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
         final LngResult<MaxSatResult> result = solver.solve(handler);
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getResult().isSatisfiable()).isTrue();
-        assertThat(result.getResult().getOptimum()).isEqualTo(handler.upperBoundApproximation);
+        assertThat(result.getResult().getUnsatisfiedWeight()).isEqualTo(handler.upperBoundApproximation);
     }
 
     @Test
-    public void testNonClauselSoftConstraints() throws ParserException {
+    public void testNonClauselSoftConstraints() {
         final MaxSatSolver[] solvers = new MaxSatSolver[2];
         solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_MSU3);
         solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US);
@@ -379,12 +378,12 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(1);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
         }
     }
 
     @Test
-    public void testSoftConstraintsCornerCaseVerum() throws ParserException {
+    public void testSoftConstraintsCornerCaseVerum() {
         final MaxSatSolver[] solvers = new MaxSatSolver[2];
         solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_MSU3);
         solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US);
@@ -397,12 +396,12 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(1);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
         }
     }
 
     @Test
-    public void testSoftConstraintsCornerCaseFalsum() throws ParserException {
+    public void testSoftConstraintsCornerCaseFalsum() {
         final MaxSatSolver[] solvers = new MaxSatSolver[2];
         solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_MSU3);
         solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US);
@@ -415,7 +414,7 @@ public class PartialMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(2);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(2);
         }
     }
 

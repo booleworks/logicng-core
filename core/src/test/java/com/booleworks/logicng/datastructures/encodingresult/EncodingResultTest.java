@@ -98,13 +98,15 @@ public class EncodingResultTest {
         final MaxSatResult r = solver.solve();
         assertThat(solver.getUnderlyingSolver().nVars()).isEqualTo(2);
         assertThat(r.isSatisfiable()).isTrue();
-        assertThat(r.getOptimum()).isEqualTo(2);
+        assertThat(r.getUnsatisfiedWeight()).isEqualTo(2);
+        assertThat(r.getSatisfiedWeight()).isEqualTo(3);
         assertThat(r.getModel().getLiterals()).containsExactlyInAnyOrder(v.negate(f), f.variable("A"));
 
         result.addSoftClause(2, f.literal("A", false));
         final MaxSatResult r2 = solver.solve();
         assertThat(r2.isSatisfiable()).isTrue();
-        assertThat(r2.getOptimum()).isEqualTo(3);
+        assertThat(r2.getUnsatisfiedWeight()).isEqualTo(3);
+        assertThat(r2.getSatisfiedWeight()).isEqualTo(4);
 
         assertThat(result.getFactory()).isEqualTo(f);
         assertThat(result.getSolver()).isEqualTo(solver);

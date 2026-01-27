@@ -16,22 +16,25 @@ import java.util.Objects;
  * @version 3.0.0
  * @since 3.0.0
  */
-// TODO rename or redefine or fix documentation of 'optimum'
 public class MaxSatResult {
 
     private final boolean satisfiable;
-    private final int optimum;
+    private final int satisfiedWeight;
+    private final int unsatisfiedWeight;
     private final Model model;
 
     /**
      * Creates a new MaxSATResult with the given parameters.
-     * @param satisfiable whether the problem is satisfiable or not
-     * @param optimum     the optimum value
-     * @param model       the model for optimum solution
+     * @param satisfiable       whether the problem is satisfiable or not
+     * @param satisfiedWeight   the sum of the weights of all satisfied clauses
+     * @param unsatisfiedWeight the sum of the weights of all unsatisfied clauses
+     * @param model             the model for optimum solution
      */
-    public MaxSatResult(final boolean satisfiable, final int optimum, final Model model) {
+    public MaxSatResult(final boolean satisfiable, final int satisfiedWeight, final int unsatisfiedWeight,
+                        final Model model) {
         this.satisfiable = satisfiable;
-        this.optimum = optimum;
+        this.satisfiedWeight = satisfiedWeight;
+        this.unsatisfiedWeight = unsatisfiedWeight;
         this.model = model;
     }
 
@@ -45,12 +48,23 @@ public class MaxSatResult {
     }
 
     /**
-     * Returns the optimum of the MaxSAT problem, or -1 if it is not
-     * satisfiable.
-     * @return the optimum of the MaxSAT problem
+     * Returns the sum of the weights of all satisfied clauses of the MaxSAT
+     * problem, or -1 if it is not satisfiable. This value is maximized by the
+     * solver.
+     * @return the sum of the weights of all satisfied clauses
      */
-    public int getOptimum() {
-        return optimum;
+    public int getSatisfiedWeight() {
+        return satisfiedWeight;
+    }
+
+    /**
+     * Returns the sum of the weights of all unsatisfied clauses of the MaxSAT
+     * problem, or -1 if it is not satisfiable. This value is minimized by the
+     * solver.
+     * @return the sum of the weights of all unsatisfied clauses
+     */
+    public int getUnsatisfiedWeight() {
+        return unsatisfiedWeight;
     }
 
     /**
@@ -71,19 +85,21 @@ public class MaxSatResult {
             return false;
         }
         final MaxSatResult that = (MaxSatResult) o;
-        return satisfiable == that.satisfiable && optimum == that.optimum && Objects.equals(model, that.model);
+        return satisfiable == that.satisfiable && unsatisfiedWeight == that.unsatisfiedWeight
+                && satisfiedWeight == that.satisfiedWeight && Objects.equals(model, that.model);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(satisfiable, optimum, model);
+        return Objects.hash(satisfiable, satisfiedWeight, unsatisfiedWeight, model);
     }
 
     @Override
     public String toString() {
         return "MaxSatResult{" +
                 "satisfiable=" + satisfiable +
-                ", optimum=" + optimum +
+                ", satisfiedWeight=" + satisfiedWeight +
+                ", unsatisfiedWeight=" + unsatisfiedWeight +
                 ", model=" + model +
                 '}';
     }

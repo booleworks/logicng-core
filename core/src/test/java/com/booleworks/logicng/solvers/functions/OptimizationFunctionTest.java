@@ -427,7 +427,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                             final MaxSatSolver solver) {
         formulas.forEach(solver::addHardFormula);
         variables.forEach(v -> solver.addSoftFormula(v.negate(formulas.iterator().next().getFactory()), 1));
-        return solver.solve().getOptimum();
+        return solver.solve().getUnsatisfiedWeight();
     }
 
     private List<Literal> satisfiedLiterals(final LngResult<Model> model,

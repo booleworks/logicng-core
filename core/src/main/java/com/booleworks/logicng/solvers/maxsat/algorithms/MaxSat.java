@@ -45,7 +45,7 @@ import java.util.TreeSet;
  * @since 1.0
  */
 public abstract class MaxSat {
-    private static final MaxSatResult UNSAT = new MaxSatResult(false, -1, null);
+    private static final MaxSatResult UNSAT = new MaxSatResult(false, -1, -1, null);
 
     /**
      * The MaxSAT problem type: {@code UNWEIGHTED} or {@code WEIGHTED}.
@@ -75,6 +75,7 @@ public abstract class MaxSat {
     int nbSymmetryClauses;
     long sumSizeCores;
     int nbSatisfiable;
+    int totalSoftWeight;
     int ubCost;
     int lbCost;
     int currentWeight;
@@ -105,6 +106,7 @@ public abstract class MaxSat {
         nbInitialVariables = 0;
         currentWeight = 1;
         model = new LngBooleanVector();
+        totalSoftWeight = 0;
         ubCost = 0;
         lbCost = 0;
         nbSymmetryClauses = 0;
@@ -179,7 +181,7 @@ public abstract class MaxSat {
         final int stateId = nextStateId++;
         validStates.push(stateId);
         return new MaxSatState(stateId, nbVars, hardClauses.size(), softClauses.size(), ubCost, currentWeight,
-                softWeights);
+                totalSoftWeight, softWeights);
     }
 
     /**
@@ -223,6 +225,7 @@ public abstract class MaxSat {
         ubCost = state.ubCost;
         lbCost = 0;
         currentWeight = state.currentWeight;
+        totalSoftWeight = state.totalSoftWeight;
         for (int i = 0; i < softClauses.size(); i++) {
             final LngSoftClause clause = softClauses.get(i);
             clause.relaxationVars().clear();
@@ -378,6 +381,7 @@ public abstract class MaxSat {
      */
     protected void updateSumWeights(final int weight) {
         if (weight != hardWeight) {
+            totalSoftWeight += weight;
             ubCost += weight;
         }
     }
@@ -398,6 +402,14 @@ public abstract class MaxSat {
      */
     public int currentWeight() {
         return currentWeight;
+    }
+
+    /**
+     * Returns the sum of the weights of all soft clauses
+     * @return the sum of the weights of all soft clauses
+     */
+    public int getTotalSoftWeight() {
+        return totalSoftWeight;
     }
 
     /**
@@ -532,7 +544,7 @@ public abstract class MaxSat {
      * @return the result
      */
     public LngResult<MaxSatResult> optimum() {
-        return LngResult.of(new MaxSatResult(true, ubCost, createModel()));
+        return LngResult.of(new MaxSatResult(true, totalSoftWeight - ubCost, ubCost, createModel()));
     }
 
     /**

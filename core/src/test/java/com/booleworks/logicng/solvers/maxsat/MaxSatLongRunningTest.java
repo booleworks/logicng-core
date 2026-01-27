@@ -50,7 +50,7 @@ public class MaxSatLongRunningTest {
                 if (file.getName().endsWith("wcnf")) {
                     final MaxSatSolver solver = solverGenerator.get();
                     readCnfToSolver(solver, file.getAbsolutePath());
-                    assertThat(solver.solve().getOptimum()).isEqualTo(result.get(file.getName()));
+                    assertThat(solver.solve().getUnsatisfiedWeight()).isEqualTo(result.get(file.getName()));
                 }
             }
         }

@@ -98,7 +98,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -125,7 +125,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -150,7 +150,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -180,7 +180,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(results[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
             }
         }
     }
@@ -199,7 +199,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(bmoResults[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(bmoResults[i]);
             }
         }
     }
@@ -221,7 +221,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(bmoResults[i]);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(bmoResults[i]);
             }
         }
     }
@@ -233,14 +233,14 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
             readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(bmoResults[i]);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(bmoResults[i]);
         }
         for (int i = 0; i < files.length; i++) {
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
             readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(results[i]);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(results[i]);
         }
     }
 
@@ -251,7 +251,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/large_industrial.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(68974);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(68974);
     }
 
     @Test
@@ -261,7 +261,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/t3g3-5555.spn.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(1100610);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(1100610);
     }
 
     @Test
@@ -271,7 +271,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/large_weights.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(90912);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(90912);
     }
 
     @Test
@@ -401,7 +401,8 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(2);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(2);
+            assertThat(result.getSatisfiedWeight()).isEqualTo(0);
             assertThat(solver.getFactory()).isEqualTo(f);
         }
     }
@@ -422,7 +423,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(3);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(3);
         }
     }
 
@@ -442,7 +443,8 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
-            assertThat(result.getOptimum()).isEqualTo(5);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(5);
+            assertThat(result.getSatisfiedWeight()).isEqualTo(0);
         }
     }
 

@@ -21,6 +21,7 @@ public class MaxSatState {
     protected final int nbSoft;
     protected final int ubCost;
     protected final int currentWeight;
+    protected final int totalSoftWeight;
     protected final int[] softWeights;
 
     /**
@@ -34,14 +35,15 @@ public class MaxSatState {
      * @param softWeights   the weights in each soft clause,
      *                      must have length {@code nbSoft}
      */
-    public MaxSatState(final int stateId, final int nbVars, final int nbHard, final int nbSoft, final int ubCost, final int currentWeight,
-                       final int[] softWeights) {
+    public MaxSatState(final int stateId, final int nbVars, final int nbHard, final int nbSoft, final int ubCost,
+                       final int currentWeight, final int totalSoftWeight, final int[] softWeights) {
         this.stateId = stateId;
         this.nbVars = nbVars;
         this.nbHard = nbHard;
         this.nbSoft = nbSoft;
         this.ubCost = ubCost;
         this.currentWeight = currentWeight;
+        this.totalSoftWeight = totalSoftWeight;
         this.softWeights = softWeights;
     }
 
@@ -91,6 +93,14 @@ public class MaxSatState {
      */
     public int getCurrentWeight() {
         return currentWeight;
+    }
+
+    /**
+     * Returns the sum of the weights of all soft clauses.
+     * @return the sum of the weights of all soft clauses
+     */
+    public int getTotalSoftWeight() {
+        return totalSoftWeight;
     }
 
     /**

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.function.Function;
 
 public class PureMaxSatTest extends TestWithExampleFormulas {
 
@@ -108,13 +109,13 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(1);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
             }
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
             MaxSATReader.readCnfToSolver(solver, "../test_files/sat/9symml_gr_rcs_w6.shuffled.cnf");
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(0);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(0);
         }
     }
 
@@ -138,13 +139,13 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(1);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
             }
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
             MaxSATReader.readCnfToSolver(solver, "../test_files/sat/9symml_gr_rcs_w6.shuffled.cnf");
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(0);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(0);
         }
     }
 
@@ -168,7 +169,7 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(1);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
             }
         }
     }
@@ -204,13 +205,13 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(1);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
             }
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
             MaxSATReader.readCnfToSolver(solver, "../test_files/sat/9symml_gr_rcs_w6.shuffled.cnf");
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(0);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(0);
         }
     }
 
@@ -245,13 +246,13 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
-                assertThat(result.getOptimum()).isEqualTo(1);
+                assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
             }
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
             MaxSATReader.readCnfToSolver(solver, "../test_files/sat/9symml_gr_rcs_w6.shuffled.cnf");
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(0);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(0);
         }
     }
 
@@ -263,13 +264,13 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
             MaxSATReader.readCnfToSolver(solver, "../test_files/maxsat/" + file);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getOptimum()).isEqualTo(1);
+            assertThat(result.getUnsatisfiedWeight()).isEqualTo(1);
         }
         final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
         MaxSATReader.readCnfToSolver(solver, "../test_files/sat/9symml_gr_rcs_w6.shuffled.cnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(0);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(0);
     }
 
     @Test
@@ -283,7 +284,7 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
         readCnfToSolver(solver, "../test_files/maxsat/c-fat200-2.clq.cnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(26);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(26);
         final MaxSat.Stats stats = solver.getStats();
         assertThat(stats.bestSolution()).isEqualTo(26);
         assertThat(stats.unsatCalls()).isEqualTo(26);
@@ -291,7 +292,8 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
         assertThat(stats.averageCoreSize()).isEqualTo(35.27, Offset.offset(0.01));
         assertThat(stats.symmetryClauses()).isEqualTo(45314);
         assertThat(stats.toString()).isEqualTo(
-                "MaxSat.Stats{best solution=26, #sat calls=2, #unsat calls=26, average core size=35.27, #symmetry clauses=45314}");
+                "MaxSat.Stats{best solution=26, #sat calls=2, #unsat calls=26, average core size=35.27, #symmetry "
+                        + "clauses=45314}");
     }
 
     @Test
@@ -317,7 +319,8 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
         solver.addSoftFormula(p.parse("z"), 1);
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        assertThat(result.getOptimum()).isEqualTo(3);
+        assertThat(result.getUnsatisfiedWeight()).isEqualTo(3);
+        assertThat(result.getSatisfiedWeight()).isEqualTo(7);
         final Model model = result.getModel();
         assertThat(model.size()).isEqualTo(8);
         assertThat(model.positiveVariables()).hasSize(1);
@@ -338,9 +341,9 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
         solvers[5] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         solvers[6] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
 
-        final String expected = "MaxSatSolver{result=ComputationResult{" +
-                "result=MaxSatResult{satisfiable=true, optimum=1, model=Model{literals=[~a, ~b]}}, " +
-                "cancelCause=null}}";
+        final Function<Integer, String> expected = satWeight -> String.format("MaxSatSolver{result=ComputationResult{" +
+                "result=MaxSatResult{satisfiable=true, satisfiedWeight=%d, unsatisfiedWeight=1, "
+                + "model=Model{literals=[~a, ~b]}}, cancelCause=null}}", satWeight);
 
         for (int i = 0; i < solvers.length; i++) {
             final MaxSatSolver solver = solvers[i];
@@ -352,7 +355,11 @@ public class PureMaxSatTest extends TestWithExampleFormulas {
                 solver.addSoftFormula(NA, 2);
             }
             solver.solve();
-            assertThat(solver.toString()).isEqualTo(expected);
+            if (i == 2 || i == 3) {
+                assertThat(solver.toString()).isEqualTo(expected.apply(1));
+            } else {
+                assertThat(solver.toString()).isEqualTo(expected.apply(2));
+            }
         }
     }
 }
