@@ -48,7 +48,7 @@ public class OrderValueHook {
         while (c < domain.ub()) {
             if (v.getDomain().contains(c)) {
                 final Variable orderVar = orderVars[index];
-                final Variable hookVar = f.newAuxVariable(CSP_AUX_LNG_VARIABLE); //TODO: track?
+                final Variable hookVar = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
                 if (previousVar == null) {
                     // v0 <-> h_0
                     result.addClause(orderVar.negate(f), hookVar);
