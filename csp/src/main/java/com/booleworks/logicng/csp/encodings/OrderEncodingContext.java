@@ -76,7 +76,7 @@ public class OrderEncodingContext implements CspEncodingContext {
      * @return new auxiliary variable
      */
     protected IntegerVariable newSimplifyIntVariable(final IntegerDomain domain, final CspFactory cf) {
-        final IntegerVariable var = cf.auxVariable(OrderReduction.AUX_SIMPLE, domain);
+        final IntegerVariable var = cf.auxVariable(OrderEncoding.AUX_SIMPLE, domain);
         this.simplifyIntVariables.add(var);
         return var;
     }

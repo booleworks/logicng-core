@@ -61,7 +61,7 @@ public class CompactOrderValueHook {
             final Variable h = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
             map.put(h, realValue);
 
-            final List<Integer> valueDigits = CompactCSPReduction.intToDigits(offsetValue, context.getBase());
+            final List<Integer> valueDigits = CompactOrderEncoding.intToDigits(offsetValue, context.getBase());
             final ArrayList<Variable> hooks = new ArrayList<>();
             for (int i = 0; i < digitHooks.size(); ++i) {
                 int dv = 0;
@@ -101,7 +101,7 @@ public class CompactOrderValueHook {
 
         final IntegerVariable adjustedV = context.getAdjustedVariableOrSelf(v);
         final int offsetValue = value - context.getOffset(adjustedV);
-        final List<Integer> valueDigits = CompactCSPReduction.intToDigits(offsetValue, context.getBase());
+        final List<Integer> valueDigits = CompactOrderEncoding.intToDigits(offsetValue, context.getBase());
         final List<IntegerVariable> variableDigits = context.getDigits(adjustedV);
         final List<Literal> result = new ArrayList<>();
         for (int i = 0; i < variableDigits.size(); ++i) {
