@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class LngBddFunction extends BddFunction<BddNode> {
+public class LngBddFunction extends BddFunction<BddNode> {
 
     public LngBddFunction(final FormulaFactory f) {
         super(f);
@@ -37,8 +37,8 @@ public final class LngBddFunction extends BddFunction<BddNode> {
         return buildBddNode(index, kernel, kernelNodeMap, new HashMap<>());
     }
 
-    private BddNode buildBddNode(final int index, final BddKernel kernel, final Map<Integer, int[]> kernelNodeMap,
-                                 final Map<Integer, BddNode> nodeMap) {
+    protected BddNode buildBddNode(final int index, final BddKernel kernel, final Map<Integer, int[]> kernelNodeMap,
+                                   final Map<Integer, BddNode> nodeMap) {
         BddNode node = nodeMap.get(index);
         if (node != null) {
             return node;

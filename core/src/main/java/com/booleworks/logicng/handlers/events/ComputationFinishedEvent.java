@@ -16,7 +16,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ComputationFinishedEvent implements LngEvent {
+public final class ComputationFinishedEvent implements LngEvent {
 
     public static final ComputationFinishedEvent SAT_CALL_FINISHED = new ComputationFinishedEvent("SAT Call");
     public static final ComputationFinishedEvent MAX_SAT_CALL_FINISHED = new ComputationFinishedEvent("MaxSAT Call");

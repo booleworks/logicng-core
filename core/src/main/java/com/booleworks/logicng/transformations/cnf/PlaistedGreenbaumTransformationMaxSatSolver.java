@@ -16,9 +16,9 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSat;
  * @version 3.0.0
  * @since 1.6.0
  */
-public final class PlaistedGreenbaumTransformationMaxSatSolver extends PlaistedGreenbaumCommon<Integer> {
+public class PlaistedGreenbaumTransformationMaxSatSolver extends PlaistedGreenbaumCommon<Integer> {
 
-    private final MaxSat solver;
+    protected final MaxSat solver;
 
     /**
      * Constructs a new transformation for a given MaxSAT solver.
@@ -34,7 +34,7 @@ public final class PlaistedGreenbaumTransformationMaxSatSolver extends PlaistedG
     }
 
     @Override
-    void addCnf(final Formula cnf, final Integer weight) {
+    protected void addCnf(final Formula cnf, final Integer weight) {
         switch (cnf.getType()) {
             case TRUE:
                 break;
@@ -59,12 +59,12 @@ public final class PlaistedGreenbaumTransformationMaxSatSolver extends PlaistedG
     }
 
     @Override
-    void addToSolver(final LngIntVector clause, final Integer addendum) {
+    protected void addToSolver(final LngIntVector clause, final Integer addendum) {
         solver.addClause(clause, addendum);
     }
 
     @Override
-    int getLitFromSolver(final Literal lit) {
+    protected int getLitFromSolver(final Literal lit) {
         return solver.literal(lit);
     }
 }

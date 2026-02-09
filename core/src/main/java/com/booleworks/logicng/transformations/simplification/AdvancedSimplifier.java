@@ -54,9 +54,9 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier extends StatelessFormulaTransformation {
+public class AdvancedSimplifier extends StatelessFormulaTransformation {
 
-    private final AdvancedSimplifierConfig config;
+    protected final AdvancedSimplifierConfig config;
 
     /**
      * Constructs a new simplifier with the advanced simplifier configuration
@@ -119,7 +119,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         return LngResult.of(simplified);
     }
 
-    private LngResult<Formula> computeMinDnf(
+    protected LngResult<Formula> computeMinDnf(
             final FormulaFactory f,
             final Formula simplified,
             final ComputationHandler handler) {
@@ -143,7 +143,8 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         }
     }
 
-    private List<Formula> negateAllLiterals(final FormulaFactory f, final Collection<SortedSet<Literal>> literalSets) {
+    protected List<Formula> negateAllLiterals(final FormulaFactory f,
+                                              final Collection<SortedSet<Literal>> literalSets) {
         final List<Formula> result = new ArrayList<>();
         for (final SortedSet<Literal> literals : literalSets) {
             result.add(f.or(FormulaHelper.negateLiterals(f, literals, ArrayList::new)));
@@ -151,7 +152,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         return result;
     }
 
-    private List<Formula> negateAllLiteralsInFormulas(final FormulaFactory f, final Collection<Formula> formulas) {
+    protected List<Formula> negateAllLiteralsInFormulas(final FormulaFactory f, final Collection<Formula> formulas) {
         final List<Formula> result = new ArrayList<>();
         for (final Formula formula : formulas) {
             result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(f), ArrayList::new)));
@@ -159,8 +160,8 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         return result;
     }
 
-    private Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep,
-                                       final AdvancedSimplifierConfig config) {
+    protected Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep,
+                                         final AdvancedSimplifierConfig config) {
         if (!config.useRatingFunction) {
             return simplifiedOneStep;
         }

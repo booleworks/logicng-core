@@ -19,7 +19,7 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ComputationStartedEvent implements LngEvent {
+public final class ComputationStartedEvent implements LngEvent {
 
     public static final ComputationStartedEvent FACTORIZATION_STARTED = new ComputationStartedEvent("Factorization");
     public static final ComputationStartedEvent BDD_COMPUTATION_STARTED = new ComputationStartedEvent("BDD Computation");

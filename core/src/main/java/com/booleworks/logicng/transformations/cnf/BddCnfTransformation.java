@@ -18,7 +18,7 @@ import java.util.Map;
  * @version 2.3.0
  * @since 1.4.0
  */
-public final class BddCnfTransformation extends BddNormalFormTransformation {
+public class BddCnfTransformation extends BddNormalFormTransformation {
 
     /**
      * Constructs a new BDD-based CNF transformation with an optional BDD

@@ -18,7 +18,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 2.0
  */
-public final class FormulaDepthFunction extends CacheableFormulaFunction<Integer> {
+public class FormulaDepthFunction extends CacheableFormulaFunction<Integer> {
 
     /**
      * Constructs a new function. For a caching formula factory, the cache of

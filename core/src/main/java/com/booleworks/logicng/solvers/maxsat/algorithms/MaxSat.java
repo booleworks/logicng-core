@@ -45,7 +45,7 @@ import java.util.TreeSet;
  * @since 1.0
  */
 public abstract class MaxSat {
-    private static final MaxSatResult UNSAT = new MaxSatResult(false, -1, -1, null);
+    protected static final MaxSatResult UNSAT = new MaxSatResult(false, -1, -1, null);
 
     /**
      * The MaxSAT problem type: {@code UNWEIGHTED} or {@code WEIGHTED}.
@@ -64,22 +64,22 @@ public abstract class MaxSat {
     protected final LngBooleanVector model;
     protected SortedMap<Variable, Integer> var2index;
     protected SortedMap<Integer, Variable> index2var;
-    final LngVector<LngSoftClause> softClauses;
-    final LngVector<LngHardClause> hardClauses;
-    final LngIntVector orderWeights;
-    final int hardWeight;
-    ProblemType problemType;
-    int nbVars;
-    int nbInitialVariables;
-    int nbCores;
-    int nbSymmetryClauses;
-    long sumSizeCores;
-    int nbSatisfiable;
-    int totalSoftWeight;
-    int ubCost;
-    int lbCost;
-    int currentWeight;
-    MaxSat.Stats lastStats;
+    protected final LngVector<LngSoftClause> softClauses;
+    protected final LngVector<LngHardClause> hardClauses;
+    protected final LngIntVector orderWeights;
+    protected final int hardWeight;
+    protected ProblemType problemType;
+    protected int nbVars;
+    protected int nbInitialVariables;
+    protected int nbCores;
+    protected int nbSymmetryClauses;
+    protected long sumSizeCores;
+    protected int nbSatisfiable;
+    protected int totalSoftWeight;
+    protected int ubCost;
+    protected int lbCost;
+    protected int currentWeight;
+    protected MaxSat.Stats lastStats;
 
     // bookkeeping of solver states
     protected LngIntVector validStates;
@@ -199,7 +199,7 @@ public abstract class MaxSat {
     public void loadState(final MaxSatState state) {
         int index = -1;
         for (int i = validStates.size() - 1; i >= 0 && index == -1; i--) {
-            if (validStates.get(i) == state.stateId) {
+            if (validStates.get(i) == state.getStateId()) {
                 index = i;
             }
         }
@@ -208,28 +208,28 @@ public abstract class MaxSat {
         }
         validStates.shrinkTo(index + 1);
 
-        hardClauses.shrinkTo(state.nbHard);
-        softClauses.shrinkTo(state.nbSoft);
+        hardClauses.shrinkTo(state.getNbHard());
+        softClauses.shrinkTo(state.getNbSoft());
         orderWeights.clear();
-        for (int i = state.nbVars; i < nbVars; i++) {
+        for (int i = state.getNbVars(); i < nbVars; i++) {
             final Variable var = index2var.remove(i);
             if (var != null) {
                 var2index.remove(var);
             }
         }
-        nbVars = state.nbVars;
+        nbVars = state.getNbVars();
         nbCores = 0;
         nbSymmetryClauses = 0;
         sumSizeCores = 0;
         nbSatisfiable = 0;
-        ubCost = state.ubCost;
+        ubCost = state.getUbCost();
         lbCost = 0;
-        currentWeight = state.currentWeight;
-        totalSoftWeight = state.totalSoftWeight;
+        currentWeight = state.getCurrentWeight();
+        totalSoftWeight = state.getTotalSoftWeight();
         for (int i = 0; i < softClauses.size(); i++) {
             final LngSoftClause clause = softClauses.get(i);
             clause.relaxationVars().clear();
-            clause.setWeight(state.softWeights[i]);
+            clause.setWeight(state.getSoftWeights()[i]);
             clause.setAssumptionVar(LIT_UNDEF);
         }
         model.clear();
@@ -519,7 +519,7 @@ public abstract class MaxSat {
      * @return the event if the handler canceled the computation, otherwise
      * {@code null}
      */
-    LngEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
+    protected LngEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
         final MaxSatNewLowerBoundEvent event = new MaxSatNewLowerBoundEvent(lowerBound);
         return handler.shouldResume(event) ? null : event;
     }
@@ -533,7 +533,7 @@ public abstract class MaxSat {
      * @return the event if the handler canceled the computation, otherwise
      * {@code null}
      */
-    LngEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
+    protected LngEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
         final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
         return handler.shouldResume(event) ? null : event;
     }

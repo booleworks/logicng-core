@@ -27,12 +27,12 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransformation<PlaistedGreenbaumTransformation.PgState> {
+public class PlaistedGreenbaumTransformation extends StatefulFormulaTransformation<PlaistedGreenbaumTransformation.PgState> {
 
     public static final int DEFAULT_BOUNDARY = 12;
 
-    private final int boundaryForFactorization;
-    private final CnfFactorization factorization;
+    protected final int boundaryForFactorization;
+    protected final CnfFactorization factorization;
 
     /**
      * Constructor for a Plaisted &amp; Greenbaum transformation with conversion
@@ -93,7 +93,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param formula the formula
      * @return the old or new auxiliary variable
      */
-    private Literal pgVariable(final Formula formula) {
+    protected Literal pgVariable(final Formula formula) {
         if (formula.getType() == FType.LITERAL) {
             return (Literal) formula;
         }
@@ -123,7 +123,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         return LngResult.of(pg);
     }
 
-    private Formula computeTransformation(final Formula formula) {
+    protected Formula computeTransformation(final Formula formula) {
         switch (formula.getType()) {
             case LITERAL:
                 return f.verum();
@@ -140,7 +140,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         }
     }
 
-    private Formula computePosPolarity(final Formula formula) {
+    protected Formula computePosPolarity(final Formula formula) {
         Formula result = state.pos(formula);
         if (result != null) {
             return result;
@@ -191,11 +191,11 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             this.literalMap = literalMap;
         }
 
-        private Formula pos(final Formula formula) {
+        public Formula pos(final Formula formula) {
             return posMap.get(formula);
         }
 
-        private Literal literal(final Formula formula) {
+        public Literal literal(final Formula formula) {
             return literalMap.get(formula);
         }
     }

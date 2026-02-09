@@ -12,15 +12,12 @@ import java.util.function.Supplier;
 
 /**
  * A class which contains utility methods for {@link Collection} objects.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class CollectionHelper {
+public class CollectionHelper {
 
-    /**
-     * Private empty constructor. Class only contains static utility methods.
-     */
-    private CollectionHelper() {
+    protected CollectionHelper() {
         // Intentionally left empty
     }
 

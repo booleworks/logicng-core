@@ -11,7 +11,8 @@ import com.booleworks.logicng.solvers.MaxSatSolver;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatNewLowerBoundEvent implements LngEvent {
+public final class MaxSatNewLowerBoundEvent implements LngEvent {
+
     private final int bound;
 
     /**

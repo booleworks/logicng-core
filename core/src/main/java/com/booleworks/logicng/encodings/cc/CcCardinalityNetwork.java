@@ -18,9 +18,9 @@ import com.booleworks.logicng.formulas.Variable;
  * @version 3.0.0
  * @since 1.1
  */
-public final class CcCardinalityNetwork {
+public class CcCardinalityNetwork {
 
-    private CcCardinalityNetwork() {
+    protected CcCardinalityNetwork() {
         // only static methods
     }
 

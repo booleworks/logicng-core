@@ -24,7 +24,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.2
  */
-public final class UnitPropagation extends CacheableFormulaTransformation {
+public class UnitPropagation extends CacheableFormulaTransformation {
 
     /**
      * Constructs a new transformation. For a caching formula factory, the cache
@@ -62,7 +62,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     /**
      * An extension of the Core Solver to propagate units on formulas.
      */
-    private static class Propagator extends LngCoreSolver {
+    protected static class Propagator extends LngCoreSolver {
 
         /**
          * Constructs a new Propagator.
@@ -122,7 +122,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * @param lit the solver literal
          * @return the formula literal
          */
-        private Literal solverLiteralToFormula(final FormulaFactory f, final int lit) {
+        protected Literal solverLiteralToFormula(final FormulaFactory f, final int lit) {
             return f.literal(nameForIdx(var(lit)), !sign(lit));
         }
 
@@ -135,7 +135,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * @param clause the solver clause to transform
          * @return the transformed clause
          */
-        private Formula clauseToFormula(final FormulaFactory f, final LngClause clause) {
+        protected Formula clauseToFormula(final FormulaFactory f, final LngClause clause) {
             final List<Literal> literals = new ArrayList<>(clause.size());
             for (int i = 0; i < clause.size(); i++) {
                 final int lit = clause.get(i);

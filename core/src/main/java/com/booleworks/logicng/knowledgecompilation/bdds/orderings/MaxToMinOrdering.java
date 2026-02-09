@@ -21,9 +21,9 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.4.0
  */
-public final class MaxToMinOrdering implements VariableOrderingProvider {
+public class MaxToMinOrdering implements VariableOrderingProvider {
 
-    private final DfsOrdering dfsOrdering = new DfsOrdering();
+    protected final DfsOrdering dfsOrdering = new DfsOrdering();
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {

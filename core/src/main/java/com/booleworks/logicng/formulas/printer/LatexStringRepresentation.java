@@ -17,9 +17,9 @@ import java.util.regex.Pattern;
  * @version 3.0.0
  * @since 1.0
  */
-public final class LatexStringRepresentation extends FormulaStringRepresentation {
+public class LatexStringRepresentation extends FormulaStringRepresentation {
 
-    private static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
+    protected static final Pattern pattern = Pattern.compile("(.*?)(\\d*)");
     private static final LatexStringRepresentation INSTANCE = new LatexStringRepresentation();
 
     /**
@@ -35,7 +35,7 @@ public final class LatexStringRepresentation extends FormulaStringRepresentation
      * @param name the name
      * @return the matching UTF8 symbol
      */
-    private static String latexName(final String name) {
+    protected static String latexName(final String name) {
         final Matcher matcher = pattern.matcher(name);
         if (!matcher.matches()) {
             return name;

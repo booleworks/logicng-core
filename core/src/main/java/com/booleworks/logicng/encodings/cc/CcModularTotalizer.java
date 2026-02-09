@@ -17,9 +17,9 @@ import com.booleworks.logicng.formulas.Variable;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CcModularTotalizer {
+public class CcModularTotalizer {
 
-    private CcModularTotalizer() {
+    protected CcModularTotalizer() {
         // Only static classes
     }
 
@@ -69,7 +69,7 @@ public final class CcModularTotalizer {
                 state.cardinalityUpOutvars, state.cardinalityLwOutvars, mod);
     }
 
-    private static int initialize(final EncodingResult result, final int rhs, final int n, final State state) {
+    protected static int initialize(final EncodingResult result, final int rhs, final int n, final State state) {
         state.cardinalityLwOutvars = new LngVector<>();
         final int mod = (int) Math.ceil(Math.sqrt(rhs + 1.0));
         state.cardinalityUpOutvars = new LngVector<>(n / mod);
@@ -88,7 +88,7 @@ public final class CcModularTotalizer {
         return mod;
     }
 
-    private static void encodeOutput(final EncodingResult result, final int rhs, final int mod, final State state) {
+    protected static void encodeOutput(final EncodingResult result, final int rhs, final int mod, final State state) {
         assert !state.cardinalityUpOutvars.isEmpty() || !state.cardinalityLwOutvars.isEmpty();
         final FormulaFactory f = result.getFactory();
         final int ulimit = (rhs + 1) / mod;
@@ -115,9 +115,9 @@ public final class CcModularTotalizer {
         }
     }
 
-    private static void toCnf(final EncodingResult result, final int mod, final LngVector<Literal> ubvars,
-                              final LngVector<Literal> lwvars, final int rhs,
-                              final State state) {
+    protected static void toCnf(final EncodingResult result, final int mod, final LngVector<Literal> ubvars,
+                                final LngVector<Literal> lwvars, final int rhs,
+                                final State state) {
         final LngVector<Literal> lupper = new LngVector<>();
         final LngVector<Literal> llower = new LngVector<>();
         final LngVector<Literal> rupper = new LngVector<>();
@@ -179,11 +179,11 @@ public final class CcModularTotalizer {
         }
     }
 
-    private static void adder(final EncodingResult result, final int mod, final LngVector<Literal> upper,
-                              final LngVector<Literal> lower,
-                              final LngVector<Literal> lupper, final LngVector<Literal> llower,
-                              final LngVector<Literal> rupper,
-                              final LngVector<Literal> rlower, final State state) {
+    protected static void adder(final EncodingResult result, final int mod, final LngVector<Literal> upper,
+                                final LngVector<Literal> lower,
+                                final LngVector<Literal> lupper, final LngVector<Literal> llower,
+                                final LngVector<Literal> rupper,
+                                final LngVector<Literal> rlower, final State state) {
         assert !upper.isEmpty();
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
         final FormulaFactory f = result.getFactory();
@@ -236,9 +236,9 @@ public final class CcModularTotalizer {
         }
     }
 
-    private static void finalAdder(final EncodingResult result, final int mod, final LngVector<Literal> upper,
-                                   final LngVector<Literal> lupper,
-                                   final LngVector<Literal> rupper, final Variable carry, final State state) {
+    protected static void finalAdder(final EncodingResult result, final int mod, final LngVector<Literal> upper,
+                                     final LngVector<Literal> lupper,
+                                     final LngVector<Literal> rupper, final Variable carry, final State state) {
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= lupper.size(); i++) {
             for (int j = 0; j <= rupper.size(); j++) {
@@ -296,14 +296,14 @@ public final class CcModularTotalizer {
         }
     }
 
-    private static final class State {
-        private final Variable varUndef;
-        private final Variable varError;
-        private final Variable h0;
-        private LngVector<Literal> inlits;
-        private LngVector<Literal> cardinalityUpOutvars;
-        private LngVector<Literal> cardinalityLwOutvars;
-        private int currentCardinalityRhs;
+    protected static final class State {
+        public final Variable varUndef;
+        public final Variable varError;
+        public final Variable h0;
+        public LngVector<Literal> inlits;
+        public LngVector<Literal> cardinalityUpOutvars;
+        public LngVector<Literal> cardinalityLwOutvars;
+        public int currentCardinalityRhs;
 
         private State(final FormulaFactory f) {
             varUndef = f.variable("RESERVED@VAR_UNDEF");

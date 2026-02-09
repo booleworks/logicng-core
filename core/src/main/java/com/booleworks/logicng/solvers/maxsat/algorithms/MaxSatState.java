@@ -14,15 +14,15 @@ import java.util.Objects;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatState {
-    protected final int stateId;
-    protected final int nbVars;
-    protected final int nbHard;
-    protected final int nbSoft;
-    protected final int ubCost;
-    protected final int currentWeight;
-    protected final int totalSoftWeight;
-    protected final int[] softWeights;
+public final class MaxSatState {
+    private final int stateId;
+    private final int nbVars;
+    private final int nbHard;
+    private final int nbSoft;
+    private final int ubCost;
+    private final int currentWeight;
+    private final int totalSoftWeight;
+    private final int[] softWeights;
 
     /**
      * Creates a new MaxSAT state with the given parameters.

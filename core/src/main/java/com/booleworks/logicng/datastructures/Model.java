@@ -35,7 +35,7 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class Model {
+public final class Model {
     private final List<Literal> literals;
 
     /**

@@ -63,10 +63,10 @@ public final class FormulaFactoryConfig extends Configuration {
 
     /**
      * The builder for a formula factory configuration.
-     * @version 2.0.0
+     * @version 3.0.0
      * @since 2.0.0
      */
-    public static class Builder {
+    public final static class Builder {
         private String name = generateRandomName();
         private FormulaMergeStrategy formulaMergeStrategy = FormulaMergeStrategy.PANIC;
         private boolean simplifyComplementaryOperands = true;

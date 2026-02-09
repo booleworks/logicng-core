@@ -195,7 +195,7 @@ public final class SatSolverConfig extends Configuration {
      * @version 2.0.0
      * @since 1.0
      */
-    public static class Builder {
+    public static final class Builder {
         private boolean proofGeneration = false;
         private boolean useAtMostClauses = false;
         private CnfMethod cnfMethod = CnfMethod.PG_ON_SOLVER;

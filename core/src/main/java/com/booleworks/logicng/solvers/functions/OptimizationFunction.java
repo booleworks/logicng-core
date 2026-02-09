@@ -38,19 +38,19 @@ import java.util.TreeSet;
  * {@link IllegalArgumentException} will be thrown.</b>
  * <p>
  * Optimization functions are instantiated via their builder {@link #builder()}.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class OptimizationFunction implements SolverFunction<Model> {
+public class OptimizationFunction implements SolverFunction<Model> {
 
-    private static final String SEL_PREFIX = "@SEL_OPT_";
+    protected static final String SEL_PREFIX = "@SEL_OPT_";
 
-    private final Collection<? extends Literal> literals;
-    private final SortedSet<Variable> resultModelVariables;
-    private final boolean maximize;
+    protected final Collection<? extends Literal> literals;
+    protected final SortedSet<Variable> resultModelVariables;
+    protected final boolean maximize;
 
-    private OptimizationFunction(final Collection<? extends Literal> literals,
-                                 final Collection<Variable> additionalVariables, final boolean maximize) {
+    protected OptimizationFunction(final Collection<? extends Literal> literals,
+                                   final Collection<Variable> additionalVariables, final boolean maximize) {
         this.literals = literals;
         resultModelVariables = new TreeSet<>(additionalVariables);
         for (final Literal lit : literals) {
@@ -96,7 +96,7 @@ public final class OptimizationFunction implements SolverFunction<Model> {
         return model;
     }
 
-    private LngResult<Model> maximize(
+    protected LngResult<Model> maximize(
             final SatSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(OPTIMIZATION_FUNCTION_STARTED)) {
             return LngResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
@@ -179,7 +179,7 @@ public final class OptimizationFunction implements SolverFunction<Model> {
     /**
      * The builder for an optimization function.
      */
-    public static class Builder {
+    public static final class Builder {
         private Collection<? extends Literal> literals;
         private Collection<Variable> additionalVariables = new TreeSet<>();
         private boolean maximize = true;

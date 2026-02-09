@@ -25,7 +25,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class DnfFactorization extends CacheableFormulaTransformation {
+public class DnfFactorization extends CacheableFormulaTransformation {
 
     /**
      * Constructor for a DNF Factorization.

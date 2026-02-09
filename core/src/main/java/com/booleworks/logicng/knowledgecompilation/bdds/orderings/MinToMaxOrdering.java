@@ -23,9 +23,9 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.4.0
  */
-public final class MinToMaxOrdering implements VariableOrderingProvider {
+public class MinToMaxOrdering implements VariableOrderingProvider {
 
-    private final DfsOrdering dfsOrdering = new DfsOrdering();
+    protected final DfsOrdering dfsOrdering = new DfsOrdering();
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
@@ -45,8 +45,8 @@ public final class MinToMaxOrdering implements VariableOrderingProvider {
         return VariableOrderingProvider.sortProfile(profile, comparator);
     }
 
-    static Map<Variable, Integer> sortProfileByOccurrence(final Map<Variable, Integer> map,
-                                                          final Comparator<Map.Entry<Variable, Integer>> comparator) {
+    protected static Map<Variable, Integer> sortProfileByOccurrence(final Map<Variable, Integer> map,
+                                                                    final Comparator<Map.Entry<Variable, Integer>> comparator) {
         final List<Map.Entry<Variable, Integer>> list = new ArrayList<>(map.entrySet());
         list.sort(comparator);
         final Map<Variable, Integer> result = new LinkedHashMap<>();

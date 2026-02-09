@@ -26,7 +26,7 @@ import java.util.Set;
  * @version 3.0.0
  * @since 1.3
  */
-public final class DistributiveSimplifier extends CacheableFormulaTransformation {
+public class DistributiveSimplifier extends CacheableFormulaTransformation {
 
     /**
      * Constructs a new transformation. For a caching formula factory, the cache
@@ -85,7 +85,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
         return LngResult.of(result);
     }
 
-    private Formula distributeNAry(final Formula formula) {
+    protected Formula distributeNAry(final Formula formula) {
         final Formula result;
         final FType outerType = formula.getType();
         final FType innerType = FType.dual(outerType);

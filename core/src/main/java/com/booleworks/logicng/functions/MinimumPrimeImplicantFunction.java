@@ -27,12 +27,12 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class MinimumPrimeImplicantFunction implements FormulaFunction<SortedSet<Literal>> {
+public class MinimumPrimeImplicantFunction implements FormulaFunction<SortedSet<Literal>> {
 
-    private static final String POS = "_POS";
-    private static final String NEG = "_NEG";
-    private final FormulaFactory f;
-    private final MaxSatConfig config;
+    protected static final String POS = "_POS";
+    protected static final String NEG = "_NEG";
+    protected final FormulaFactory f;
+    protected final MaxSatConfig config;
 
     /**
      * Constructs a new function which computes a minimum-size prime implicant.

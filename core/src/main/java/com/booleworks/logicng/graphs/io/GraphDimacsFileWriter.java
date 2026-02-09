@@ -22,18 +22,15 @@ import java.util.Set;
 /**
  * A dimacs file writer for graphs. Writes the internal data structure of a
  * graph to a dimacs file.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 1.2
  */
-public final class GraphDimacsFileWriter {
+public class GraphDimacsFileWriter {
 
-    private static final String COL_EXTENSION = ".col";
-    private static final String MAP_EXTENSION = ".map";
+    protected static final String COL_EXTENSION = ".col";
+    protected static final String MAP_EXTENSION = ".map";
 
-    /**
-     * Private constructor.
-     */
-    private GraphDimacsFileWriter() {
+    protected GraphDimacsFileWriter() {
         // Intentionally left empty.
     }
 
@@ -88,13 +85,16 @@ public final class GraphDimacsFileWriter {
         }
     }
 
-    private static <T> void writeMapping(final File mappingFile, final Map<Node<T>, Long> node2id) throws IOException {
+    protected static <T> void writeMapping(final File mappingFile, final Map<Node<T>, Long> node2id)
+            throws IOException {
         final StringBuilder sb = new StringBuilder();
         for (final Map.Entry<Node<T>, Long> entry : node2id.entrySet()) {
             sb.append(entry.getKey().getContent()).append(";").append(entry.getValue()).append(System.lineSeparator());
         }
-        try (final BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))) {
+        try (
+                final BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))
+        ) {
             writer.append(sb);
             writer.flush();
         }

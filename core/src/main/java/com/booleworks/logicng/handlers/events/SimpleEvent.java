@@ -16,7 +16,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SimpleEvent implements LngEvent {
+public final class SimpleEvent implements LngEvent {
 
     public static final SimpleEvent NO_EVENT = new SimpleEvent("No event");
     public static final SimpleEvent DISTRIBUTION_PERFORMED = new SimpleEvent("Distribution performed");

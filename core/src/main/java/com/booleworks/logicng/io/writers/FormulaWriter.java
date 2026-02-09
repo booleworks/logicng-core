@@ -18,15 +18,12 @@ import java.nio.file.Files;
 
 /**
  * A writer for formulas.
- * @version 1.2
+ * @version 3.0.0
  * @since 1.2
  */
-public final class FormulaWriter {
+public class FormulaWriter {
 
-    /**
-     * Private constructor.
-     */
-    private FormulaWriter() {
+    protected FormulaWriter() {
         // Intentionally left empty.
     }
 

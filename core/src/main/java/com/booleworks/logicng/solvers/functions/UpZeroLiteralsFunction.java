@@ -18,17 +18,14 @@ import java.util.TreeSet;
  * A solver function which returns all unit propagated literals on level 0 of
  * the current formula on the solver. If the formula is UNSAT, {@code null} will
  * be returned.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Literal>> {
+public class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Literal>> {
 
     private final static UpZeroLiteralsFunction INSTANCE = new UpZeroLiteralsFunction();
 
-    /**
-     * Private empty constructor. Singleton class.
-     */
-    private UpZeroLiteralsFunction() {
+    protected UpZeroLiteralsFunction() {
         // Intentionally left empty
     }
 

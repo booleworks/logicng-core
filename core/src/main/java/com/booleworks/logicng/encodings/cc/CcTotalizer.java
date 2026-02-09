@@ -16,15 +16,15 @@ import com.booleworks.logicng.formulas.Variable;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CcTotalizer {
+public class CcTotalizer {
 
-    private enum Bound {
+    protected enum Bound {
         LOWER,
         UPPER,
         BOTH
     }
 
-    private CcTotalizer() {
+    protected CcTotalizer() {
         // Only static methods
     }
 
@@ -88,7 +88,7 @@ public final class CcTotalizer {
         }
     }
 
-    private static TotalizerVars initializeConstraint(final EncodingResult result, final Variable[] vars) {
+    protected static TotalizerVars initializeConstraint(final EncodingResult result, final Variable[] vars) {
         final var tv = new TotalizerVars(vars.length);
         for (final Variable var : vars) {
             tv.invars.push(var);
@@ -97,7 +97,7 @@ public final class CcTotalizer {
         return tv;
     }
 
-    private static void toCnf(final EncodingResult result, final TotalizerVars tv, final int rhs, final Bound bound) {
+    protected static void toCnf(final EncodingResult result, final TotalizerVars tv, final int rhs, final Bound bound) {
         final LngVector<Variable> left = new LngVector<>();
         final LngVector<Variable> right = new LngVector<>();
         assert tv.outvars.size() > 1;
@@ -135,9 +135,9 @@ public final class CcTotalizer {
         }
     }
 
-    private static void adderAmk(final EncodingResult result, final LngVector<Variable> left,
-                                 final LngVector<Variable> right,
-                                 final LngVector<Variable> output, final int rhs) {
+    protected static void adderAmk(final EncodingResult result, final LngVector<Variable> left,
+                                   final LngVector<Variable> right,
+                                   final LngVector<Variable> output, final int rhs) {
         assert output.size() == left.size() + right.size();
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
@@ -159,9 +159,9 @@ public final class CcTotalizer {
         }
     }
 
-    private static void adderAlk(final EncodingResult result, final LngVector<Variable> left,
-                                 final LngVector<Variable> right,
-                                 final LngVector<Variable> output) {
+    protected static void adderAlk(final EncodingResult result, final LngVector<Variable> left,
+                                   final LngVector<Variable> right,
+                                   final LngVector<Variable> output) {
         assert output.size() == left.size() + right.size();
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
@@ -180,21 +180,21 @@ public final class CcTotalizer {
         }
     }
 
-    private static final class TotalizerVars {
-        private final LngVector<Variable> invars;
-        private final LngVector<Variable> outvars;
+    protected static final class TotalizerVars {
+        public final LngVector<Variable> invars;
+        public final LngVector<Variable> outvars;
 
-        private TotalizerVars(final LngVector<Variable> invars, final LngVector<Variable> outvars) {
+        protected TotalizerVars(final LngVector<Variable> invars, final LngVector<Variable> outvars) {
             this.invars = invars;
             this.outvars = outvars;
         }
 
-        private TotalizerVars(final int length) {
+        protected TotalizerVars(final int length) {
             invars = new LngVector<>(length);
             outvars = new LngVector<>(length);
         }
 
-        private TotalizerVars withNewOutvars(final LngVector<Variable> newOutvars) {
+        protected TotalizerVars withNewOutvars(final LngVector<Variable> newOutvars) {
             return new TotalizerVars(invars, newOutvars);
         }
     }

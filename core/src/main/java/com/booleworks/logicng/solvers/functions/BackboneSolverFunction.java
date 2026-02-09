@@ -21,12 +21,12 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class BackboneSolverFunction implements SolverFunction<Backbone> {
+public class BackboneSolverFunction implements SolverFunction<Backbone> {
 
-    private final Collection<Variable> variables;
-    private final BackboneType type;
+    protected final Collection<Variable> variables;
+    protected final BackboneType type;
 
-    private BackboneSolverFunction(final Collection<Variable> variables, final BackboneType type) {
+    protected BackboneSolverFunction(final Collection<Variable> variables, final BackboneType type) {
         this.variables = variables;
         this.type = type;
     }
@@ -48,7 +48,7 @@ public final class BackboneSolverFunction implements SolverFunction<Backbone> {
     /**
      * The builder for a backbone function.
      */
-    public static class Builder {
+    public static final class Builder {
 
         private Collection<Variable> variables;
         private BackboneType type = BackboneType.POSITIVE_AND_NEGATIVE;

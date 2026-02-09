@@ -38,13 +38,13 @@ public abstract class PlaistedGreenbaumCommon<T> {
         }
     }
 
-    abstract int newSolverVariable();
+    protected abstract int newSolverVariable();
 
-    abstract void addToSolver(final LngIntVector clause, T addendum);
+    protected abstract void addToSolver(final LngIntVector clause, T addendum);
 
-    abstract int getLitFromSolver(final Literal lit);
+    protected abstract int getLitFromSolver(final Literal lit);
 
-    abstract void addCnf(final Formula cnf, final T addendum);
+    protected abstract void addCnf(final Formula cnf, final T addendum);
 
     private LngIntVector computeTransformation(final Formula formula, final boolean polarity,
                                                final T addendum, final boolean topLevel) {
@@ -288,7 +288,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
         return result;
     }
 
-    protected static class VarCacheEntry {
+    protected static final class VarCacheEntry {
         private final Integer pgVar;
         private boolean posPolarityCached = false;
         private boolean negPolarityCached = false;

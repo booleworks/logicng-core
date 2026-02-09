@@ -1649,9 +1649,9 @@ public class LngCoreSolver {
     /**
      * Class containing the information required for generating a proof.
      */
-    public static class ProofInformation {
-        protected final LngIntVector clause;
-        protected final Proposition proposition;
+    public static final class ProofInformation {
+        private final LngIntVector clause;
+        private final Proposition proposition;
 
         /**
          * Constructor.

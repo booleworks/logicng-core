@@ -46,7 +46,7 @@ import java.util.TreeSet;
  */
 public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunction<Bdd> {
 
-    ModelEnumerationToBddFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
+    protected ModelEnumerationToBddFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
         super(variables, Collections.emptySortedSet(), configuration(variables, config));
     }
 
@@ -80,7 +80,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
     /**
      * The builder for a BDD model enumeration function.
      */
-    public static class Builder {
+    public static final class Builder {
         private final SortedSet<Variable> variables;
         private ModelEnumerationConfig configuration;
 
@@ -113,7 +113,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
     }
 
-    static class BddModelEnumerationCollector implements EnumerationCollector<Bdd> {
+    static final class BddModelEnumerationCollector implements EnumerationCollector<Bdd> {
         private final BddKernel kernel;
         private Bdd committedModels;
         private final List<Model> uncommittedModels = new ArrayList<>();
@@ -150,7 +150,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
             return handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? null : MODEL_ENUMERATION_COMMIT;
         }
 
-        private Bdd model2Bdd(final Model model) {
+        protected Bdd model2Bdd(final Model model) {
             Bdd bdd = BddFactory.build(kernel.getFactory(), kernel.getFactory().verum(), kernel);
             for (final Literal literal : model.getLiterals()) {
                 bdd = bdd.and(BddFactory.build(kernel.getFactory(), literal, kernel));

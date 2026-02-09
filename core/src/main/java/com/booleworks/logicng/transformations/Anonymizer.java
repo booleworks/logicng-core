@@ -24,10 +24,10 @@ import com.booleworks.logicng.handlers.LngResult;
  * @version 3.0.0
  * @since 1.4.0
  */
-public final class Anonymizer extends StatefulFormulaTransformation<Substitution> {
+public class Anonymizer extends StatefulFormulaTransformation<Substitution> {
 
-    private final String prefix;
-    private int counter;
+    protected final String prefix;
+    protected int counter;
 
     /**
      * Constructs a new anonymizer with the standard variable prefix 'v'.

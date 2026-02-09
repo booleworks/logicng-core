@@ -27,9 +27,9 @@ import java.util.Map;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class LiteralSubstitution extends StatelessFormulaTransformation {
+public class LiteralSubstitution extends StatelessFormulaTransformation {
 
-    private final Map<Literal, Literal> substitution;
+    protected final Map<Literal, Literal> substitution;
 
     /**
      * Generate a new formula substitution with a given literal-to-literal
@@ -47,7 +47,7 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
         return LngResult.of(substitute(formula));
     }
 
-    private Formula substitute(final Formula formula) {
+    protected Formula substitute(final Formula formula) {
         switch (formula.getType()) {
             case TRUE:
             case FALSE:

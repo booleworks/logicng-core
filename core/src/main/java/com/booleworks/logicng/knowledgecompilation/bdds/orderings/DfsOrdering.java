@@ -19,10 +19,10 @@ import java.util.List;
 /**
  * A depth-first-search BDD variable ordering. Traverses the formula in a DFS
  * manner and gathers all variables in the occurrence.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
-public final class DfsOrdering implements VariableOrderingProvider {
+public class DfsOrdering implements VariableOrderingProvider {
 
     /**
      * Constructor.
@@ -37,7 +37,7 @@ public final class DfsOrdering implements VariableOrderingProvider {
         return new ArrayList<>(order);
     }
 
-    private void dfs(final Formula formula, final LinkedHashSet<Variable> variables) {
+    protected void dfs(final Formula formula, final LinkedHashSet<Variable> variables) {
         switch (formula.getType()) {
             case LITERAL:
                 variables.add(((Literal) formula).variable());

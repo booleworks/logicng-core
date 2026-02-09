@@ -15,7 +15,7 @@ import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class EnumerationFoundModelsEvent implements LngEvent {
+public final class EnumerationFoundModelsEvent implements LngEvent {
 
     private final int numberOfModels;
 

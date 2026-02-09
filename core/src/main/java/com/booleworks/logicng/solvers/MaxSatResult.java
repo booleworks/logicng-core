@@ -16,7 +16,7 @@ import java.util.Objects;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatResult {
+public final class MaxSatResult {
 
     private final boolean satisfiable;
     private final int satisfiedWeight;

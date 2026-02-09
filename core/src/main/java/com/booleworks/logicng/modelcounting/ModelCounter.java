@@ -39,12 +39,9 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class ModelCounter {
+public class ModelCounter {
 
-    /**
-     * Private empty constructor. Class only contains static utility methods.
-     */
-    private ModelCounter() {
+    protected ModelCounter() {
         // Intentionally left empty
     }
 
@@ -95,7 +92,7 @@ public final class ModelCounter {
         return LngResult.of(count.getResult().multiply(BigInteger.valueOf(2).pow(dontCareVariables.size())));
     }
 
-    private static List<Formula> encodeAsCnf(final FormulaFactory f, final Collection<Formula> formulas) {
+    protected static List<Formula> encodeAsCnf(final FormulaFactory f, final Collection<Formula> formulas) {
         final PureExpansionTransformation expander = new PureExpansionTransformation(f);
         final List<Formula> expandedFormulas =
                 formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
@@ -107,7 +104,7 @@ public final class ModelCounter {
         return expandedFormulas.stream().map(it -> CnfEncoder.encode(f, it, cnfConfig)).collect(Collectors.toList());
     }
 
-    private static SimplificationResult simplify(final FormulaFactory f, final Collection<Formula> formulas) {
+    protected static SimplificationResult simplify(final FormulaFactory f, final Collection<Formula> formulas) {
         final Assignment simpleBackbone = new Assignment();
         final SortedSet<Variable> backboneVariables = new TreeSet<>();
         for (final Formula formula : formulas) {
@@ -127,11 +124,12 @@ public final class ModelCounter {
         return new SimplificationResult(f, backboneVariables, simplified);
     }
 
-    private static LngResult<BigInteger> count(final FormulaFactory f, final Collection<Formula> formulas,
-                                               final ComputationHandler handler) {
+    protected static LngResult<BigInteger> count(final FormulaFactory f, final Collection<Formula> formulas,
+                                                 final ComputationHandler handler) {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
+        final List<List<Formula>> components =
+                ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
             final LngResult<Dnnf> dnnf = DnnfCompiler.compile(f, f.and(component), handler);
@@ -143,19 +141,19 @@ public final class ModelCounter {
         return LngResult.of(count);
     }
 
-    private static class SimplificationResult {
-        private final List<Formula> simplifiedFormulas;
-        private final SortedSet<Variable> backboneVariables;
-        private final FormulaFactory f;
+    protected static class SimplificationResult {
+        public final List<Formula> simplifiedFormulas;
+        public final SortedSet<Variable> backboneVariables;
+        public final FormulaFactory f;
 
-        private SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
-                                     final List<Formula> simplifiedFormulas) {
+        protected SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
+                                       final List<Formula> simplifiedFormulas) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
             this.f = f;
         }
 
-        private SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
+        protected SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
             final SortedSet<Variable> dontCareVariables = new TreeSet<>(variables);
             dontCareVariables.removeAll(FormulaHelper.variables(f, simplifiedFormulas));
             dontCareVariables.removeAll(backboneVariables);

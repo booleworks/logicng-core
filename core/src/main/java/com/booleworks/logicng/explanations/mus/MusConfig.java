@@ -52,7 +52,7 @@ public final class MusConfig extends Configuration {
     /**
      * The builder for a MUS configuration.
      */
-    public static class Builder {
+    public final static class Builder {
 
         private Algorithm algorithm = Algorithm.DELETION;
 

@@ -15,7 +15,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.5.1
  */
-public final class NnfPredicate extends CacheableFormulaPredicate {
+public class NnfPredicate extends CacheableFormulaPredicate {
 
     /**
      * Constructs a new predicate. For a caching formula factory, the cache of

@@ -25,7 +25,7 @@ import java.util.List;
  * {@link SatSolver#satCall()}.
  * @see SatSolver#satCall()
  */
-public class SatCallBuilder {
+public final class SatCallBuilder {
     private final SatSolver solver;
     private ComputationHandler handler;
     private final List<Proposition> additionalPropositions;

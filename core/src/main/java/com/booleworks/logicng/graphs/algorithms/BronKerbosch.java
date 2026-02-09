@@ -20,14 +20,14 @@ import java.util.TreeSet;
  * maximal Cliques of a Graph. Requires that the ids of the nodes are
  * comparable.
  * @param <T> the node type of the graph
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.2
  */
-public final class BronKerbosch<T extends Comparable<T>> {
+public class BronKerbosch<T extends Comparable<T>> {
 
-    private final Graph<T> g;
-    private final Comparator<Node<T>> nodeComparator;
-    private final Set<SortedSet<Node<T>>> cliques;
+    protected final Graph<T> g;
+    protected final Comparator<Node<T>> nodeComparator;
+    protected final Set<SortedSet<Node<T>>> cliques;
 
     /**
      * Constructor.
@@ -52,7 +52,7 @@ public final class BronKerbosch<T extends Comparable<T>> {
         return cliques;
     }
 
-    private void bk(final SortedSet<Node<T>> r, final SortedSet<Node<T>> p, final SortedSet<Node<T>> x) {
+    protected void bk(final SortedSet<Node<T>> r, final SortedSet<Node<T>> p, final SortedSet<Node<T>> x) {
         if (p.isEmpty() && x.isEmpty()) {
             cliques.add(r);
             return;
@@ -103,10 +103,10 @@ public final class BronKerbosch<T extends Comparable<T>> {
 
     /**
      * A comparator between nodes, that compares them by number of neighbours.
-     * @version 1.2
+     * @version 3.0.0
      * @since 1.2
      */
-    private class NodeNeighbourComparator implements Comparator<Node<T>> {
+    protected class NodeNeighbourComparator implements Comparator<Node<T>> {
 
         @Override
         public int compare(final Node<T> n1, final Node<T> n2) {

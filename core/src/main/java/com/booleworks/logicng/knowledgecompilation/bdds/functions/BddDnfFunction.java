@@ -13,7 +13,7 @@ import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class BddDnfFunction extends BddNormalFormFunction {
+public class BddDnfFunction extends BddNormalFormFunction {
 
     /**
      * Constructs a new instance of a function that converts BDDs to DNF.

@@ -23,20 +23,20 @@ import java.util.stream.Stream;
  * <p>
  * The formula types included in the generated formulas can be configured with a
  * {@link FormulaRandomizerConfig}.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class FormulaRandomizer {
+public class FormulaRandomizer {
 
-    private final FormulaFactory f;
-    private final FormulaRandomizerConfig config;
-    private final Random random;
-    private final Variable[] variables;
+    protected final FormulaFactory f;
+    protected final FormulaRandomizerConfig config;
+    protected final Random random;
+    protected final Variable[] variables;
 
-    private final FormulaTypeProbabilities formulaTypeProbabilities;
-    private final CTypeProbabilities cTypeProbabilities;
-    private final double phaseProbability;
-    private final double coefficientNegativeProbability;
+    protected final FormulaTypeProbabilities formulaTypeProbabilities;
+    protected final CTypeProbabilities cTypeProbabilities;
+    protected final double phaseProbability;
+    protected final double coefficientNegativeProbability;
 
     /**
      * Generates a new formula randomizer. With the given formula factory and
@@ -362,20 +362,20 @@ public final class FormulaRandomizer {
         return type;
     }
 
-    private static class FormulaTypeProbabilities {
-        private final double constant;
-        private final double literal;
-        private final double pbc;
-        private final double cc;
-        private final double amo;
-        private final double exo;
-        private final double or;
-        private final double and;
-        private final double not;
-        private final double impl;
-        private final double equiv;
+    protected static class FormulaTypeProbabilities {
+        public final double constant;
+        public final double literal;
+        public final double pbc;
+        public final double cc;
+        public final double amo;
+        public final double exo;
+        public final double or;
+        public final double and;
+        public final double not;
+        public final double impl;
+        public final double equiv;
 
-        private FormulaTypeProbabilities(final FormulaRandomizerConfig config) {
+        public FormulaTypeProbabilities(final FormulaRandomizerConfig config) {
             final double total = config.weightConstant + config.weightPositiveLiteral + config.weightNegativeLiteral +
                     config.weightOr +
                     config.weightAnd + config.weightNot + config.weightImpl + config.weightEquiv +
@@ -395,14 +395,14 @@ public final class FormulaRandomizer {
         }
     }
 
-    private static class CTypeProbabilities {
-        private final double le;
-        private final double lt;
-        private final double ge;
-        private final double gt;
-        private final double eq;
+    protected static class CTypeProbabilities {
+        public final double le;
+        public final double lt;
+        public final double ge;
+        public final double gt;
+        public final double eq;
 
-        private CTypeProbabilities(final FormulaRandomizerConfig config) {
+        public CTypeProbabilities(final FormulaRandomizerConfig config) {
             final double total = config.weightPbcTypeLe + config.weightPbcTypeLt + config.weightPbcTypeGe +
                     config.weightPbcTypeGt + config.weightPbcTypeEq;
             le = config.weightPbcTypeLe / total;

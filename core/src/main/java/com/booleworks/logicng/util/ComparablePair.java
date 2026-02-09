@@ -8,10 +8,10 @@ package com.booleworks.logicng.util;
  * Data structure for a comparable pair.
  * @param <A> the type parameter of the first entry
  * @param <B> the type parameter of the second entry
- * @version 1.2
+ * @version 3.0.0
  * @since 1.2
  */
-public final class ComparablePair<A extends Comparable<A>, B extends Comparable<B>> extends Pair<A, B> implements Comparable<ComparablePair<A, B>> {
+public class ComparablePair<A extends Comparable<A>, B extends Comparable<B>> extends Pair<A, B> implements Comparable<ComparablePair<A, B>> {
 
     /**
      * Constructs a new comparable pair.

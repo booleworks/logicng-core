@@ -16,15 +16,15 @@ import com.booleworks.logicng.formulas.Literal;
  * @version 3.0.0
  * @since 1.0
  */
-public final class PbSwc {
+public class PbSwc {
 
     public static void encode(final EncodingResult result, final LngVector<Literal> lits, final LngIntVector coeffs,
                               final int rhs) {
         generateConstraint(result, rhs, lits, coeffs);
     }
 
-    private static void generateConstraint(final EncodingResult result, final int rhs, final LngVector<Literal> lits,
-                                           final LngIntVector coeffs) {
+    protected static void generateConstraint(final EncodingResult result, final int rhs, final LngVector<Literal> lits,
+                                             final LngIntVector coeffs) {
         final FormulaFactory f = result.getFactory();
         final int n = lits.size();
         final LngVector<LngVector<Literal>> seqAuxiliary = new LngVector<>(n + 1);

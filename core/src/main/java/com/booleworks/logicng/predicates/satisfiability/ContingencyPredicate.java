@@ -14,9 +14,9 @@ import com.booleworks.logicng.formulas.FormulaPredicate;
  * @version 3.0.0
  * @since 1.0
  */
-public final class ContingencyPredicate implements FormulaPredicate {
+public class ContingencyPredicate implements FormulaPredicate {
 
-    private final FormulaFactory f;
+    protected final FormulaFactory f;
 
     /**
      * Constructs a new contingency predicate with a given formula factory which

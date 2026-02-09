@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class CnfEncoder {
 
-    private CnfEncoder() {
+    protected CnfEncoder() {
         //intentionally left empty.
     }
 
@@ -115,7 +115,7 @@ public class CnfEncoder {
         }
     }
 
-    private static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CnfConfig config) {
+    protected static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CnfConfig config) {
         if (f instanceof CachingFormulaFactory) {
             return new TseitinTransformation(f, config.atomBoundary);
         } else {
@@ -123,7 +123,7 @@ public class CnfEncoder {
         }
     }
 
-    private static FormulaTransformation getPgTransformation(final FormulaFactory f, final CnfConfig config) {
+    protected static FormulaTransformation getPgTransformation(final FormulaFactory f, final CnfConfig config) {
         if (f instanceof CachingFormulaFactory) {
             return new PlaistedGreenbaumTransformation(f, config.atomBoundary);
         } else {

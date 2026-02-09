@@ -22,12 +22,9 @@ import java.util.List;
  * @version 3.0.0
  * @since 1.2
  */
-public final class FormulaReader {
+public class FormulaReader {
 
-    /**
-     * Private constructor.
-     */
-    private FormulaReader() {
+    protected FormulaReader() {
         // Intentionally left empty.
     }
 

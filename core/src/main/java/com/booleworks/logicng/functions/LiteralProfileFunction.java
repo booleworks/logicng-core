@@ -28,7 +28,7 @@ import java.util.TreeMap;
  * @version 3.0.0
  * @since 1.0
  */
-public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<Literal, Integer>> {
+public class LiteralProfileFunction extends CacheableFormulaFunction<Map<Literal, Integer>> {
 
     /**
      * Constructs a new function. For a caching formula factory, the cache of
@@ -62,7 +62,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param formula the formula
      * @return the literal profile
      */
-    private Map<Literal, Integer> nonCachingLiteralProfile(final Formula formula) {
+    protected Map<Literal, Integer> nonCachingLiteralProfile(final Formula formula) {
         final SortedMap<Literal, Integer> map = new TreeMap<>();
         nonCachingRecursion(formula, map);
         return map;
@@ -73,7 +73,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param formula the formula
      * @param map     the literal profile
      */
-    private void nonCachingRecursion(final Formula formula, final Map<Literal, Integer> map) {
+    protected void nonCachingRecursion(final Formula formula, final Map<Literal, Integer> map) {
         if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit, 1, Integer::sum);
@@ -94,7 +94,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param formula the formula
      * @return the literal profile
      */
-    private Map<Literal, Integer> cachingLiteralProfile(final Formula formula) {
+    protected Map<Literal, Integer> cachingLiteralProfile(final Formula formula) {
         final Map<Literal, Integer> cached = lookupCache(formula);
         if (cached != null) {
             return cached;

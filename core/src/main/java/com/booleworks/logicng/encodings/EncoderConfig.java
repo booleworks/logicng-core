@@ -147,7 +147,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The builder for an encoder configuration.
      */
-    public static class Builder {
+    public static final class Builder {
         private AmoEncoder amoEncoder = AmoEncoder.BEST;
         private AmkEncoder amkEncoder = AmkEncoder.BEST;
         private AlkEncoder alkEncoder = AlkEncoder.BEST;

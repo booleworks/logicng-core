@@ -20,7 +20,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSet<Formula>> {
+public class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSet<Formula>> {
 
     /**
      * Constructs a new function. For a caching formula factory, the cache of

@@ -17,9 +17,9 @@ import com.booleworks.logicng.handlers.events.LngEvent;
  */
 public class NumberOfNodesBddHandler implements ComputationHandler {
 
-    private boolean canceled = false;
-    private final int bound;
-    private int count;
+    protected boolean canceled = false;
+    protected final int bound;
+    protected int count;
 
     /**
      * Constructs a new BDD handler with an upper bound for the number of added

@@ -69,14 +69,14 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 1.5.0
  */
-public final class SortedStringRepresentation extends DefaultStringRepresentation {
+public class SortedStringRepresentation extends DefaultStringRepresentation {
 
     /**
      * A list of variables in the order they are supposed to appear in a given
      * formula.
      */
-    private final List<Variable> varOrder;
-    private final FormulaComparator comparator;
+    protected final List<Variable> varOrder;
+    protected final FormulaComparator comparator;
 
     /**
      * Constructs a new sorted string representation with a given ordering of
@@ -210,7 +210,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
      * @param equivalence the equivalence
      * @return the string representation
      */
-    private String sortedEquivalence(final Equivalence equivalence) {
+    protected String sortedEquivalence(final Equivalence equivalence) {
         final Formula right;
         final Formula left;
         if (comparator.compare(equivalence.getLeft(), equivalence.getRight()) <= 0) {
@@ -227,10 +227,10 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
         return String.format("%s%s%s", leftString, equivalence(), rightString);
     }
 
-    static class FormulaComparator implements Comparator<Formula> {
+    protected static class FormulaComparator implements Comparator<Formula> {
 
-        private final List<Variable> varOrder;
-        private final FormulaFactory f;
+        protected final List<Variable> varOrder;
+        protected final FormulaFactory f;
 
         FormulaComparator(final FormulaFactory f, final List<Variable> varOrder) {
             this.f = f;

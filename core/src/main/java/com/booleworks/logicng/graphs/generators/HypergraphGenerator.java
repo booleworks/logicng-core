@@ -22,10 +22,10 @@ import java.util.SortedSet;
 
 /**
  * A generator for hyper-graphs from formulas.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
-public final class HypergraphGenerator {
+public class HypergraphGenerator {
 
     /**
      * Generates a hyper-graph from a CNF given as a list of clauses. Each
@@ -102,8 +102,9 @@ public final class HypergraphGenerator {
         return hypergraph;
     }
 
-    private static void addClause(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
-                                  final Map<Variable, HypergraphNode<Variable>> nodes) {
+    protected static void addClause(final FormulaFactory f, final Formula formula,
+                                    final Hypergraph<Variable> hypergraph,
+                                    final Map<Variable, HypergraphNode<Variable>> nodes) {
         assert formula.getType() == FType.LITERAL || formula.getType() == FType.OR;
         final SortedSet<Variable> variables = formula.variables(f);
         final Set<HypergraphNode<Variable>> clause = new LinkedHashSet<>();

@@ -47,25 +47,25 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
     /**
      * Undirected Graph
      */
-    public static class Graph {
-        protected final int numberOfVertices;
+    public final static class Graph {
+        private final int numberOfVertices;
 
         /**
          * The adjacency matrix (which is symmetric since the graph is
          * undirected)
          */
-        protected final boolean[][] adjMatrix;
+        private final boolean[][] adjMatrix;
 
         /**
          * The list of vertices
          */
-        protected final List<Variable> vertices;
+        private final List<Variable> vertices;
 
         /**
          * The edges of the graph as a list of edges per node ({{2,3},{1},{1}}
          * means that there are the edges 1-2 and 1-3)
          */
-        protected final List<Set<Integer>> edgeList;
+        private final List<Set<Integer>> edgeList;
 
         /**
          * Computes the DTree from the given CNF.
@@ -108,7 +108,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             }
         }
 
-        protected List<LngIntVector> getCopyOfEdgeList() {
+        private List<LngIntVector> getCopyOfEdgeList() {
             final List<LngIntVector> result = new ArrayList<>();
             for (final Set<Integer> edge : edgeList) {
                 result.add(LngIntVector.of(edge.stream().mapToInt(i -> i).toArray()));
@@ -116,7 +116,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             return result;
         }
 
-        protected boolean[][] getCopyOfAdjMatrix() {
+        private boolean[][] getCopyOfAdjMatrix() {
             final boolean[][] result = new boolean[numberOfVertices][numberOfVertices];
             for (int i = 0; i < numberOfVertices; i++) {
                 result[i] = Arrays.copyOf(adjMatrix[i], numberOfVertices);
@@ -124,7 +124,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             return result;
         }
 
-        protected LngResult<List<Variable>> getMinFillOrdering(final ComputationHandler handler) {
+        private LngResult<List<Variable>> getMinFillOrdering(final ComputationHandler handler) {
             final boolean[][] fillAdjMatrix = getCopyOfAdjMatrix();
             final List<LngIntVector> fillEdgeList = getCopyOfEdgeList();
 
