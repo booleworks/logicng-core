@@ -55,8 +55,8 @@ public class CspSolving {
      * @return whether the CSP is satisfiable or the event cancelling the
      * computation
      */
-    public static LngResult<Boolean> sat(final Csp csp, final CspEncodingContext context, final CspFactory cf, final
-    ComputationHandler handler) {
+    public static LngResult<Boolean> sat(final Csp csp, final CspEncodingContext context, final CspFactory cf,
+                                         final ComputationHandler handler) {
         return sat(csp, null, context, cf, handler);
     }
 
@@ -211,8 +211,8 @@ public class CspSolving {
      * the event cancelling the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver, final Csp csp,
-                                                           final CspEncodingContext context,
-                                                           final CspFactory cf, final ComputationHandler handler) {
+                                                           final CspEncodingContext context, final CspFactory cf,
+                                                           final ComputationHandler handler) {
         return model(solver, csp, null, context, cf, handler);
     }
 
@@ -273,7 +273,7 @@ public class CspSolving {
                                       final Map<IntegerVariable, Integer> restrictions,
                                       final CspEncodingContext context,
                                       final CspFactory cf) {
-        final List<Variable> allVars = new ArrayList<>(context.getSatVariables(integerVariables));
+        final List<Variable> allVars = new ArrayList<>(context.getEncodingVariables(integerVariables));
         allVars.addAll(booleanVariables);
         final SatCallBuilder scb = setupSatCall(solver, restrictions, null, context, cf);
         final Model model = scb.model(allVars);
@@ -303,7 +303,7 @@ public class CspSolving {
                                                            final Map<IntegerVariable, Integer> restrictions,
                                                            final CspEncodingContext context,
                                                            final CspFactory cf, final ComputationHandler handler) {
-        final List<Variable> allVars = new ArrayList<>(context.getSatVariables(integerVariables));
+        final List<Variable> allVars = new ArrayList<>(context.getEncodingVariables(integerVariables));
         allVars.addAll(booleanVariables);
         final SatCallBuilder scb = setupSatCall(solver, restrictions, handler, context, cf);
 

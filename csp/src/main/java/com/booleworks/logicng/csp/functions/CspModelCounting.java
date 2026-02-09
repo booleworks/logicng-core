@@ -50,8 +50,9 @@ public class CspModelCounting {
 
         final List<Formula> encoded = cf.encodeCsp(csp, context);
 
-        final SortedSet<Variable> allVars = new TreeSet<>(context.getSatVariables(csp.getInternalIntegerVariables()));
-        allVars.addAll(context.getSatVariables(context.getSimplifyIntVariables()));
+        final SortedSet<Variable> allVars =
+                new TreeSet<>(context.getEncodingVariables(csp.getInternalIntegerVariables()));
+        allVars.addAll(context.getEncodingVariables(context.getSimplifyIntVariables()));
         allVars.addAll(csp.getInternalBooleanVariables());
         allVars.addAll(context.getSimplifyBoolVariables());
         return ModelCounter.count(cf.getFormulaFactory(), encoded, allVars, handler);

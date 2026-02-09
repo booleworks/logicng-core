@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Functions for substituting integer variables in formulas,predicates, and
+ * Functions for substituting integer variables in formulas, predicates, and
  * terms.
  * @version 3.0.0
  * @since 3.0.0

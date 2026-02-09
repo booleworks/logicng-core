@@ -108,7 +108,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final List<IntegerVariable> relevantVars =
                 csp.getVisibleIntegerVariables().stream().filter(csp.getInternalIntegerVariables()::contains)
                         .collect(Collectors.toList());
-        final Set<Variable> relevantSatVars = context.getSatVariables(relevantVars);
+        final Set<Variable> relevantSatVars = context.getEncodingVariables(relevantVars);
         final Map<IntegerVariable, Set<Integer>> allowedValues = getAllowedValues(csp, cf);
 
         for (final IntegerVariable v : relevantVars) {

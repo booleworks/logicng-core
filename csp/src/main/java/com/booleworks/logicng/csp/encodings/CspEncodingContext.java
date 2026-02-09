@@ -38,7 +38,7 @@ public interface CspEncodingContext {
      * @param variables list of integer variables
      * @return related boolean variables
      */
-    Set<Variable> getSatVariables(final Collection<IntegerVariable> variables);
+    Set<Variable> getEncodingVariables(final Collection<IntegerVariable> variables);
 
     /**
      * Returns whether an integer variable has an encoding in this context.

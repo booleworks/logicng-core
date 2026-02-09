@@ -8,6 +8,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
+import com.booleworks.logicng.csp.datastructures.ReductionResult;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.handlers.CspEvent;
 import com.booleworks.logicng.csp.handlers.CspHandlerException;

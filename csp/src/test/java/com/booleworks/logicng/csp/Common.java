@@ -23,26 +23,36 @@ public class Common {
         return new IntegerClause(setFrom(v), setFrom(a));
     }
 
-    public static CspAssignment assignmentFrom(final IntegerVariable v1, final int value1) {
+    public static CspAssignment assignmentFrom(final IntegerVariable v1, final int value1, final Literal... literals) {
         final CspAssignment assignment = new CspAssignment();
         assignment.addIntAssignment(v1, value1);
+        for (final Literal literal : literals) {
+            assignment.addLiteral(literal);
+        }
         return assignment;
     }
 
     public static CspAssignment assignmentFrom(final IntegerVariable v1, final int value1, final IntegerVariable v2,
-                                               final int value2) {
+                                               final int value2, final Literal... literals) {
         final CspAssignment assignment = new CspAssignment();
         assignment.addIntAssignment(v1, value1);
         assignment.addIntAssignment(v2, value2);
+        for (final Literal literal : literals) {
+            assignment.addLiteral(literal);
+        }
         return assignment;
     }
 
     public static CspAssignment assignmentFrom(final IntegerVariable v1, final int value1, final IntegerVariable v2,
-                                               final int value2, final IntegerVariable v3, final int value3) {
+                                               final int value2, final IntegerVariable v3, final int value3,
+                                               final Literal... literals) {
         final CspAssignment assignment = new CspAssignment();
         assignment.addIntAssignment(v1, value1);
         assignment.addIntAssignment(v2, value2);
         assignment.addIntAssignment(v3, value3);
+        for (final Literal literal : literals) {
+            assignment.addLiteral(literal);
+        }
         return assignment;
     }
 

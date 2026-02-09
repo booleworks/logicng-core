@@ -36,7 +36,7 @@ public class CspUtil {
                                                                   final CspEncodingContext context) {
         final TreeSet<IntegerVariable> result = new TreeSet<>();
         for (final IntegerVariable intVar : variables) {
-            for (final Variable v : context.getSatVariables(List.of(intVar))) {
+            for (final Variable v : context.getEncodingVariables(List.of(intVar))) {
                 if (booleanVariables.contains(v)) {
                     result.add(intVar);
                     break;
