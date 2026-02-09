@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 
 /**
@@ -22,6 +23,11 @@ public class NegationFunction extends UnaryFunction {
      */
     public NegationFunction(final Term operand) {
         super(Term.Type.NEG, operand);
+    }
+
+    @Override
+    public Term restrict(final CspFactory cf, final CspAssignment restrictions) {
+        return cf.minus(getOperand().restrict(cf, restrictions));
     }
 
     @Override

@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 
@@ -61,6 +62,21 @@ public class IntegerVariable extends Term implements IntegerHolder {
     @Override
     public void variablesInplace(final SortedSet<IntegerVariable> variables) {
         variables.add(this);
+    }
+
+    @Override
+    public Term restrict(final CspFactory cf, final CspAssignment restrictions) {
+        if (restrictions.getIntegerAssignments().containsKey(this)) {
+            final int value = restrictions.getIntegerAssignments().get(this);
+            if (!getDomain().contains(value)) {
+                throw new IllegalArgumentException(
+                        String.format("Variable \"%s\" cannot be restricted to %d as it is not part of its domain",
+                                getName(), value));
+            }
+            return cf.constant(restrictions.getIntegerAssignments().get(this));
+        } else {
+            return this;
+        }
     }
 
     @Override

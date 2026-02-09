@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.Formula;
@@ -77,6 +78,14 @@ public abstract class CspPredicate implements Predicate {
      * @param variables set to add the variables to
      */
     public abstract void variablesInplace(SortedSet<IntegerVariable> variables);
+
+    /**
+     *
+     * @param cf
+     * @param restrictions
+     * @return
+     */
+    public abstract CspPredicate restrict(CspFactory cf, CspAssignment restrictions);
 
     /**
      * Calculates the decomposition of this predicate. (without caching)

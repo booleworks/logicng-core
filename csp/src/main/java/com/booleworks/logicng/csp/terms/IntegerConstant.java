@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 
@@ -40,6 +41,11 @@ public class IntegerConstant extends Term implements IntegerHolder {
 
     @Override
     public void variablesInplace(final SortedSet<IntegerVariable> variables) {
+    }
+
+    @Override
+    public IntegerConstant restrict(final CspFactory cf, final CspAssignment restrictions) {
+        return this;
     }
 
     @Override

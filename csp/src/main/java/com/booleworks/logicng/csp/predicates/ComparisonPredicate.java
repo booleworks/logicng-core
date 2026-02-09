@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
@@ -57,6 +58,12 @@ public class ComparisonPredicate extends BinaryPredicate {
             default:
                 throw new IllegalArgumentException("Invalid type of ComparisonPredicate: " + type);
         }
+    }
+
+    @Override
+    public CspPredicate restrict(final CspFactory cf, final CspAssignment restrictions) {
+        return cf.comparison(getLeft().restrict(cf, restrictions), getRight().restrict(cf, restrictions),
+                getPredicateType());
     }
 
     @Override

@@ -4,11 +4,14 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.formulas.Variable;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,6 +29,15 @@ public class AdditionFunction extends NAryFunction {
      */
     public AdditionFunction(final LinkedHashSet<Term> terms) {
         super(Term.Type.ADD, terms);
+    }
+
+    @Override
+    public Term restrict(final CspFactory cf, final CspAssignment restrictions) {
+        final List<Term> restrictedOps = new ArrayList<>(getOperands().size());
+        for (final Term op : getOperands()) {
+            restrictedOps.add(op.restrict(cf, restrictions));
+        }
+        return cf.add(restrictedOps);
     }
 
     @Override

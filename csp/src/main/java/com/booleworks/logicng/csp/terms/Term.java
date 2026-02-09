@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
@@ -75,6 +76,17 @@ public abstract class Term {
      * @param variables set to add the result to
      */
     public abstract void variablesInplace(SortedSet<IntegerVariable> variables);
+
+    /**
+     * Replaces the integer variables with the corresponding constant values
+     * contained in {@code restrictions}.
+     * @param cf           the factory
+     * @param restrictions assignment containing the restrictions
+     * @return the restricted predicate
+     * @throws IllegalArgumentException if the restricted value of a variable is
+     *                                  not in the domain of the variable.
+     */
+    public abstract Term restrict(CspFactory cf, CspAssignment restrictions);
 
     /**
      * Calculates the decomposition of this term. (without caching)

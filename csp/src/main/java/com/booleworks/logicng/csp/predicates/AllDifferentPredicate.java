@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.csp.terms.Term;
@@ -57,6 +58,15 @@ public class AllDifferentPredicate extends CspPredicate {
         for (final Term term : terms) {
             term.variablesInplace(variables);
         }
+    }
+
+    @Override
+    public CspPredicate restrict(final CspFactory cf, final CspAssignment restrictions) {
+        final List<Term> restrictedTerms = new ArrayList<>(getTerms().size());
+        for (final Term term : getTerms()) {
+            restrictedTerms.add(term.restrict(cf, restrictions));
+        }
+        return cf.allDifferent(restrictedTerms);
     }
 
     @Override

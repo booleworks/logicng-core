@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
@@ -35,6 +36,11 @@ public class MultiplicationFunction extends BinaryFunction {
      */
     public MultiplicationFunction(final Term left, final Term right) {
         super(Term.Type.MUL, left, right);
+    }
+
+    @Override
+    public Term restrict(final CspFactory cf, final CspAssignment restrictions) {
+        return cf.mul(getLeft().restrict(cf, restrictions), getRight().restrict(cf, restrictions));
     }
 
     @Override

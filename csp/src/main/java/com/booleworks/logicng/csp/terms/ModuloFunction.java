@@ -4,6 +4,7 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
@@ -33,6 +34,11 @@ public class ModuloFunction extends BinaryFunction {
      */
     public ModuloFunction(final Term left, final IntegerConstant right) {
         super(Term.Type.MOD, left, right);
+    }
+
+    @Override
+    public Term restrict(final CspFactory cf, final CspAssignment restrictions) {
+        return cf.mod(getLeft().restrict(cf, restrictions), getRight().restrict(cf, restrictions));
     }
 
     @Override
