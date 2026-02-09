@@ -9,6 +9,8 @@ import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.terms.AbsoluteFunction;
+import com.booleworks.logicng.csp.terms.IntegerConstant;
+import com.booleworks.logicng.csp.terms.IntegerHolder;
 import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.Term;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -78,6 +80,13 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeEq(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            if (right.equals(left)) {
+                return Decomposition.empty();
+            } else if (right instanceof IntegerConstant && left instanceof IntegerConstant) {
+                return Decomposition.emptyClause();
+            }
+        }
         if (right.getType() == Term.Type.ZERO) {
             return decomposeEqZero(left, cf);
         } else if (left.getType() == Term.Type.ZERO) {
@@ -87,6 +96,13 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeNe(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            if (right.equals(left)) {
+                return Decomposition.emptyClause();
+            } else if (right instanceof IntegerConstant && left instanceof IntegerConstant) {
+                return Decomposition.empty();
+            }
+        }
         if (right.getType() == Term.Type.ZERO) {
             return decomposeNeZero(left, cf);
         } else if (left.getType() == Term.Type.ZERO) {
@@ -96,6 +112,15 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeLe(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            final IntegerHolder leftAtom = (IntegerHolder) left;
+            final IntegerHolder rightAtom = (IntegerHolder) right;
+            if (leftAtom.getDomain().ub() <= rightAtom.getDomain().lb()) {
+                return Decomposition.empty();
+            } else if (leftAtom.getDomain().lb() > rightAtom.getDomain().ub()) {
+                return Decomposition.emptyClause();
+            }
+        }
         // abs(a1) <= x2
         if (left instanceof AbsoluteFunction) {
             final Term a1 = ((AbsoluteFunction) left).getOperand();
@@ -110,6 +135,15 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeLt(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            final IntegerHolder leftAtom = (IntegerHolder) left;
+            final IntegerHolder rightAtom = (IntegerHolder) right;
+            if (leftAtom.getDomain().ub() < rightAtom.getDomain().lb()) {
+                return Decomposition.empty();
+            } else if (leftAtom.getDomain().lb() >= rightAtom.getDomain().ub()) {
+                return Decomposition.emptyClause();
+            }
+        }
         // abs(a1) < x2
         if (left instanceof AbsoluteFunction) {
             final Term a1 = ((AbsoluteFunction) left).getOperand();
@@ -124,6 +158,15 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeGe(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            final IntegerHolder leftAtom = (IntegerHolder) left;
+            final IntegerHolder rightAtom = (IntegerHolder) right;
+            if (leftAtom.getDomain().lb() >= rightAtom.getDomain().ub()) {
+                return Decomposition.empty();
+            } else if (leftAtom.getDomain().ub() < rightAtom.getDomain().lb()) {
+                return Decomposition.emptyClause();
+            }
+        }
         // abs(a1) >= x2
         if (left instanceof AbsoluteFunction) {
             final Term a1 = ((AbsoluteFunction) left).getOperand();
@@ -141,6 +184,15 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     protected Decomposition decomposeGt(final CspFactory cf) {
+        if (right.isAtom() && left.isAtom()) {
+            final IntegerHolder leftAtom = (IntegerHolder) left;
+            final IntegerHolder rightAtom = (IntegerHolder) right;
+            if (leftAtom.getDomain().lb() > rightAtom.getDomain().ub()) {
+                return Decomposition.empty();
+            } else if (leftAtom.getDomain().ub() <= rightAtom.getDomain().lb()) {
+                return Decomposition.emptyClause();
+            }
+        }
         // abs(a1) > x2
         if (left instanceof AbsoluteFunction) {
             final Term a1 = ((AbsoluteFunction) left).getOperand();
