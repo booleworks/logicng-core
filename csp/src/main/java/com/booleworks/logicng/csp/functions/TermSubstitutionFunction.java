@@ -37,27 +37,26 @@ public class TermSubstitutionFunction {
 
     /**
      * Substitutes integer variables in the terms of a formula.
+     * @param cf                the factory
      * @param formula           the formula
      * @param substitutionTable the substitutions
-     * @param cf                the factory
      * @return formula where the substitutions are applied
      */
-    public static Formula substituteFormula(final Formula formula, final IntegerVariableSubstitution substitutionTable,
-                                            final CspFactory cf) {
-        return substituteFormula(formula, substitutionTable.getMap(), cf);
+    public static Formula substituteFormula(final CspFactory cf, final Formula formula,
+                                            final IntegerVariableSubstitution substitutionTable) {
+        return substituteFormula(cf, formula, substitutionTable.getMap());
     }
 
     /**
      * Substitutes integer variables in the terms of a formula.
+     * @param <T>               the target type of the substitution
+     * @param cf                the factory
      * @param formula           the formula
      * @param substitutionTable the substitutions
-     * @param cf                the factory
-     * @param <T>               the target type of the substitution
      * @return formula where the substitutions are applied
      */
-    public static <T extends Term> Formula substituteFormula(final Formula formula,
-                                                             final Map<IntegerVariable, T> substitutionTable,
-                                                             final CspFactory cf) {
+    public static <T extends Term> Formula substituteFormula(final CspFactory cf, final Formula formula,
+                                                             final Map<IntegerVariable, T> substitutionTable) {
         final FormulaFactory f = cf.getFormulaFactory();
         switch (formula.getType()) {
             case TRUE:
@@ -67,24 +66,24 @@ public class TermSubstitutionFunction {
                 return formula;
             case PREDICATE:
                 if (formula instanceof CspPredicate) {
-                    return substitutePredicate((CspPredicate) formula, substitutionTable, cf);
+                    return substitutePredicate(cf, (CspPredicate) formula, substitutionTable);
                 } else {
                     return formula;
                 }
             case NOT:
-                return f.not(substituteFormula(((Not) formula).getOperand(), substitutionTable, cf));
+                return f.not(substituteFormula(cf, ((Not) formula).getOperand(), substitutionTable));
             case EQUIV:
                 final BinaryOperator binOp = (BinaryOperator) formula;
                 return f.binaryOperator(
                         binOp.getType(),
-                        substituteFormula(binOp.getLeft(), substitutionTable, cf),
-                        substituteFormula(binOp.getRight(), substitutionTable, cf)
+                        substituteFormula(cf, binOp.getLeft(), substitutionTable),
+                        substituteFormula(cf, binOp.getRight(), substitutionTable)
                 );
             case OR:
             case AND:
                 final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
                 for (final Formula op : formula) {
-                    operands.add(substituteFormula(op, substitutionTable, cf));
+                    operands.add(substituteFormula(cf, op, substitutionTable));
                 }
                 return f.naryOperator(formula.getType(), operands);
             default:
@@ -94,28 +93,26 @@ public class TermSubstitutionFunction {
 
     /**
      * Substitutes integer variables in a predicate.
+     * @param cf                the factory
      * @param predicate         the predicate
      * @param substitutionTable the substitutions
-     * @param cf                the factory
      * @return predicate where the substitutions are applied
      */
-    public static CspPredicate substitutePredicate(final CspPredicate predicate,
-                                                   final IntegerVariableSubstitution substitutionTable,
-                                                   final CspFactory cf) {
-        return substitutePredicate(predicate, substitutionTable.getMap(), cf);
+    public static CspPredicate substitutePredicate(final CspFactory cf, final CspPredicate predicate,
+                                                   final IntegerVariableSubstitution substitutionTable) {
+        return substitutePredicate(cf, predicate, substitutionTable.getMap());
     }
 
     /**
      * Substitutes integer variables in a predicate.
+     * @param <T>               the target type of the substitution
+     * @param cf                the factory
      * @param predicate         the predicate
      * @param substitutionTable the substitutions
-     * @param cf                the factory
-     * @param <T>               the target type of the substitution
      * @return predicate where the substitutions are applied
      */
-    public static <T extends Term> CspPredicate substitutePredicate(final CspPredicate predicate,
-                                                                    final Map<IntegerVariable, T> substitutionTable,
-                                                                    final CspFactory cf) {
+    public static <T extends Term> CspPredicate substitutePredicate(final CspFactory cf, final CspPredicate predicate,
+                                                                    final Map<IntegerVariable, T> substitutionTable) {
         switch (predicate.getPredicateType()) {
             case EQ:
             case NE:
@@ -124,15 +121,15 @@ public class TermSubstitutionFunction {
             case GE:
             case GT:
                 return cf.comparison(
-                        substituteTerm(((BinaryPredicate) predicate).getLeft(), substitutionTable, cf),
-                        substituteTerm(((BinaryPredicate) predicate).getRight(), substitutionTable, cf),
+                        substituteTerm(cf, ((BinaryPredicate) predicate).getLeft(), substitutionTable),
+                        substituteTerm(cf, ((BinaryPredicate) predicate).getRight(), substitutionTable),
                         predicate.getPredicateType()
                 );
             case ALLDIFFERENT:
                 final AllDifferentPredicate adp = (AllDifferentPredicate) predicate;
                 final List<Term> terms = new ArrayList<>(adp.getTerms().size());
                 for (final Term t : adp.getTerms()) {
-                    terms.add(substituteTerm(t, substitutionTable, cf));
+                    terms.add(substituteTerm(cf, t, substitutionTable));
                 }
                 return cf.allDifferent(terms);
             default:
@@ -142,27 +139,26 @@ public class TermSubstitutionFunction {
 
     /**
      * Substitutes integer variables in a term.
+     * @param cf                the factory
      * @param term              the term
      * @param substitutionTable the substitutions
-     * @param cf                the factory
      * @return term where the substitutions are applied
      */
-    public static Term substituteTerm(final Term term, final IntegerVariableSubstitution substitutionTable,
-                                      final CspFactory cf) {
-        return substituteTerm(term, substitutionTable.getMap(), cf);
+    public static Term substituteTerm(final CspFactory cf, final Term term,
+                                      final IntegerVariableSubstitution substitutionTable) {
+        return substituteTerm(cf, term, substitutionTable.getMap());
     }
 
     /**
      * Substitutes integer variables in a term.
+     * @param <T>               the target type of the substitution
+     * @param cf                the factory
      * @param term              the term
      * @param substitutionTable the substitutions
-     * @param cf                the factory
-     * @param <T>               the target type of the substitution
      * @return term where the substitutions are applied
      */
-    public static <T extends Term> Term substituteTerm(final Term term,
-                                                       final Map<IntegerVariable, T> substitutionTable,
-                                                       final CspFactory cf) {
+    public static <T extends Term> Term substituteTerm(final CspFactory cf, final Term term,
+                                                       final Map<IntegerVariable, T> substitutionTable) {
         switch (term.getType()) {
             case ZERO:
             case ONE:
@@ -175,45 +171,45 @@ public class TermSubstitutionFunction {
                     return term;
                 }
             case NEG:
-                return cf.minus(substituteTerm(((NegationFunction) term).getOperand(), substitutionTable, cf));
+                return cf.minus(substituteTerm(cf, ((NegationFunction) term).getOperand(), substitutionTable));
             case ADD:
                 final List<Term> newOps = new ArrayList<>();
                 for (final Term op : ((AdditionFunction) term).getOperands()) {
-                    newOps.add(substituteTerm(op, substitutionTable, cf));
+                    newOps.add(substituteTerm(cf, op, substitutionTable));
                 }
                 return cf.add(newOps);
             case SUB:
                 return cf.sub(
-                        substituteTerm(((BinaryFunction) term).getLeft(), substitutionTable, cf),
-                        substituteTerm(((BinaryFunction) term).getRight(), substitutionTable, cf)
+                        substituteTerm(cf, ((BinaryFunction) term).getLeft(), substitutionTable),
+                        substituteTerm(cf, ((BinaryFunction) term).getRight(), substitutionTable)
                 );
             case MUL:
                 return cf.mul(
-                        substituteTerm(((BinaryFunction) term).getLeft(), substitutionTable, cf),
-                        substituteTerm(((BinaryFunction) term).getRight(), substitutionTable, cf)
+                        substituteTerm(cf, ((BinaryFunction) term).getLeft(), substitutionTable),
+                        substituteTerm(cf, ((BinaryFunction) term).getRight(), substitutionTable)
                 );
             case MOD:
                 return cf.mod(
-                        substituteTerm(((ModuloFunction) term).getLeft(), substitutionTable, cf),
+                        substituteTerm(cf, ((ModuloFunction) term).getLeft(), substitutionTable),
                         ((ModuloFunction) term).getRight()
                 );
             case DIV:
                 return cf.div(
-                        substituteTerm(((DivisionFunction) term).getLeft(), substitutionTable, cf),
+                        substituteTerm(cf, ((DivisionFunction) term).getLeft(), substitutionTable),
                         ((DivisionFunction) term).getRight()
                 );
             case MAX:
                 return cf.max(
-                        substituteTerm(((BinaryFunction) term).getLeft(), substitutionTable, cf),
-                        substituteTerm(((BinaryFunction) term).getRight(), substitutionTable, cf)
+                        substituteTerm(cf, ((BinaryFunction) term).getLeft(), substitutionTable),
+                        substituteTerm(cf, ((BinaryFunction) term).getRight(), substitutionTable)
                 );
             case MIN:
                 return cf.min(
-                        substituteTerm(((BinaryFunction) term).getLeft(), substitutionTable, cf),
-                        substituteTerm(((BinaryFunction) term).getRight(), substitutionTable, cf)
+                        substituteTerm(cf, ((BinaryFunction) term).getLeft(), substitutionTable),
+                        substituteTerm(cf, ((BinaryFunction) term).getRight(), substitutionTable)
                 );
             case ABS:
-                return cf.abs(substituteTerm(((AbsoluteFunction) term).getOperand(), substitutionTable, cf));
+                return cf.abs(substituteTerm(cf, ((AbsoluteFunction) term).getOperand(), substitutionTable));
             default:
                 throw new IllegalArgumentException("Unknown term type: " + term.getType());
         }

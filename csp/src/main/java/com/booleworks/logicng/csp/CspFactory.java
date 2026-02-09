@@ -732,7 +732,7 @@ public class CspFactory {
      * @return the decomposition result
      */
     public CspPredicate.Decomposition decompose(final Formula formula) {
-        return CspDecomposition.decompose(formula, this);
+        return CspDecomposition.decompose(this, formula);
     }
 
     /**
@@ -824,10 +824,10 @@ public class CspFactory {
                                                final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                return new OrderEncoding((OrderEncodingContext) context, this)
+                return new OrderEncoding(this, (OrderEncodingContext) context)
                         .encode(csp, result, handler);
             case CompactOrder:
-                return new CompactOrderEncoding((CompactOrderEncodingContext) context, this)
+                return new CompactOrderEncoding(this, (CompactOrderEncodingContext) context)
                         .encode(csp, result, handler);
             default:
                 throw new UnsupportedOperationException(
@@ -888,10 +888,10 @@ public class CspFactory {
                                                     final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                return new OrderEncoding((OrderEncodingContext) context, this)
+                return new OrderEncoding(this, (OrderEncodingContext) context)
                         .encodeVariable(variable, result, handler);
             case CompactOrder:
-                return new CompactOrderEncoding((CompactOrderEncodingContext) context, this)
+                return new CompactOrderEncoding(this, (CompactOrderEncodingContext) context)
                         .encodeVariable(variable, result, handler);
             default:
                 throw new UnsupportedOperationException(
@@ -954,7 +954,7 @@ public class CspFactory {
         LngResult<EncodingResult> r;
         switch (context.getAlgorithm()) {
             case Order: {
-                final OrderEncoding encodingObject = new OrderEncoding((OrderEncodingContext) context, this);
+                final OrderEncoding encodingObject = new OrderEncoding(this, (OrderEncodingContext) context);
                 for (final IntegerVariable auxVar : decomp.getAuxiliaryIntegerVariables()) {
                     r = encodingObject.encodeVariable(auxVar, result, handler);
                     if (!r.isSuccess()) {
@@ -965,7 +965,7 @@ public class CspFactory {
             }
             case CompactOrder: {
                 final CompactOrderEncoding encodingObject =
-                        new CompactOrderEncoding((CompactOrderEncodingContext) context, this);
+                        new CompactOrderEncoding(this, (CompactOrderEncodingContext) context);
                 r = encodingObject.encodeVariables(decomp.getAuxiliaryIntegerVariables(), result, handler);
                 if (!r.isSuccess()) {
                     return r;
@@ -989,9 +989,9 @@ public class CspFactory {
     public CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return new OrderDecoding((OrderEncodingContext) context, this).decode(model, csp);
+                return new OrderDecoding(this, (OrderEncodingContext) context).decode(model, csp);
             case CompactOrder:
-                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this).decode(model, csp);
+                return new CompactOrderDecoding(this, (CompactOrderEncodingContext) context).decode(model, csp);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -1010,10 +1010,10 @@ public class CspFactory {
                                 final Collection<Variable> booleanVariables, final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return new OrderDecoding((OrderEncodingContext) context, this)
+                return new OrderDecoding(this, (OrderEncodingContext) context)
                         .decode(model, integerVariables, booleanVariables);
             case CompactOrder:
-                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this)
+                return new CompactOrderDecoding(this, (CompactOrderEncodingContext) context)
                         .decode(model, integerVariables, booleanVariables);
             default:
                 throw new UnsupportedOperationException(
@@ -1032,9 +1032,9 @@ public class CspFactory {
                                 final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return new OrderDecoding((OrderEncodingContext) context, this).decode(model, integerVariables);
+                return new OrderDecoding(this, (OrderEncodingContext) context).decode(model, integerVariables);
             case CompactOrder:
-                return new CompactOrderDecoding((CompactOrderEncodingContext) context, this)
+                return new CompactOrderDecoding(this, (CompactOrderEncodingContext) context)
                         .decode(model, integerVariables);
             default:
                 throw new UnsupportedOperationException(

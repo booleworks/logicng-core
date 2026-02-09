@@ -32,10 +32,10 @@ public class CompactOrderDecoding {
 
     /**
      * Constructs a new instance for compact order decoding.
-     * @param context the encoding context
      * @param cf      the factory
+     * @param context the encoding context
      */
-    public CompactOrderDecoding(final CompactOrderEncodingContext context, final CspFactory cf) {
+    public CompactOrderDecoding(final CspFactory cf, final CompactOrderEncodingContext context) {
         this.cf = cf;
         this.context = context;
     }
@@ -128,7 +128,7 @@ public class CompactOrderDecoding {
                 csp.getPropagateSubstitutions());
     }
 
-    private int decodeIntVar(final IntegerVariable var, final Assignment model) {
+    protected int decodeIntVar(final IntegerVariable var, final Assignment model) {
         if (context.isEncoded(var)) {
             final IntegerVariable adjusted = context.getAdjustedVariableOrSelf(var);
             final List<IntegerVariable> digits = context.getDigits(adjusted);
@@ -139,7 +139,7 @@ public class CompactOrderDecoding {
         }
     }
 
-    private int decodeBigIntVar(final IntegerVariable var, final Assignment model) {
+    protected int decodeBigIntVar(final IntegerVariable var, final Assignment model) {
         final List<IntegerVariable> digits = context.getDigits(var);
         assert digits != null;
         final int b = context.getBase();

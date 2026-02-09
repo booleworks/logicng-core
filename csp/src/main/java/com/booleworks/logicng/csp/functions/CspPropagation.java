@@ -37,12 +37,12 @@ public class CspPropagation {
      * necessary.
      * <p>
      * <strong>Important: A problem can only be propagated once!</strong>
-     * @param csp the un-propagated CSP problem
      * @param cf  the factory
+     * @param csp the un-propagated CSP problem
      * @return the propagated CSP problem
      * @throws IllegalArgumentException if {@code csp} was already propagated
      */
-    public static Csp propagate(final Csp csp, final CspFactory cf) {
+    public static Csp propagate(final CspFactory cf, final Csp csp) {
         if (!csp.getPropagateSubstitutions().isEmpty()) {
             throw new IllegalArgumentException("Propagating a CSP more than once is not supported");
         }
@@ -52,7 +52,7 @@ public class CspPropagation {
         while (changed) {
             changed = false;
             for (final IntegerClause clause : csp.getClauses()) {
-                if (calculateNewBounds(clause, restrictions, cf)) {
+                if (calculateNewBounds(cf, clause, restrictions)) {
                     changed = true;
                 }
             }
@@ -68,8 +68,8 @@ public class CspPropagation {
         }
     }
 
-    protected static boolean calculateNewBounds(final IntegerClause clause,
-                                                final IntegerVariableSubstitution restrictions, final CspFactory cf) {
+    protected static boolean calculateNewBounds(final CspFactory cf, final IntegerClause clause,
+                                                final IntegerVariableSubstitution restrictions) {
         boolean changed = false;
         for (final IntegerVariable v : clause.getCommonVariables()) {
             assert clause.getBoolLiterals().isEmpty();
@@ -94,7 +94,7 @@ public class CspPropagation {
             }
             if (bound != null && bound[0] <= bound[1]) {
                 final IntegerVariable oldVar = restrictions.getOrSelf(v);
-                final IntegerVariable newVar = boundVariable(oldVar, bound[0], bound[1], cf);
+                final IntegerVariable newVar = boundVariable(cf, oldVar, bound[0], bound[1]);
                 if (newVar != oldVar) {
                     restrictions.add(v, newVar);
                     changed = true;
@@ -118,8 +118,8 @@ public class CspPropagation {
         }
     }
 
-    protected static IntegerVariable boundVariable(final IntegerVariable variable, final int lb, final int ub,
-                                                   final CspFactory cf) {
+    protected static IntegerVariable boundVariable(final CspFactory cf, final IntegerVariable variable, final int lb,
+                                                   final int ub) {
         final IntegerDomain d = variable.getDomain().bound(lb, ub);
         if (d == variable.getDomain()) {
             return variable;

@@ -57,10 +57,10 @@ public class OrderEncoding {
 
     /**
      * Construct a new order encoding instance-
-     * @param context the encoding context
      * @param cf      the factory
+     * @param context the encoding context
      */
-    public OrderEncoding(final OrderEncodingContext context, final CspFactory cf) {
+    public OrderEncoding(final CspFactory cf, final OrderEncodingContext context) {
         this.context = context;
         this.cf = cf;
     }
@@ -213,14 +213,14 @@ public class OrderEncoding {
             final IntegerVariable[] vs = lit.getSum().getVariablesSorted();
             final int n = ls.size();
             clause = expandArray(clause, n);
-            encodeLinearExpression(ls, vs, 0, lit.getSum().getB(), clause, context, result, cf, handler);
+            encodeLinearExpression(ls, vs, 0, lit.getSum().getB(), clause, result, cf, handler);
         }
     }
 
     protected void encodeLinearExpression(final LinearExpression exp, final IntegerVariable[] vs, final int i,
-                                          final int s, final Formula[] clause, final OrderEncodingContext context,
-                                          final EncodingResult result, final CspFactory cf,
-                                          final ComputationHandler handler) throws CspHandlerException {
+                                          final int s, final Formula[] clause, final EncodingResult result,
+                                          final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         if (i >= vs.length - 1) {
             final int a = exp.getA(vs[i]);
             clause[i] = getCodeLE(vs[i], a, -s);
@@ -248,10 +248,10 @@ public class OrderEncoding {
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
                     clause[i] = getCodeLE(vs[i], c - 1);
-                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf, handler);
+                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, result, cf, handler);
                 }
                 clause[i] = getCodeLE(vs[i], ub);
-                encodeLinearExpression(exp, vs, i + 1, s + a * (ub + 1), clause, context, result, cf, handler);
+                encodeLinearExpression(exp, vs, i + 1, s + a * (ub + 1), clause, result, cf, handler);
             } else {
                 if (-lb0 >= 0) {
                     lb = Math.max(lb, -lb0 / a);
@@ -260,12 +260,12 @@ public class OrderEncoding {
                 }
                 clause[i] = getCodeLE(vs[i], lb - 1).negate(
                         cf.getFormulaFactory());
-                encodeLinearExpression(exp, vs, i + 1, s + a * (lb - 1), clause, context, result, cf, handler);
+                encodeLinearExpression(exp, vs, i + 1, s + a * (lb - 1), clause, result, cf, handler);
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
                     clause[i] =
                             getCodeLE(vs[i], c).negate(cf.getFormulaFactory());
-                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf, handler);
+                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, result, cf, handler);
                 }
             }
         }
@@ -280,7 +280,7 @@ public class OrderEncoding {
             return cf.getFormulaFactory().verum();
         }
         final int index = sizeLE(domain, right) - 1;
-        return context.newVariableInstance(left, index, cf.getFormulaFactory(), handler);
+        return context.newVariableInstance(cf.getFormulaFactory(), left, index, handler);
     }
 
     protected Formula getCodeLE(final IntegerVariable left, final int right) {
@@ -562,7 +562,7 @@ public class OrderEncoding {
             LinearExpression.Builder simplified =
                     simplifyLinearExpression(eMut, false, clauses, newFrontierAuxVars);
             if (simplified.size() > 1) {
-                final IntegerVariable v = context.newSimplifyIntVariable(simplified.getDomain(), cf);
+                final IntegerVariable v = context.newSimplifyIntVariable(cf, simplified.getDomain());
                 newFrontierAuxVars.add(v);
                 simplified.subtract(new LinearExpression(v));
                 final IntegerClause aux =

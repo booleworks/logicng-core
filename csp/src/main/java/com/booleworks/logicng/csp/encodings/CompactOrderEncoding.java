@@ -74,13 +74,13 @@ public class CompactOrderEncoding {
 
     /**
      * Constructs a new instance for compact order encoding.
-     * @param context the encoding context
      * @param cf      the factory
+     * @param context the encoding context
      */
-    public CompactOrderEncoding(final CompactOrderEncodingContext context, final CspFactory cf) {
+    public CompactOrderEncoding(final CspFactory cf, final CompactOrderEncodingContext context) {
         this.cf = cf;
         this.context = context;
-        this.orderEncodingObject = new OrderEncoding(context.getOrderContext(), cf);
+        this.orderEncodingObject = new OrderEncoding(cf, context.getOrderContext());
     }
 
     /**
@@ -294,7 +294,7 @@ public class CompactOrderEncoding {
                                     LinearExpression.builder(xoffset * yoffset - zoffset);
                             ls.setA(-1, z);
                             final IntegerDomain pdom = IntegerDomain.of(0, xdom.mul(ydom).ub());
-                            final IntegerVariable p = context.newAdjustedVariable(AUX_ADJUST, pdom, cf);
+                            final IntegerVariable p = context.newAdjustedVariable(cf, AUX_ADJUST, pdom);
                             auxiliaryVariables.add(p);
                             ls.setA(1, p);
                             ls.setA(yoffset, x);
@@ -332,10 +332,10 @@ public class CompactOrderEncoding {
         final IntegerVariable newVar;
         if (useOffset) {
             final IntegerDomain newD = IntegerDomain.of(0, d.ub() - offset);
-            newVar = context.newAdjustedVariable(prefix, newD, cf);
+            newVar = context.newAdjustedVariable(cf, prefix, newD);
         } else {
             final IntegerDomain newD = IntegerDomain.of(0, d.ub());
-            newVar = context.newAdjustedVariable(prefix, newD, cf);
+            newVar = context.newAdjustedVariable(cf, prefix, newD);
             final IntegerClause c = new IntegerClause(
                     new LinearLiteral(new LinearExpression(-1, newVar, offset), LinearLiteral.Operator.LE));
             additionalClauses.add(c);
@@ -497,7 +497,7 @@ public class CompactOrderEncoding {
                                 final int rc = Math.abs(ls.getA(rhs));
                                 if (lc > 1) {
                                     final IntegerDomain dom = lhs.getDomain().mul(lc);
-                                    final IntegerVariable av = context.newRCSPVariable(dom, cf);
+                                    final IntegerVariable av = context.newRCSPVariable(cf, dom);
                                     auxiliaryVariables.add(av);
                                     final ArithmeticLiteral lit = new EqMul(av, cf.constant(lc), lhs);
                                     newClauses.add(new IntegerClause(lit));
@@ -546,7 +546,7 @@ public class CompactOrderEncoding {
                             a = Math.abs(a);
                             assert v.getDomain().lb() == 0;
                             final IntegerDomain dom = v.getDomain().mul(a);
-                            final IntegerVariable av = context.newRCSPVariable(dom, cf);
+                            final IntegerVariable av = context.newRCSPVariable(cf, dom);
                             auxiliaryVariables.add(av);
                             final ArithmeticLiteral lit = new EqMul(av, cf.constant(a), v);
                             newClauses.add(new IntegerClause(lit));
@@ -582,7 +582,7 @@ public class CompactOrderEncoding {
                             } else {
                                 final IntegerDomain dom = IntegerDomain.of(0, rhs.getDomain().ub());
                                 final List<IntegerHolder> rh = getHolders(rhs);
-                                final IntegerVariable ax = context.newRCSPVariable(dom, cf);
+                                final IntegerVariable ax = context.newRCSPVariable(cf, dom);
                                 auxiliaryVariables.add(ax);
                                 final ArithmeticLiteral geB = new OpXY(OpXY.Operator.LE, cf.constant(rhs.getB()), ax);
                                 final ArithmeticLiteral eqAdd = new OpAdd(OpAdd.Operator.EQ, ax, rh.get(0), rh.get(1));
@@ -640,7 +640,7 @@ public class CompactOrderEncoding {
         final IntegerHolder v0 = holders.get(0);
         final IntegerHolder v1 = holders.get(1);
         final IntegerDomain d = v0.getDomain().add(v1.getDomain());
-        final IntegerVariable w0 = context.newRCSPVariable(d, cf);
+        final IntegerVariable w0 = context.newRCSPVariable(cf, d);
         auxiliaryVariables.add(w0);
         final ArithmeticLiteral lit0 = new OpAdd(OpAdd.Operator.EQ, w0, v0, v1);
         final IntegerClause clause0 = new IntegerClause(lit0);
@@ -662,7 +662,7 @@ public class CompactOrderEncoding {
             final IntegerHolder v2 = holders.get(2);
             final IntegerHolder v3 = holders.get(3);
             final IntegerDomain d2 = v2.getDomain().add(v3.getDomain());
-            final IntegerVariable w1 = context.newRCSPVariable(d2, cf);
+            final IntegerVariable w1 = context.newRCSPVariable(cf, d2);
             auxiliaryVariables.add(w1);
             final ArithmeticLiteral lit1 = new OpAdd(OpAdd.Operator.EQ, w1, v2, v3);
             final IntegerClause clause1 = new IntegerClause(lit1);
@@ -1170,7 +1170,7 @@ public class CompactOrderEncoding {
             while (ub > 0) {
                 final int ubi = ub < b ? ub : b - 1;
                 final IntegerDomain dom = IntegerDomain.of(0, ubi);
-                final IntegerVariable dv = context.newAuxiliaryDigitVariable(dom, cf);
+                final IntegerVariable dv = context.newAuxiliaryDigitVariable(cf, dom);
                 vs.add(dv);
                 ub /= b;
             }
@@ -1212,7 +1212,7 @@ public class CompactOrderEncoding {
     }
 
     protected IntegerVariable newCCSPVariable(final IntegerDomain d, final List<IntegerVariable> frontierVariables) {
-        final IntegerVariable v = context.newCCSPVariable(d, cf);
+        final IntegerVariable v = context.newCCSPVariable(cf, d);
         final List<IntegerVariable> digits = splitToDigits(v);
         context.addDigits(v, digits);
         frontierVariables.addAll(digits);

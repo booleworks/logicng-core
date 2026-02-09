@@ -59,7 +59,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final CspValueHookMap hooks =
-                CspValueHookEncoding.encodeValueHooks(csp, context, result, cf);
+                CspValueHookEncoding.encodeValueHooks(cf, csp, context, result);
         final List<Variable> hookVars = hooks.getHooks().values()
                 .stream()
                 .flatMap(m -> m.keySet().stream())
@@ -120,7 +120,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
                 final int value = vals.next();
                 final Model model =
                         solver.satCall()
-                                .addFormulas(CspValueHookEncoding.computeRestrictionAssignments(v, value, context, cf))
+                                .addFormulas(CspValueHookEncoding.computeRestrictionAssignments(cf, v, value, context))
                                 .model(relevantSatVars);
                 if (allowedValues.containsKey(v) && allowedValues.get(v).contains(value)) {
                     final CspAssignment intModel = cf.decode(model.toAssignment(), relevantVars, context);
@@ -141,7 +141,7 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         final Formula formula = CspReader.readCsp(cf, "../test_files/csp/simple3.csp");
         final Csp csp = cf.buildCsp(formula);
         final Map<IntegerVariable, Integer> restr = Map.of(cf.getVariable("c"), 7, cf.getVariable("b"), 5);
-        final CspAssignment model = CspSolving.model(csp, restr, context, cf);
+        final CspAssignment model = CspSolving.model(cf, csp, restr, context);
         assertThat(model.getIntegerAssignments().get(cf.getVariable("c"))).isEqualTo(7);
         assertThat(model.getIntegerAssignments().get(cf.getVariable("b"))).isEqualTo(5);
     }

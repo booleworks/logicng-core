@@ -39,24 +39,24 @@ public class TermSubstitutionFunctionTest extends ParameterizedCspTest {
         table.add(b, bs);
         table.add(F, F);
 
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.one(), table, cf)).isEqualTo(cf.one());
-        assertThat(TermSubstitutionFunction.substituteTerm(a, table, cf)).isEqualTo(as);
-        assertThat(TermSubstitutionFunction.substituteTerm(b, table, cf)).isEqualTo(bs);
-        assertThat(TermSubstitutionFunction.substituteTerm(c, table, cf)).isEqualTo(c);
-        assertThat(TermSubstitutionFunction.substituteTerm(F, table, cf)).isEqualTo(F);
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(a, as), table, cf)).isEqualTo(cf.add(as, as));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(c, d), table, cf)).isEqualTo(cf.add(c, d));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.sub(c, d), table, cf)).isEqualTo(cf.sub(c, d));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(c, b), table, cf)).isEqualTo(cf.add(c, bs));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.sub(c, b), table, cf)).isEqualTo(cf.sub(c, bs));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(a, F), table, cf)).isEqualTo(cf.add(as, F));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.sub(a, F), table, cf)).isEqualTo(cf.sub(as, F));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.one(), table)).isEqualTo(cf.one());
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, a, table)).isEqualTo(as);
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, b, table)).isEqualTo(bs);
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, c, table)).isEqualTo(c);
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, F, table)).isEqualTo(F);
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(a, as), table)).isEqualTo(cf.add(as, as));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(c, d), table)).isEqualTo(cf.add(c, d));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.sub(c, d), table)).isEqualTo(cf.sub(c, d));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(c, b), table)).isEqualTo(cf.add(c, bs));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.sub(c, b), table)).isEqualTo(cf.sub(c, bs));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(a, F), table)).isEqualTo(cf.add(as, F));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.sub(a, F), table)).isEqualTo(cf.sub(as, F));
 
-        assertThat(TermSubstitutionFunction.substituteFormula(f.and(A, B), table, cf)).isEqualTo(f.and(A, B));
-        assertThat(TermSubstitutionFunction.substituteFormula(f.and(A, cf.eq(a, F)), table, cf)).isEqualTo(
+        assertThat(TermSubstitutionFunction.substituteFormula(cf, f.and(A, B), table)).isEqualTo(f.and(A, B));
+        assertThat(TermSubstitutionFunction.substituteFormula(cf, f.and(A, cf.eq(a, F)), table)).isEqualTo(
                 f.and(A, cf.eq(as, F)));
         assertThat(
-                TermSubstitutionFunction.substituteFormula(f.or(A, cf.allDifferent(List.of(a, b, c, F))), table, cf))
+                TermSubstitutionFunction.substituteFormula(cf, f.or(A, cf.allDifferent(List.of(a, b, c, F))), table))
                 .isEqualTo(f.or(A, cf.allDifferent(List.of(as, bs, c, F))));
     }
 
@@ -75,10 +75,10 @@ public class TermSubstitutionFunctionTest extends ParameterizedCspTest {
         table.put(b, cf.sub(bs, c));
         table.put(F, cf.add(F, F));
 
-        assertThat(TermSubstitutionFunction.substituteTerm(a, table, cf)).isEqualTo(cf.one());
-        assertThat(TermSubstitutionFunction.substituteTerm(b, table, cf)).isEqualTo(cf.sub(bs, c));
-        assertThat(TermSubstitutionFunction.substituteTerm(F, table, cf)).isEqualTo(cf.add(F, F));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(a, cf.one()), table, cf)).isEqualTo(cf.constant(2));
-        assertThat(TermSubstitutionFunction.substituteTerm(cf.add(F, F), table, cf)).isEqualTo(cf.add(F, F, F, F));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, a, table)).isEqualTo(cf.one());
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, b, table)).isEqualTo(cf.sub(bs, c));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, F, table)).isEqualTo(cf.add(F, F));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(a, cf.one()), table)).isEqualTo(cf.constant(2));
+        assertThat(TermSubstitutionFunction.substituteTerm(cf, cf.add(F, F), table)).isEqualTo(cf.add(F, F, F, F));
     }
 }

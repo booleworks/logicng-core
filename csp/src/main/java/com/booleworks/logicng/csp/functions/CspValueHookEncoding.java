@@ -41,19 +41,20 @@ public class CspValueHookEncoding {
 
     /**
      * Encodes values hooks for the given variable.
+     * @param cf      the factory
      * @param v       the variable
      * @param context the encoding context
      * @param result  the destination for the hooks
-     * @param cf      the factory
      * @return a mapping of boolean variables to integer value they represent
      */
-    public static Map<Variable, Integer> encodeValueHooks(final IntegerVariable v, final CspEncodingContext context,
-                                                          final EncodingResult result, final CspFactory cf) {
+    public static Map<Variable, Integer> encodeValueHooks(final CspFactory cf, final IntegerVariable v,
+                                                          final CspEncodingContext context,
+                                                          final EncodingResult result) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderValueHook.encodeValueHooks(v, (OrderEncodingContext) context, result, cf);
+                return OrderValueHook.encodeValueHooks(cf, v, (OrderEncodingContext) context, result);
             case CompactOrder:
-                return CompactOrderValueHook.encodeValueHooks(v, (CompactOrderEncodingContext) context, result, cf);
+                return CompactOrderValueHook.encodeValueHooks(cf, v, (CompactOrderEncodingContext) context, result);
             default:
                 throw new RuntimeException("Unsupported Algorithm for Value Hooks");
         }
@@ -61,59 +62,58 @@ public class CspValueHookEncoding {
 
     /**
      * Encodes value hooks for a set of integer variables.
+     * @param cf        the factory
      * @param variables set of integer variables
      * @param context   the encoding context
      * @param result    the destination for the hooks
-     * @param cf        the factory
      * @return a mapping from integer variables to a mapping from boolean
      * variables to their represented integer value
      */
-    public static CspValueHookMap encodeValueHooks(
-            final Collection<IntegerVariable> variables, final CspEncodingContext context, final EncodingResult result,
-            final CspFactory cf) {
+    public static CspValueHookMap encodeValueHooks(final CspFactory cf, final Collection<IntegerVariable> variables,
+                                                   final CspEncodingContext context, final EncodingResult result) {
         final Map<IntegerVariable, Map<Variable, Integer>> map = new HashMap<>();
         for (final IntegerVariable v : variables) {
-            map.put(v, encodeValueHooks(v, context, result, cf));
+            map.put(v, encodeValueHooks(cf, v, context, result));
         }
         return new CspValueHookMap(map);
     }
 
     /**
      * Encodes value hooks for all integer variables of a csp.
+     * @param cf      the factory
      * @param csp     the csp
      * @param context the encoding context
      * @param result  the destination for the hooks
-     * @param cf      the factory
      * @return a mapping from integer variables to a mapping from boolean
      * variables to their represented integer value
      */
-    public static CspValueHookMap encodeValueHooks(final Csp csp, final CspEncodingContext context,
-                                                   final EncodingResult result, final CspFactory cf) {
+    public static CspValueHookMap encodeValueHooks(final CspFactory cf, final Csp csp, final CspEncodingContext context,
+                                                   final EncodingResult result) {
         return encodeValueHooks(
-                csp.getVisibleIntegerVariables().stream().filter(csp.getInternalIntegerVariables()::contains)
+                cf, csp.getVisibleIntegerVariables().stream().filter(csp.getInternalIntegerVariables()::contains)
                         .collect(Collectors.toList()),
-                context, result, cf);
+                context, result);
     }
 
     /**
      * Returns an assignment of boolean variables that represent a specific
      * integer value of an integer variable.
+     * @param cf      the factory
      * @param v       the integer variable
      * @param value   the value
      * @param context the encoding context
-     * @param cf      the factory
      * @return assignment of boolean variables representing the given value for
      * the given integer variable
      */
-    public static List<Literal> computeRestrictionAssignments(final IntegerVariable v, final int value,
-                                                              final CspEncodingContext context,
-                                                              final CspFactory cf) {
+    public static List<Literal> computeRestrictionAssignments(final CspFactory cf, final IntegerVariable v,
+                                                              final int value, final CspEncodingContext context) {
         switch (context.getAlgorithm()) {
             case Order:
-                return OrderValueHook.calculateValueProjection(v, value, (OrderEncodingContext) context, cf);
+                return OrderValueHook.calculateValueProjection(cf, v, value, (OrderEncodingContext) context);
             case CompactOrder:
-                return CompactOrderValueHook.calculateValueProjection(v, value, (CompactOrderEncodingContext) context,
-                        cf);
+                return CompactOrderValueHook.calculateValueProjection(cf, v, value,
+                        (CompactOrderEncodingContext) context
+                );
             default:
                 throw new RuntimeException("Unsupported Algorithm for Value Hooks");
         }

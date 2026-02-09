@@ -33,7 +33,7 @@ public class CspModelCountingTest {
         final Csp csp = cf.buildCsp(formula);
 
         final List<CspAssignment> models = models(csp, cf);
-        final BigInteger modelCount = CspModelCounting.count(csp, cf);
+        final BigInteger modelCount = CspModelCounting.count(cf, csp);
         assertThat(modelCount).isEqualTo(BigInteger.valueOf(models.size()));
     }
 

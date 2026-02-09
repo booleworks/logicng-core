@@ -74,7 +74,7 @@ public class CspBackboneGeneration {
     public LngResult<CspBackbone> compute(final SatSolver solver, final CspEncodingContext context,
                                           final EncodingResult result, final ComputationHandler handler) {
         final CspValueHookMap valueHooks =
-                CspValueHookEncoding.encodeValueHooks(integerVariables, context, result, cf);
+                CspValueHookEncoding.encodeValueHooks(cf, integerVariables, context, result);
         return compute(solver, valueHooks, handler);
     }
 

@@ -31,15 +31,15 @@ public class CompactOrderValueHook {
 
     /**
      * Encodes values hooks for the given variable.
+     * @param cf      the factory
      * @param v       the variable
      * @param context the encoding context
      * @param result  the destination for the hooks
-     * @param cf      the factory
      * @return a mapping of boolean variables to integer value they represent
      */
-    public static Map<Variable, Integer> encodeValueHooks(final IntegerVariable v,
+    public static Map<Variable, Integer> encodeValueHooks(final CspFactory cf, final IntegerVariable v,
                                                           final CompactOrderEncodingContext context,
-                                                          final EncodingResult result, final CspFactory cf) {
+                                                          final EncodingResult result) {
         assert (context.isEncoded(v));
         final FormulaFactory f = cf.getFormulaFactory();
 
@@ -48,7 +48,7 @@ public class CompactOrderValueHook {
         final List<Map<Integer, Variable>> digitHooks = new ArrayList<>();
         for (final IntegerVariable vd : variableDigits) {
             final Map<Integer, Variable> reversedMap = new HashMap<>();
-            OrderValueHook.encodeValueHooks(vd, context.getOrderContext(), result, cf)
+            OrderValueHook.encodeValueHooks(cf, vd, context.getOrderContext(), result)
                     .forEach((key, val) -> reversedMap.put(val, key));
             digitHooks.add(reversedMap);
         }
@@ -86,16 +86,15 @@ public class CompactOrderValueHook {
     /**
      * Returns an assignment of boolean variables that represent a specific
      * integer value of an integer variable.
+     * @param cf      the factory
      * @param v       the integer variable
      * @param value   the value
      * @param context the encoding context
-     * @param cf      the factory
      * @return assignment of boolean variables representing the given value for
      * the given integer variable
      */
-    public static List<Literal> calculateValueProjection(final IntegerVariable v, final int value,
-                                                         final CompactOrderEncodingContext context,
-                                                         final CspFactory cf) {
+    public static List<Literal> calculateValueProjection(final CspFactory cf, final IntegerVariable v, final int value,
+                                                         final CompactOrderEncodingContext context) {
         assert (v.getDomain().contains(value));
         assert (context.isEncoded(v));
 
@@ -109,8 +108,8 @@ public class CompactOrderValueHook {
             if (i < valueDigits.size()) {
                 dv = valueDigits.get(i);
             }
-            result.addAll(OrderValueHook.calculateValueProjection(variableDigits.get(i), dv,
-                    context.getOrderContext(), cf));
+            result.addAll(OrderValueHook.calculateValueProjection(cf, variableDigits.get(i), dv,
+                    context.getOrderContext()));
         }
         return result;
     }

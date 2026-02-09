@@ -71,11 +71,11 @@ public class OrderEncodingContext implements CspEncodingContext {
     /**
      * Creates and stores a new auxiliary variable used for simplifying linear
      * expressions.
-     * @param domain the domain
      * @param cf     the factory
+     * @param domain the domain
      * @return new auxiliary variable
      */
-    protected IntegerVariable newSimplifyIntVariable(final IntegerDomain domain, final CspFactory cf) {
+    protected IntegerVariable newSimplifyIntVariable(final CspFactory cf, final IntegerDomain domain) {
         final IntegerVariable var = cf.auxVariable(OrderEncoding.AUX_SIMPLE, domain);
         this.simplifyIntVariables.add(var);
         return var;
@@ -113,15 +113,15 @@ public class OrderEncodingContext implements CspEncodingContext {
      * Create a boolean variable representing of a certain index of an integer
      * variable. If an instance already exists, no new instance is created and
      * the existing one is returned.
+     * @param f       the formula factory
      * @param group   the integer variable
      * @param index   the queried index
-     * @param f       the formula factory
      * @param handler for processing encoding events
      * @return the boolean variable
      * @throws CspHandlerException if the computation was cancelled by the
      *                             handler
      */
-    protected Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f,
+    protected Variable newVariableInstance(final FormulaFactory f, final IntegerVariable group, final int index,
                                            final ComputationHandler handler) throws CspHandlerException {
         final Variable[] intMap = this.variableMap.get(group);
         assert index < intMap.length;

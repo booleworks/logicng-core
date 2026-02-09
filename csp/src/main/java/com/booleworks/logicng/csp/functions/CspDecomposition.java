@@ -26,18 +26,18 @@ public class CspDecomposition {
 
     /**
      * Decompose a formula into arithmetic clauses.
-     * @param formula the formula
      * @param cf      the factory
+     * @param formula the formula
      * @return the decomposition result
      */
-    public static CspPredicate.Decomposition decompose(final Formula formula, final CspFactory cf) {
+    public static CspPredicate.Decomposition decompose(final CspFactory cf, final Formula formula) {
         final Formula nnf = formula.nnf(cf.getFormulaFactory());
         final Set<CspPredicate.Decomposition> decompositions = new LinkedHashSet<>();
-        decomposeRecursive(nnf, cf, decompositions);
+        decomposeRecursive(cf, nnf, decompositions);
         return CspPredicate.Decomposition.merge(decompositions);
     }
 
-    protected static void decomposeRecursive(final Formula formula, final CspFactory cf,
+    protected static void decomposeRecursive(final CspFactory cf, final Formula formula,
                                              final Set<CspPredicate.Decomposition> decompositions) {
         switch (formula.getType()) {
             case FALSE:
@@ -48,14 +48,14 @@ public class CspDecomposition {
                 break;
             case AND:
                 for (final Formula op : formula) {
-                    decomposeRecursive(op, cf, decompositions);
+                    decomposeRecursive(cf, op, decompositions);
                 }
                 break;
             case OR:
                 CspPredicate.Decomposition factorized = null;
                 for (final Formula op : formula) {
                     final Set<CspPredicate.Decomposition> disj = new LinkedHashSet<>();
-                    decomposeRecursive(op, cf, disj);
+                    decomposeRecursive(cf, op, disj);
                     final CspPredicate.Decomposition disjMerged = CspPredicate.Decomposition.merge(disj);
                     if (factorized == null) {
                         factorized = disjMerged;
@@ -86,7 +86,7 @@ public class CspDecomposition {
                 final Not not = (Not) formula;
                 assert (not.getOperand().getType() == FType.PREDICATE);
                 if (not.getOperand() instanceof CspPredicate) {
-                    decomposeRecursive(((CspPredicate) not.getOperand()).negate(cf).nnf(cf.getFormulaFactory()), cf,
+                    decomposeRecursive(cf, ((CspPredicate) not.getOperand()).negate(cf).nnf(cf.getFormulaFactory()),
                             decompositions);
                 } else {
                     throw new RuntimeException("Cannot decompose predicates of type: " + not.getOperand().getClass());

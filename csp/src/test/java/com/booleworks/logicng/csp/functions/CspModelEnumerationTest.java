@@ -182,7 +182,7 @@ public class CspModelEnumerationTest extends ParameterizedCspTest {
                 assignmentFrom(a, 3, b, 3, A)
         ), m -> {
             final Formula restricted = formula.transform(new CspRestrictionFunction(cf, m));
-            final boolean isCompleteAssignment = CspDecomposition.decompose(restricted, cf).getClauses().isEmpty();
+            final boolean isCompleteAssignment = CspDecomposition.decompose(cf, restricted).getClauses().isEmpty();
             final boolean containsSmallE = m.getIntegerAssignments().containsKey(e)
                     && e.getDomain().contains(m.getIntegerAssignments().get(e));
             final boolean containsC = m.negativeBooleans().contains(C.negate(f)) || m.positiveBooleans().contains(C);

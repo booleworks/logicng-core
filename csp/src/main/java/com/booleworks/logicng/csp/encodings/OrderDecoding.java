@@ -28,10 +28,10 @@ public class OrderDecoding {
 
     /**
      * Constructs a new order decoding instance.
-     * @param context the encoding context
      * @param cf      the factory
+     * @param context the encoding context
      */
-    public OrderDecoding(final OrderEncodingContext context, final CspFactory cf) {
+    public OrderDecoding(final CspFactory cf, final OrderEncodingContext context) {
         this.context = context;
         this.cf = cf;
     }

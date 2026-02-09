@@ -95,11 +95,11 @@ public class ComparisonPredicate extends BinaryPredicate {
             }
         }
         if (right.getType() == Term.Type.ZERO) {
-            return decomposeEqZero(left, cf);
+            return decomposeEqZero(cf, left);
         } else if (left.getType() == Term.Type.ZERO) {
-            return decomposeEqZero(right, cf);
+            return decomposeEqZero(cf, right);
         }
-        return decomposeEqZero(cf.sub(left, right), cf);
+        return decomposeEqZero(cf, cf.sub(left, right));
     }
 
     protected Decomposition decomposeNe(final CspFactory cf) {
@@ -111,11 +111,11 @@ public class ComparisonPredicate extends BinaryPredicate {
             }
         }
         if (right.getType() == Term.Type.ZERO) {
-            return decomposeNeZero(left, cf);
+            return decomposeNeZero(cf, left);
         } else if (left.getType() == Term.Type.ZERO) {
-            return decomposeNeZero(right, cf);
+            return decomposeNeZero(cf, right);
         }
-        return decomposeNeZero(cf.sub(left, right), cf);
+        return decomposeNeZero(cf, cf.sub(left, right));
     }
 
     protected Decomposition decomposeLe(final CspFactory cf) {
@@ -138,7 +138,7 @@ public class ComparisonPredicate extends BinaryPredicate {
             final Term a1 = ((AbsoluteFunction) right).getOperand();
             return cf.decompose(cf.getFormulaFactory().or(cf.ge(a1, left), cf.le(a1, cf.minus(left))));
         }
-        return decomposeLeZero(cf.sub(left, right), cf);
+        return decomposeLeZero(cf, cf.sub(left, right));
     }
 
     protected Decomposition decomposeLt(final CspFactory cf) {
@@ -161,7 +161,7 @@ public class ComparisonPredicate extends BinaryPredicate {
             final Term a1 = ((AbsoluteFunction) right).getOperand();
             return cf.decompose(cf.getFormulaFactory().or(cf.gt(a1, left), cf.lt(a1, cf.minus(left))));
         }
-        return decomposeLeZero(cf.add(cf.sub(left, right), cf.one()), cf);
+        return decomposeLeZero(cf, cf.add(cf.sub(left, right), cf.one()));
     }
 
     protected Decomposition decomposeGe(final CspFactory cf) {
@@ -187,7 +187,7 @@ public class ComparisonPredicate extends BinaryPredicate {
             final Term a1 = ((AbsoluteFunction) right).getOperand();
             return cf.decompose(cf.getFormulaFactory().and(cf.le(a1, left), cf.ge(a1, cf.minus(left))));
         }
-        return decomposeLeZero(cf.sub(right, left), cf);
+        return decomposeLeZero(cf, cf.sub(right, left));
     }
 
     protected Decomposition decomposeGt(final CspFactory cf) {
@@ -211,15 +211,15 @@ public class ComparisonPredicate extends BinaryPredicate {
             return cf.decompose(cf.getFormulaFactory().or(cf.lt(a1, left), cf.gt(a1, cf.minus(left))
             ));
         }
-        return decomposeLeZero(cf.add(cf.sub(right, left), cf.one()), cf);
+        return decomposeLeZero(cf, cf.add(cf.sub(right, left), cf.one()));
     }
 
-    protected Decomposition decomposeEqZero(final Term term, final CspFactory cf) {
+    protected Decomposition decomposeEqZero(final CspFactory cf, final Term term) {
         // a*b = 0 implies a = 0 or b = 0
         if (term instanceof MultiplicationFunction) {
             final MultiplicationFunction mul = (MultiplicationFunction) term;
-            final Decomposition leftIsZero = decomposeEqZero(mul.getLeft(), cf);
-            final Decomposition rightIsZero = decomposeEqZero(mul.getRight(), cf);
+            final Decomposition leftIsZero = decomposeEqZero(cf, mul.getLeft());
+            final Decomposition rightIsZero = decomposeEqZero(cf, mul.getRight());
 
             return IntegerClause.factorize(leftIsZero, rightIsZero);
         }
@@ -235,12 +235,12 @@ public class ComparisonPredicate extends BinaryPredicate {
                 termDecomposition.getAuxiliaryBooleanVariables());
     }
 
-    protected Decomposition decomposeNeZero(final Term term, final CspFactory cf) {
+    protected Decomposition decomposeNeZero(final CspFactory cf, final Term term) {
         // a*b != 0 implies a != 0 and b != 0
         if (term instanceof MultiplicationFunction) {
             final MultiplicationFunction mul = (MultiplicationFunction) term;
-            final Decomposition d1 = decomposeNeZero(mul.getLeft(), cf);
-            final Decomposition d2 = decomposeNeZero(mul.getRight(), cf);
+            final Decomposition d1 = decomposeNeZero(cf, mul.getLeft());
+            final Decomposition d2 = decomposeNeZero(cf, mul.getRight());
             return Decomposition.merge(d1, d2);
         }
 
@@ -255,15 +255,15 @@ public class ComparisonPredicate extends BinaryPredicate {
                 termDecomposition.getAuxiliaryBooleanVariables());
     }
 
-    protected Decomposition decomposeLeZero(final Term term, final CspFactory cf) {
+    protected Decomposition decomposeLeZero(final CspFactory cf, final Term term) {
         // a1*a2 <= 0
         // <=> (a1 <= 0 & a2 >= 0) | (a1 >= 0 & a2 <= 0)
         // <=> (a1 <= 0 | a2 <= 0) & (a2 >= 0 | a1 >= 0)
         if (term instanceof MultiplicationFunction) {
             final Term a1 = ((MultiplicationFunction) term).getLeft();
             final Term a2 = ((MultiplicationFunction) term).getRight();
-            final Decomposition d1 = IntegerClause.factorize(decomposeLeZero(a1, cf), decomposeLeZero(a2, cf));
-            final Decomposition d2 = IntegerClause.factorize(decomposeGeZero(a1, cf), decomposeGeZero(a2, cf));
+            final Decomposition d1 = IntegerClause.factorize(decomposeLeZero(cf, a1), decomposeLeZero(cf, a2));
+            final Decomposition d2 = IntegerClause.factorize(decomposeGeZero(cf, a1), decomposeGeZero(cf, a2));
             return Decomposition.merge(d1, d2);
         }
         final Term.Decomposition termDecomposition = term.decompose(cf);
@@ -282,15 +282,15 @@ public class ComparisonPredicate extends BinaryPredicate {
                 termDecomposition.getAuxiliaryBooleanVariables());
     }
 
-    protected Decomposition decomposeGeZero(final Term term, final CspFactory cf) {
+    protected Decomposition decomposeGeZero(final CspFactory cf, final Term term) {
         // a1*a2 >= 0
         // <=> (a1 <= 0 & a2 <= 0) | (a1 >= 0 & a2 >= 0)
         // <=> (a1 <= 0 | a2 >= 0) & (a2 <= 0 | a1 >= 0)
         if (term instanceof MultiplicationFunction) {
             final Term a1 = ((MultiplicationFunction) term).getLeft();
             final Term a2 = ((MultiplicationFunction) term).getRight();
-            final Decomposition d1 = IntegerClause.factorize(decomposeLeZero(a1, cf), decomposeGeZero(a2, cf));
-            final Decomposition d2 = IntegerClause.factorize(decomposeGeZero(a1, cf), decomposeLeZero(a2, cf));
+            final Decomposition d1 = IntegerClause.factorize(decomposeLeZero(cf, a1), decomposeGeZero(cf, a2));
+            final Decomposition d2 = IntegerClause.factorize(decomposeGeZero(cf, a1), decomposeLeZero(cf, a2));
             return Decomposition.merge(d1, d2);
         }
         final Term.Decomposition termDecomposition = term.decompose(cf);

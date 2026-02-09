@@ -104,11 +104,11 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
 
     /**
      * Creates and stores a new integer variable representing a digit.
-     * @param d  the domain of the digit
      * @param cf the factory
+     * @param d  the domain of the digit
      * @return the integer variable representing a digit.
      */
-    protected IntegerVariable newAuxiliaryDigitVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newAuxiliaryDigitVariable(final CspFactory cf, final IntegerDomain d) {
         final IntegerVariable v = cf.auxVariable(CompactOrderEncoding.AUX_DIGIT, d);
         auxiliaryDigitVariables.add(v);
         return v;
@@ -207,12 +207,12 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
 
     /**
      * Creates and stores new auxiliary variable for adjusted variables.
+     * @param cf     the factory
      * @param prefix the prefix of variable's name
      * @param d      the domain of the variable
-     * @param cf     the factory
      * @return the new variable
      */
-    protected IntegerVariable newAdjustedVariable(final String prefix, final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newAdjustedVariable(final CspFactory cf, final String prefix, final IntegerDomain d) {
         final IntegerVariable v = cf.auxVariable(prefix, d);
         adjustedVariables.add(v);
         return v;
@@ -305,11 +305,11 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     /**
      * Creates and stores new auxiliary variable for splitting arithmetic
      * literals to ternary literals.
-     * @param d  the domain of the variable
      * @param cf the factory
+     * @param d  the domain of the variable
      * @return the auxiliary variable
      */
-    protected IntegerVariable newTernarySimplificationVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newTernarySimplificationVariable(final CspFactory cf, final IntegerDomain d) {
         final IntegerVariable v = cf.auxVariable(CompactOrderEncoding.AUX_TERNARY, d);
         ternarySimplificationVariables.add(v);
         return v;
@@ -328,11 +328,11 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     /**
      * Creates and stores an auxiliary variable that is used to created RCSP
      * literals.
-     * @param d  the domain
      * @param cf the factory
+     * @param d  the domain
      * @return the auxiliary variable
      */
-    protected IntegerVariable newRCSPVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newRCSPVariable(final CspFactory cf, final IntegerDomain d) {
         final IntegerVariable v = cf.auxVariable(CompactOrderEncoding.AUX_RCSP, d);
         rcspVariables.add(v);
         return v;
@@ -348,11 +348,11 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
 
     /**
      * Create and store an auxiliary variable used for CCSP clauses.
-     * @param d  the domain
      * @param cf the factory
+     * @param d  the domain
      * @return new auxiliary variable
      */
-    protected IntegerVariable newCCSPVariable(final IntegerDomain d, final CspFactory cf) {
+    protected IntegerVariable newCCSPVariable(final CspFactory cf, final IntegerDomain d) {
         final IntegerVariable v = cf.auxVariable(CompactOrderEncoding.AUX_CCSP, d);
         ccspVariables.add(v);
         return v;
