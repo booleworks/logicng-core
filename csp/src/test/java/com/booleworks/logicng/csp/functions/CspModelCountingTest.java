@@ -43,6 +43,6 @@ public class CspModelCountingTest {
         final EncodingResult result =
                 new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
-        return CspModelEnumeration.enumerate(solver, csp, context, cf);
+        return CspModelEnumeration.builderFromCsp(cf, csp).build().enumerate(solver, context);
     }
 }

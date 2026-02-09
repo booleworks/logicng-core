@@ -66,7 +66,9 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
                 .collect(Collectors.toList());
 
         final List<CspAssignment> models =
-                CspModelEnumeration.enumerate(solver, csp.getVisibleIntegerVariables(), hookVars, context, cf);
+                CspModelEnumeration.builderFromVariables(cf, csp.getVisibleIntegerVariables(), hookVars)
+                        .build()
+                        .enumerate(solver, context);
         for (final CspAssignment m : models) {
             for (final var h : hooks.getHooks().entrySet()) {
                 final int real_value = m.getIntegerAssignments().get(h.getKey());
@@ -152,7 +154,9 @@ public class CspValueHookEncodingTest extends ParameterizedCspTest {
         cf.encodeCsp(csp, context, result);
 
         final List<CspAssignment> models =
-                CspModelEnumeration.enumerate(solver, csp.getVisibleIntegerVariables(), Set.of(), context, cf);
+                CspModelEnumeration.builderFromVariables(cf, csp.getVisibleIntegerVariables(), Set.of())
+                        .build()
+                        .enumerate(solver, context);
         final Map<IntegerVariable, Set<Integer>> allowedValues = new HashMap<>();
         for (final CspAssignment model : models) {
             model.getIntegerAssignments().forEach((key, value) ->

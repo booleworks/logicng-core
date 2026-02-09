@@ -76,7 +76,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
         final EncodingResult result =
                 new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
-        return CspModelEnumeration.enumerate(solver, csp, context, cf);
+        return CspModelEnumeration.builderFromCsp(cf, csp).build().enumerate(solver, context);
     }
 
     private List<CspAssignment> enumerateOrder(final CspPredicate p, final List<IntegerVariable> vars,
@@ -87,7 +87,9 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
                 solver.getUnderlyingSolver(), null);
         final Csp expectedCsp = cf.buildCsp(p);
         cf.encodeCsp(expectedCsp, context, result);
-        return CspModelEnumeration.enumerate(solver, vars, expectedCsp.getVisibleBooleanVariables(), context, cf);
+        return CspModelEnumeration.builderFromVariables(cf, vars, expectedCsp.getVisibleBooleanVariables())
+                .build()
+                .enumerate(solver, context);
     }
 
     @ParameterizedTest
@@ -115,7 +117,9 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
             }
             cf.encodeConstraint(p, context, result);
             final List<CspAssignment> models =
-                    CspModelEnumeration.enumerate(solver, List.of(a, b, c, d, e), Collections.emptyList(), context, cf);
+                    CspModelEnumeration.builderFromVariables(cf, List.of(a, b, c, d, e), Collections.emptyList())
+                            .build()
+                            .enumerate(solver, context);
 
             final List<CspAssignment> expectedModels = enumerateOrder(p, List.of(a, b, c, d, e), cf);
             assertThat(models).containsExactlyInAnyOrderElementsOf(expectedModels);

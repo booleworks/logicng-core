@@ -374,7 +374,8 @@ public class TermFunctionEncodingTest extends ParameterizedCspTest {
         final EncodingResult result =
                 new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
-        final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
+        final List<CspAssignment> models =
+                CspModelEnumeration.builderFromCsp(cf, csp).build().enumerate(solver, context);
         assertThat(models).containsExactlyInAnyOrderElementsOf(expected);
     }
 }
