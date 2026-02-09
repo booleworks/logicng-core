@@ -38,7 +38,7 @@ public class CspBackboneTest extends ParameterizedCspTest {
         cf.encodeCsp(csp, context, result);
 
         final CspBackbone backbone =
-                CspBackboneGeneration.fromCsp(BackboneType.POSITIVE_AND_NEGATIVE, csp, cf)
+                CspBackboneGeneration.builderFromCsp(cf, csp).backboneType(BackboneType.POSITIVE_AND_NEGATIVE).build()
                         .compute(solver, context, result);
         assertThat(backbone.getMandatory().keySet()).containsExactly(cf.getVariable("a"));
         assertThat(backbone.getMandatory().values()).containsExactly(3);
@@ -64,8 +64,10 @@ public class CspBackboneTest extends ParameterizedCspTest {
         final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
 
-        final CspBackbone backbone =
-                CspBackboneGeneration.fromCsp(BackboneType.ONLY_POSITIVE, csp, cf).compute(solver, context, result);
+        final CspBackbone backbone = CspBackboneGeneration.builderFromCsp(cf, csp)
+                .backboneType(BackboneType.ONLY_POSITIVE)
+                .build()
+                .compute(solver, context, result);
         assertThat(backbone.getMandatory().keySet()).containsExactly(cf.getVariable("a"));
         assertThat(backbone.getMandatory().values()).containsExactly(3);
         assertThat(backbone.getForbidden()).isEmpty();
@@ -86,8 +88,10 @@ public class CspBackboneTest extends ParameterizedCspTest {
         final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
 
-        final CspBackbone backbone =
-                CspBackboneGeneration.fromCsp(BackboneType.ONLY_NEGATIVE, csp, cf).compute(solver, context, result);
+        final CspBackbone backbone = CspBackboneGeneration.builderFromCsp(cf, csp)
+                .backboneType(BackboneType.ONLY_NEGATIVE)
+                .build()
+                .compute(solver, context, result);
         assertThat(backbone.getMandatory()).isEmpty();
         assertThat(backbone.getForbidden()).hasSize(2);
         assertThat(backbone.getForbidden().containsKey(cf.getVariable("a"))).isTrue();

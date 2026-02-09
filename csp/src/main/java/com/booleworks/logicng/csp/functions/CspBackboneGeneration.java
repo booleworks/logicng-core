@@ -35,70 +35,15 @@ import java.util.stream.Collectors;
  */
 public class CspBackboneGeneration {
     protected final BackboneType type;
-    protected final Collection<IntegerVariable> integerVariables;
-    protected final Collection<Variable> booleanVariables;
+    protected final List<IntegerVariable> integerVariables;
+    protected final List<Variable> booleanVariables;
     protected final CspFactory cf;
 
-    protected CspBackboneGeneration(final BackboneType type,
-                                    final Collection<IntegerVariable> integerVariables,
-                                    final Collection<Variable> booleanVariables,
-                                    final CspFactory cf) {
-        this.type = type;
-        this.integerVariables = integerVariables;
-        this.booleanVariables = booleanVariables;
-        this.cf = cf;
-    }
-
-    /**
-     * Construct a new backbone generation instance respecting a set of boolean
-     * and integer variables.
-     * @param type             the backbone computation type
-     * @param integerVariables relevant integer variables
-     * @param booleanVariables relevant boolean variables
-     * @param cf               the factory
-     * @return the generation instance
-     */
-    public static CspBackboneGeneration fromVariables(final BackboneType type,
-                                                      final Collection<IntegerVariable> integerVariables,
-                                                      final Collection<Variable> booleanVariables,
-                                                      final CspFactory cf) {
-        return new CspBackboneGeneration(type, integerVariables, booleanVariables, cf);
-    }
-
-    /**
-     * Construct a new backbone generation instance respecting a set of boolean
-     * and integer variables.
-     * @param integerVariables relevant integer variables
-     * @param booleanVariables relevant boolean variables
-     * @param cf               the factory
-     * @return the generation instance
-     */
-    public static CspBackboneGeneration fromVariables(final Collection<IntegerVariable> integerVariables,
-                                                      final Collection<Variable> booleanVariables,
-                                                      final CspFactory cf) {
-        return new CspBackboneGeneration(BackboneType.POSITIVE_AND_NEGATIVE, integerVariables, booleanVariables, cf);
-    }
-
-    /**
-     * Construct a new backbone generation instance respecting the variables of a CSP problem.
-     * @param type the backbone computation type
-     * @param csp  the CSP problem
-     * @param cf   the factory
-     * @return the generation instance
-     */
-    public static CspBackboneGeneration fromCsp(final BackboneType type, final Csp csp, final CspFactory cf) {
-        return new CspBackboneGeneration(type, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(), cf);
-    }
-
-    /**
-     * Construct a new backbone generation instance respecting the variables of a CSP problem.
-     * @param csp the CSP problem
-     * @param cf  the factory
-     * @return the generation instance
-     */
-    public static CspBackboneGeneration fromCsp(final Csp csp, final CspFactory cf) {
-        return new CspBackboneGeneration(BackboneType.POSITIVE_AND_NEGATIVE, csp.getVisibleIntegerVariables(),
-                csp.getVisibleBooleanVariables(), cf);
+    protected CspBackboneGeneration(final Builder builder) {
+        this.type = builder.type;
+        this.integerVariables = new ArrayList<>(builder.integerVariables);
+        this.booleanVariables = new ArrayList<>(builder.booleanVariables);
+        this.cf = builder.cf;
     }
 
     /**
@@ -130,7 +75,7 @@ public class CspBackboneGeneration {
                                           final EncodingResult result, final ComputationHandler handler) {
         final CspValueHookMap valueHooks =
                 CspValueHookEncoding.encodeValueHooks(integerVariables, context, result, cf);
-        return compute(solver, valueHooks, context, handler);
+        return compute(solver, valueHooks, handler);
     }
 
     /**
@@ -140,12 +85,10 @@ public class CspBackboneGeneration {
      * solver.
      * @param solver     the solver with the csp on it
      * @param valueHooks the value hooks
-     * @param context    the encoding context
      * @return the backbone
      */
-    public CspBackbone compute(final SatSolver solver, final CspValueHookMap valueHooks,
-                               final CspEncodingContext context) {
-        return compute(solver, valueHooks, context, NopHandler.get()).getResult();
+    public CspBackbone compute(final SatSolver solver, final CspValueHookMap valueHooks) {
+        return compute(solver, valueHooks, NopHandler.get()).getResult();
     }
 
     /**
@@ -155,12 +98,11 @@ public class CspBackboneGeneration {
      * solver.
      * @param solver     the solver with the csp on it
      * @param valueHooks the value hooks
-     * @param context    the encoding context
      * @param handler    handler for processing events
      * @return the backbone
      */
     public LngResult<CspBackbone> compute(final SatSolver solver, final CspValueHookMap valueHooks,
-                                          final CspEncodingContext context, final ComputationHandler handler) {
+                                          final ComputationHandler handler) {
         final List<Variable> hookVariables = valueHooks.getHooks().values().stream()
                 .flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
         final List<Variable> relevantVariables = new ArrayList<>(booleanVariables);
@@ -210,5 +152,92 @@ public class CspBackboneGeneration {
                 backbone.getOptionalVariables().stream().filter(relevantVariables::contains)
                         .collect(Collectors.toCollection(TreeSet::new))
         );
+    }
+
+    /**
+     * Get a backbone function builder from the sets of relevant variables.
+     * @param cf               the factory
+     * @param integerVariables the relevant integer variables
+     * @param booleanVariables the relevant boolean variables
+     * @return a backbone function builder
+     */
+    public static Builder builderFromVariables(final CspFactory cf, final Collection<IntegerVariable> integerVariables,
+                                               final Collection<Variable> booleanVariables) {
+        return new Builder(cf, integerVariables, booleanVariables);
+    }
+
+    /**
+     * Get a backbone function builder from the variables of {@code csp}.
+     * @param cf  the factory
+     * @param csp the CSP problem
+     * @return a backbone function builder
+     */
+    public static Builder builderFromCsp(final CspFactory cf, final Csp csp) {
+        return new Builder(cf, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables());
+    }
+
+    /**
+     * Backbone function builder.
+     */
+    public static final class Builder {
+        private BackboneType type = BackboneType.POSITIVE_AND_NEGATIVE;
+        private Collection<IntegerVariable> integerVariables;
+        private Collection<Variable> booleanVariables;
+        private CspFactory cf;
+
+        private Builder(final CspFactory cf, final Collection<IntegerVariable> integerVariables,
+                        final Collection<Variable> booleanVariables) {
+            this.cf = cf;
+            this.integerVariables = integerVariables;
+            this.booleanVariables = booleanVariables;
+        }
+
+        /**
+         * Sets the factory.
+         * @param cf the factory
+         * @return this builder
+         */
+        public Builder factory(final CspFactory cf) {
+            this.cf = cf;
+            return this;
+        }
+
+        /**
+         * Sets the relevant integer variables.
+         * @param integerVariables the relevant integer variables
+         * @return this builder
+         */
+        public Builder integerVariables(final Collection<IntegerVariable> integerVariables) {
+            this.integerVariables = integerVariables;
+            return this;
+        }
+
+        /**
+         * Sets the relevant boolean variables.
+         * @param booleanVariables the relevant boolean variables
+         * @return this builder
+         */
+        public Builder booleanVariables(final Collection<Variable> booleanVariables) {
+            this.booleanVariables = booleanVariables;
+            return this;
+        }
+
+        /**
+         * Set the type of the backbone computation
+         * @param type the backbone type
+         * @return this builder
+         */
+        public Builder backboneType(final BackboneType type) {
+            this.type = type;
+            return this;
+        }
+
+        /**
+         * Builds the backbone function.
+         * @return the backbone function
+         */
+        public CspBackboneGeneration build() {
+            return new CspBackboneGeneration(this);
+        }
     }
 }
