@@ -80,10 +80,13 @@ public abstract class CspPredicate implements Predicate {
     public abstract void variablesInplace(SortedSet<IntegerVariable> variables);
 
     /**
-     *
-     * @param cf
-     * @param restrictions
-     * @return
+     * Replaces the integer variables with the corresponding constant values
+     * contained in {@code restrictions}.
+     * @param cf           the factory
+     * @param restrictions assignment containing the restrictions
+     * @return the restricted predicate
+     * @throws IllegalArgumentException if the restricted value of a variable is
+     *                                  not in the domain of the variable.
      */
     public abstract CspPredicate restrict(CspFactory cf, CspAssignment restrictions);
 

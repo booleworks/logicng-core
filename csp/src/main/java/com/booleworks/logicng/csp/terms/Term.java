@@ -82,7 +82,7 @@ public abstract class Term {
      * contained in {@code restrictions}.
      * @param cf           the factory
      * @param restrictions assignment containing the restrictions
-     * @return the restricted predicate
+     * @return the restricted term
      * @throws IllegalArgumentException if the restricted value of a variable is
      *                                  not in the domain of the variable.
      */
