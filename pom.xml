@@ -56,7 +56,7 @@
 
     <!-- Dependency Versions -->
     <version.junit>5.11.0</version.junit>
-    <version.assertj>3.26.3</version.assertj>
+    <version.assertj>3.27.7</version.assertj>
     <version.mockito>5.2.0</version.mockito>
     <version.antlr>4.13.2</version.antlr>
     <version.protobuf>4.28.2</version.protobuf>
