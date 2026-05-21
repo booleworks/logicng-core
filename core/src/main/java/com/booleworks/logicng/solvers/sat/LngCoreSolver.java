@@ -307,7 +307,7 @@ public class LngCoreSolver {
      * @param x the first variable
      * @param y the second variable
      * @return {@code true} if the first variable's activity is larger than the
-     * second one's
+     *         second one's
      */
     public boolean lt(final int x, final int y) {
         return vars.get(x).activity() > vars.get(y).activity();
@@ -382,7 +382,7 @@ public class LngCoreSolver {
      * @param ps          the literals of the clause
      * @param proposition a proposition (if required for proof tracing)
      * @return {@code true} if the clause was added successfully, {@code false}
-     * otherwise
+     *         otherwise
      * @throws IllegalStateException if a {@link SatCall} is currently running
      *                               on this solver
      */
@@ -392,17 +392,19 @@ public class LngCoreSolver {
         int p;
         int i;
         int j;
+        ps.sort();
         if (config.proofGeneration) {
             final LngIntVector vec = new LngIntVector(ps.size());
             for (i = 0; i < ps.size(); i++) {
-                vec.push((var(ps.get(i)) + 1) * (-2 * (sign(ps.get(i)) ? 1 : 0) + 1));
+                if (i == 0 || ps.get(i) != ps.get(i - 1)) {
+                    vec.push((var(ps.get(i)) + 1) * (-2 * (sign(ps.get(i)) ? 1 : 0) + 1));
+                }
             }
             pgOriginalClauses.push(new ProofInformation(vec, proposition));
         }
         if (!ok) {
             return false;
         }
-        ps.sort();
 
         boolean flag = false;
         LngIntVector oc = null;
@@ -540,7 +542,7 @@ public class LngCoreSolver {
      * Returns {@code false} if this solver is known to be in a conflicting
      * state, otherwise {@code true}.
      * @return {@code false} if this solver is known to be in a conflicting
-     * state, otherwise {@code true}
+     *         state, otherwise {@code true}
      */
     public boolean ok() {
         return ok;
@@ -865,7 +867,7 @@ public class LngCoreSolver {
     /**
      * Performs unit propagation.
      * @return the conflicting clause if a conflict arose during unit
-     * propagation or {@code null} if there was none
+     *         propagation or {@code null} if there was none
      */
     protected LngClause propagate() {
         LngClause confl = null;
@@ -966,7 +968,7 @@ public class LngCoreSolver {
      * @param abstractLevels an abstraction of levels
      * @param analyzeToClear helper vector
      * @return {@code true} if a given literal is redundant in the current
-     * conflict analysis
+     *         conflict analysis
      */
     protected boolean litRedundant(final int p, final int abstractLevels, final LngIntVector analyzeToClear) {
         final LngIntVector analyzeStack = new LngIntVector();
@@ -1134,9 +1136,9 @@ public class LngCoreSolver {
      * The main search procedure of the CDCL algorithm.
      * @param handler the computation handler
      * @return a {@link Tristate} representing the result. {@code FALSE} if the
-     * formula is UNSAT, {@code TRUE} if the formula is SAT, and
-     * {@code UNDEF} if the state is not known yet (restart) or the
-     * handler canceled the computation
+     *         formula is UNSAT, {@code TRUE} if the formula is SAT, and
+     *         {@code UNDEF} if the state is not known yet (restart) or the
+     *         handler canceled the computation
      */
     protected LngResult<Tristate> search(final ComputationHandler handler) {
         if (!ok) {
@@ -1160,7 +1162,7 @@ public class LngCoreSolver {
                 }
                 trailQueue.push(trail.size());
                 if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() &&
-                        trail.size() > llConfig.factorR * trailQueue.avg()) {
+                    trail.size() > llConfig.factorR * trailQueue.avg()) {
                     lbdQueue.fastClear();
                 }
                 learntClause.clear();
@@ -1340,7 +1342,7 @@ public class LngCoreSolver {
             }
             for (i = j = 1; i < outLearnt.size(); i++) {
                 if (v(outLearnt.get(i)).reason() == null ||
-                        !litRedundant(outLearnt.get(i), abstractLevel, analyzeToClear)) {
+                    !litRedundant(outLearnt.get(i), abstractLevel, analyzeToClear)) {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
@@ -1602,7 +1604,7 @@ public class LngCoreSolver {
      * Returns {@code true} if a {@link SatCall} is currently using this solver,
      * otherwise {@code false}.
      * @return {@code true} if a {@link SatCall} is currently using this solver,
-     * otherwise {@code false}
+     *         otherwise {@code false}
      */
     public boolean inSatCall() {
         return inSatCall;
@@ -1682,9 +1684,9 @@ public class LngCoreSolver {
         @Override
         public String toString() {
             return "ProofInformation{" +
-                    "clause=" + clause +
-                    ", proposition=" + proposition +
-                    '}';
+                   "clause=" + clause +
+                   ", proposition=" + proposition +
+                   '}';
         }
     }
 
@@ -1725,7 +1727,7 @@ public class LngCoreSolver {
      * @param type      backbone type
      * @param handler   the handler
      * @return the backbone projected to the relevant variables or {@code null}
-     * if the computation was canceled by the handler
+     *         if the computation was canceled by the handler
      */
     public LngResult<Backbone> computeBackbone(final Collection<Variable> variables, final BackboneType type,
                                                final ComputationHandler handler) {
@@ -1795,7 +1797,7 @@ public class LngCoreSolver {
      * @param type      the type of the backbone
      * @param handler   the handler
      * @return {@code null} if the computation was successful or the
-     * cancellation cause if the computation was cancelled by the handler
+     *         cancellation cause if the computation was cancelled by the handler
      */
     protected LngEvent computeBackbone(final List<Integer> variables, final BackboneType type,
                                        final ComputationHandler handler) {
@@ -1917,7 +1919,7 @@ public class LngCoreSolver {
      * satisfiable before.
      * @param var variable index to test
      * @return {@code true} if the variable is a unit propagated literal on
-     * level 0, otherwise {@code false}
+     *         level 0, otherwise {@code false}
      */
     protected boolean isUpZeroLit(final int var) {
         return vars.get(var).level() == 0;

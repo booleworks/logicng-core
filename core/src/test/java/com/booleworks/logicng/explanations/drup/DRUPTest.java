@@ -327,6 +327,16 @@ public class DRUPTest implements LogicNGTest {
                 p11);
     }
 
+    @Test
+    public void testPBConstraintEdgeCase() {
+        final FormulaFactory f = FormulaFactory.caching();
+        final StandardProposition proposition = new StandardProposition(parse(f, "a + a = 1"));
+        final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().proofGeneration(true).build());
+        solver.add(proposition);
+        assertThat(solver.sat()).isFalse();
+        assertThat(solver.satCall().unsatCore().getPropositions()).containsExactly(proposition);
+    }
+
     /**
      * Checks that each formula of the core is part of the original problem and
      * that the core is really unsat.
